@@ -4,6 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Metro Tycoon KL Online</title>
+<meta name="description" content="Permainan papan hartanah bertemakan laluan rel Lembah Klang. Cipta bilik, kongsi kod lima aksara, dan main bersama kawan — atau lawan bot pada satu peranti.">
+<meta name="theme-color" id="metaTheme" content="#E3E9EC">
+<link rel="icon" href="data:image/svg+xml,<svg%20xmlns="http://www.w3.org/2000/svg"%20viewBox="0%200%2032%2032"><rect%20width="32"%20height="32"%20rx="7"%20fill="%2314202A"/><rect%20x="4.5"%20y="7"%20width="4"%20height="18"%20rx="2"%20fill="%23D6124F"/><rect%20x="10.5"%20y="7"%20width="4"%20height="18"%20rx="2"%20fill="%23EE7A00"/><rect%20x="16.5"%20y="7"%20width="4"%20height="18"%20rx="2"%20fill="%230B8A45"/><rect%20x="22.5"%20y="7"%20width="4"%20height="18"%20rx="2"%20fill="%23E8B400"/></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg%20xmlns="http://www.w3.org/2000/svg"%20viewBox="0%200%2032%2032"><rect%20width="32"%20height="32"%20rx="7"%20fill="%2314202A"/><rect%20x="4.5"%20y="7"%20width="4"%20height="18"%20rx="2"%20fill="%23D6124F"/><rect%20x="10.5"%20y="7"%20width="4"%20height="18"%20rx="2"%20fill="%23EE7A00"/><rect%20x="16.5"%20y="7"%20width="4"%20height="18"%20rx="2"%20fill="%230B8A45"/><rect%20x="22.5"%20y="7"%20width="4"%20height="18"%20rx="2"%20fill="%23E8B400"/></svg>">
+<meta name="apple-mobile-web-app-title" content="Metro Tycoon KL">
+<!-- Kad pautan untuk WhatsApp, Telegram dan rangkaian sosial -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Metro Tycoon KL">
+<meta property="og:title" content="Metro Tycoon KL">
+<meta property="og:description" content="Permainan papan hartanah bertemakan laluan rel Lembah Klang. Cipta bilik, kongsi kod lima aksara, dan main bersama kawan — atau lawan bot pada satu peranti.">
+<meta property="og:url" content="https://farezbaharom-cmyk.github.io/metro-tycoon/">
+<meta property="og:image" content="https://farezbaharom-cmyk.github.io/metro-tycoon/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Papan permainan Metro Tycoon KL, edisi Lembah Klang">
+<meta property="og:locale" content="ms_MY">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
@@ -223,7 +240,9 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .mini:hover:not(:disabled){background:var(--soft)}
 .mini:disabled{opacity:.35;cursor:not-allowed}
 .log{list-style:none;margin:0;padding:0 16px 14px;max-height:220px;overflow:auto;font-size:12.5px;display:flex;flex-direction:column;gap:5px}
-.log li{color:var(--muted)}
+.log li{color:var(--muted);display:grid;grid-template-columns:1.2em 1fr;gap:7px;align-items:start}
+.log .lic{font-size:12.5px;line-height:1.45;text-align:center;font-style:normal;
+  font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",var(--body)}
 .log li:first-child{color:var(--ink);font-weight:600}
 .empty{padding:4px 16px 14px;color:var(--muted);font-size:13px}
 
@@ -348,6 +367,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:60;width:100%;heigh
   <div class="brand"><span class="lines"><i style="background:#D6124F"></i><i style="background:#EE7A00"></i><i style="background:#0B8A45"></i><i style="background:#E8B400"></i></span>Metro Tycoon KL</div>
   <div class="sp"></div>
   <button class="ghost roomchip" id="roomChip" type="button" hidden title="Salin pautan jemputan"></button>
+  <button class="ghost" id="btnTheme" type="button">Tema: Auto</button>
   <button class="ghost" id="btnSound" type="button">Bunyi: Hidup</button>
   <button class="ghost" id="btnRules" type="button">Peraturan</button>
   <button class="ghost" id="btnFinish" type="button">Tamatkan &amp; kira</button>
@@ -706,7 +726,13 @@ function newGame(names,qual,endLaps,cash,bots,useAuc){
 const cur=()=>S.players[S.turn];
 const fmt=n=>(n<0?'−':'')+'RM'+Math.abs(n).toLocaleString('en-MY');
 const sleep=ms=>new Promise(r=>setTimeout(r,RM?Math.min(ms,30):ms));
-function addLog(t){S.log.unshift(t);S.log.length=Math.min(S.log.length,80)}
+const LOG_ICON={dadu:'🎲',beli:'🏠',sewa:'💸',bina:'🔨',lelong:'⚖️',lokap:'🔒'};
+const LOG_SEP='\u001f';   /* pemisah tak boleh ditaip, jadi nama pemain tidak mungkin mengelirukannya */
+function addLog(t,k){S.log.unshift(k&&LOG_ICON[k]?k+LOG_SEP+t:t);S.log.length=Math.min(S.log.length,80)}
+/* Catatan lama (simpanan atau bilik yang belum dinaik taraf) tiada awalan — ia dipaparkan tanpa ikon. */
+function logParts(l){const v=String(l),i=v.indexOf(LOG_SEP);
+  if(i>0){const k=v.slice(0,i);if(LOG_ICON[k])return[LOG_ICON[k],v.slice(i+1)]}
+  return['',v]}
 /* Simpan hanya sempadan tindakan yang lengkap. Animasi, kad berantai dan
    bayaran semasa pergerakan mesti selesai sebelum mengganti checkpoint. */
 function save(){
@@ -754,7 +780,7 @@ function receive(p,a){p.cash+=a;addLog(`${p.name} terima ${fmt(a)}.`);S.msg=`${p
 function pay(p,a,to=null){
   p.cash-=a; if(to!==null){S.players[to].cash+=a}
   if(p.cash<0)p.creditor=to;
-  const t=`${p.name} bayar ${fmt(a)}${to!==null?' kepada '+S.players[to].name:''}.`;addLog(t);S.msg=t;sfx.pay();
+  const t=`${p.name} bayar ${fmt(a)}${to!==null?' kepada '+S.players[to].name:''}.`;addLog(t,'sewa');S.msg=t;sfx.pay();
 }
 function eachOther(p,amt){
   S.players.forEach((o,i)=>{if(o===p||o.bankrupt)return;
@@ -834,7 +860,7 @@ function hop(k,from,to,last){
 }
 async function advanceTo(p,target,opts){await walk(p,(target-p.pos+40)%40);await land(p,opts)}
 function goJail(p){p.pos=10;p.inJail=true;p.jailTurns=0;S.again=false;S.doubles=0;
-  S.msg=`${p.name} dihantar ke Lokap!`;addLog(S.msg);sfx.jail()}
+  S.msg=`${p.name} dihantar ke Lokap!`;addLog(S.msg,'lokap');sfx.jail()}
 
 async function land(p,opts={}){
   const i=p.pos,s=SQ[i],pi=S.players.indexOf(p);
@@ -844,7 +870,7 @@ async function land(p,opts={}){
     if(o===null){S.phase='buy';S.msg=`${s.n} belum dimiliki. Beli dengan ${fmt(s.p)}?`;return}
     if(o===pi){S.msg=`${p.name} singgah di hartanah sendiri.`;return}
     if(S.mort[i]){S.msg=`${s.n} sedang digadai. Tiada sewa.`;addLog(S.msg);return}
-    let ro=opts;if(opts.util10){const a=r6(),b=r6();ro={...opts,roll:a+b};addLog(`Dadu utiliti: ${a}+${b}.`)}
+    let ro=opts;if(opts.util10){const a=r6(),b=r6();ro={...opts,roll:a+b};addLog(`Dadu utiliti: ${a}+${b}.`,'dadu')}
     pay(p,rentOf(i,ro),o);S.msg=`Sewa ${s.n}: ${p.name} bayar ${fmt(rentOf(i,ro))} kepada ${S.players[o].name}.`;flash(i);return}
   if(s.t==='tax'){pay(p,s.a);S.msg=`${s.n}: ${p.name} bayar ${fmt(s.a)}.`;return}
   if(s.t==='gojail'){goJail(p);return}
@@ -868,14 +894,14 @@ async function rollDice(){
   const p=cur();S.phase='moving';S.rollId=(S.rollId||0)+1;sfx.dice();
   const a=r6(),b=r6(),dbl=a===b;S.dice=[a,b];
   rollDiceAnim();await sleep(800);
-  addLog(`${p.name} baling ${a} + ${b}${dbl?' (ganda!)':''}.`);
+  addLog(`${p.name} baling ${a} + ${b}${dbl?' (ganda!)':''}.`,'dadu');
   if(p.inJail){
-    if(dbl){p.inJail=false;S.again=false;S.msg=`Dadu ganda! ${p.name} bebas dari Lokap.`;addLog(S.msg);renderAll();await sleep(500);await walk(p,a+b);await land(p)}
+    if(dbl){p.inJail=false;S.again=false;S.msg=`Dadu ganda! ${p.name} bebas dari Lokap.`;addLog(S.msg,'lokap');renderAll();await sleep(500);await walk(p,a+b);await land(p)}
     else{p.jailTurns++;
-      if(p.jailTurns>=3){pay(p,50);p.inJail=false;S.again=false;addLog(`${p.name} bayar denda RM50 selepas 3 giliran.`);renderAll();await sleep(500);await walk(p,a+b);await land(p)}
+      if(p.jailTurns>=3){pay(p,50);p.inJail=false;S.again=false;addLog(`${p.name} bayar denda RM50 selepas 3 giliran.`,'lokap');renderAll();await sleep(500);await walk(p,a+b);await land(p)}
       else{S.msg=`Bukan ganda. ${p.name} kekal di Lokap (${p.jailTurns}/3).`;S.again=false}}
   }else{
-    if(dbl){S.doubles++;if(S.doubles===3){addLog('Tiga kali ganda berturut-turut!');goJail(p);settle();busy=false;renderAll();flushRemote();return}}
+    if(dbl){S.doubles++;if(S.doubles===3){addLog('Tiga kali ganda berturut-turut!','dadu');goJail(p);settle();busy=false;renderAll();flushRemote();return}}
     S.again=dbl;await walk(p,a+b);await land(p);
   }
   if(S.phase!=='buy')settle();busy=false;renderAll();flushRemote();
@@ -885,8 +911,8 @@ function settle(){const p=cur();
   S.phase=(S.again&&!p.inJail&&!p.bankrupt)?'roll':'end';
   if(S.phase==='roll')S.msg+=` Dadu ganda — baling lagi!`}
 function buy(){const p=cur(),i=p.pos,s=SQ[i];if(S.phase!=='buy'||p.cash<s.p||tradePending())return;
-  p.cash-=s.p;S.owner[i]=S.turn;S.msg=`${p.name} beli ${s.n} dengan ${fmt(s.p)}.`;addLog(S.msg);sfx.coin();
-  if(s.t==='prop'&&hasSet(S.turn,s.g)){toastAll(`${p.name} lengkapkan laluan ${GROUPS[s.g].n}! Sewa berganda.`);addLog(`${p.name} kini memiliki set penuh ${GROUPS[s.g].n}.`)}
+  p.cash-=s.p;S.owner[i]=S.turn;S.msg=`${p.name} beli ${s.n} dengan ${fmt(s.p)}.`;addLog(S.msg,'beli');sfx.coin();
+  if(s.t==='prop'&&hasSet(S.turn,s.g)){toastAll(`${p.name} lengkapkan laluan ${GROUPS[s.g].n}! Sewa berganda.`);addLog(`${p.name} kini memiliki set penuh ${GROUPS[s.g].n}.`,'beli')}
   settle();renderAll()}
 function pass(){if(S.phase!=='buy'||tradePending())return;
   const i=cur().pos;S.msg=`${cur().name} tidak membeli ${SQ[i].n}.`;addLog(S.msg);
@@ -910,7 +936,7 @@ function startAuction(i){
   const act=S.players.map((p,k)=>k).filter(k=>!S.players[k].bankrupt);
   if(act.length<2||!buyable(i)||S.owner[i]!==null){settle();renderAll();return}
   S.auc={sq:i,bid:0,high:null,at:S.turn,out:[]};S.phase='auction';
-  S.msg=`Lelongan dibuka: ${SQ[i].n}.`;addLog(S.msg);
+  S.msg=`Lelongan dibuka: ${SQ[i].n}.`;addLog(S.msg,'lelong');
   aucEnsure();renderAll()}
 function aucEnsure(){
   for(let guard=0;guard<30;guard++){
@@ -920,7 +946,7 @@ function aucEnsure(){
     if(S.players[S.auc.at].cash>=aucMin())return;      /* masih mampu membida */
     const p=S.players[S.auc.at];
     S.auc.out.push(S.auc.at);
-    addLog(`${p.name} tiada tunai mencukupi — keluar dari lelongan.`);
+    addLog(`${p.name} tiada tunai mencukupi — keluar dari lelongan.`,'lelong');
     aucAdvance()}
   aucResolve()}
 function aucBid(inc){
@@ -928,22 +954,22 @@ function aucBid(inc){
   const p=S.players[S.auc.at],b=Math.max(aucMin(),S.auc.bid+inc);
   if(p.cash<b)return;
   S.auc.bid=b;S.auc.high=S.auc.at;
-  addLog(`${p.name} bida ${fmt(b)}.`);sfx.coin();
+  addLog(`${p.name} bida ${fmt(b)}.`,'lelong');sfx.coin();
   aucAdvance();aucEnsure();renderAll()}
 function aucPass(){
   if(S.phase!=='auction'||!S.auc)return;
   const k=S.auc.at;
   if(!S.auc.out.includes(k))S.auc.out.push(k);
-  addLog(`${S.players[k].name} lepas daripada lelongan.`);
+  addLog(`${S.players[k].name} lepas daripada lelongan.`,'lelong');
   aucAdvance();aucEnsure();renderAll()}
 function aucResolve(){
   const a=S.auc;if(!a)return;const i=a.sq,s=SQ[i];
   if(a.high!==null){
     const w=S.players[a.high];w.cash-=a.bid;S.owner[i]=a.high;
-    S.msg=`${w.name} menang lelongan ${s.n} dengan ${fmt(a.bid)}.`;addLog(S.msg);sfx.coin();
+    S.msg=`${w.name} menang lelongan ${s.n} dengan ${fmt(a.bid)}.`;addLog(S.msg,'lelong');sfx.coin();
     if(s.t==='prop'&&hasSet(a.high,s.g)){toastAll(`${w.name} lengkapkan laluan ${GROUPS[s.g].n}! Sewa berganda.`);
-      addLog(`${w.name} kini memiliki set penuh ${GROUPS[s.g].n}.`)}
-  }else{S.msg=`Tiada bidaan. ${s.n} kekal dengan bank.`;addLog(S.msg)}
+      addLog(`${w.name} kini memiliki set penuh ${GROUPS[s.g].n}.`,'beli')}
+  }else{S.msg=`Tiada bidaan. ${s.n} kekal dengan bank.`;addLog(S.msg,'lelong')}
   S.auc=null;settle()}
 
 /* ---------- tawaran ---------- */
@@ -1003,7 +1029,7 @@ function tradeAnswer(ok){
     list.forEach(i=>{const s=SQ[i];
       if(s.t==='prop'&&!seen.includes(s.g)&&hasSet(pi,s.g)){seen.push(s.g);
         toastAll(`${S.players[pi].name} lengkapkan laluan ${GROUPS[s.g].n}!`);
-        addLog(`${S.players[pi].name} kini memiliki set penuh ${GROUPS[s.g].n}.`)}})});
+        addLog(`${S.players[pi].name} kini memiliki set penuh ${GROUPS[s.g].n}.`,'beli')}})});
   closeTrade()}
 function endTurn(){
   if(busy||S.phase!=='end'||cur().cash<0||tradePending())return;S.card=null;S.doubles=0;S.again=false;
@@ -1014,10 +1040,10 @@ function endTurn(){
 function checkOver(){const act=S.players.filter(p=>!p.bankrupt);
   if(act.length<=1||(S.endLaps&&act.every(p=>p.laps>=S.endLaps))){finish();return true}return false}
 function payBail(){const p=cur();if(!p.inJail||S.phase!=='roll'||p.cash<50)return;pay(p,50);p.inJail=false;S.msg=`${p.name} bayar ikat jamin RM50. Baling dadu!`;renderAll()}
-function useCard(){const p=cur();if(!p.inJail||!p.cards)return;p.cards--;p.inJail=false;S.msg=`${p.name} guna Kad Bebas Lokap. Baling dadu!`;addLog(S.msg);sfx.card();renderAll()}
+function useCard(){const p=cur();if(!p.inJail||!p.cards)return;p.cards--;p.inJail=false;S.msg=`${p.name} guna Kad Bebas Lokap. Baling dadu!`;addLog(S.msg,'lokap');sfx.card();renderAll()}
 function build(i){if(!canBuild(i))return;const s=SQ[i],c=GROUPS[s.g].h;cur().cash-=c;S.houses[i]++;
-  addLog(`${cur().name} bina ${S.houses[i]===5?'hotel':'rumah'} di ${s.n} (${fmt(c)}).`);sfx.build();renderAll()}
-function sell(i){if(!canSell(i))return;const s=SQ[i],c=GROUPS[s.g].h/2;S.houses[i]--;cur().cash+=c;addLog(`${cur().name} jual bangunan di ${s.n} (+${fmt(c)}).`);sfx.coin();renderAll()}
+  addLog(`${cur().name} bina ${S.houses[i]===5?'hotel':'rumah'} di ${s.n} (${fmt(c)}).`,'bina');sfx.build();renderAll()}
+function sell(i){if(!canSell(i))return;const s=SQ[i],c=GROUPS[s.g].h/2;S.houses[i]--;cur().cash+=c;addLog(`${cur().name} jual bangunan di ${s.n} (+${fmt(c)}).`,'bina');sfx.coin();renderAll()}
 function mortgage(i){if(!canMort(i))return;S.mort[i]=true;cur().cash+=SQ[i].p/2;addLog(`${cur().name} gadai ${SQ[i].n} (+${fmt(SQ[i].p/2)}).`);sfx.coin();renderAll()}
 function unmortgage(i){if(!canUnmort(i))return;S.mort[i]=false;cur().cash-=unmortCost(i);addLog(`${cur().name} tebus ${SQ[i].n} (${fmt(unmortCost(i))}).`);sfx.pay();renderAll()}
 function bankrupt(){const p=cur(),pi=S.turn;if(p.cash>=0)return;
@@ -1325,15 +1351,22 @@ function renderSide(){
     const sw=S.owner.map((o,i)=>o===k?`<i style="background:${SQ[i].t==='prop'?GROUPS[SQ[i].g].c:'var(--muted)'}"></i>`:'').join('');
     return `<li class="pl ${k===S.turn&&S.phase!=='over'?'cur':''} ${q.bankrupt?'out':''}">${trainMark(k,q.color)}<span class="nmx">${NET?`<span class="live ${isOnline(q.uid)?'':'off'}" title="${isOnline(q.uid)?'Dalam talian':'Luar talian'}"></span> `:''}${esc(q.name)}${NET&&q.uid===UID?' <span class="chip ok">Anda</span>':''}</span><span class="money" style="${q.cash<0?'color:var(--bad)':''}">${fmt(q.cash)}</span>
     <span class="meta">${q.bot?`<span class="chip">Bot ${BOT_LEVELS[q.bot]}</span>`:''}${lapBar(q)}${q.bankrupt?'<span class="chip bad">Muflis</span>':S.qual&&q.laps>=S.qual?'<span class="chip ok">Boleh beli</span>':''}${q.inJail?'<span class="chip bad">Lokap</span>':''}${q.cards?`<span class="chip">Kad bebas ×${q.cards}</span>`:''}<span class="chip">Nilai ${fmt(netWorth(q))}</span><span class="swatches">${sw}</span></span></li>`}).join('');
-  document.getElementById('propsTitle').textContent=`Hartanah ${p.name}`;
-  const mine=S.owner.map((o,i)=>o===S.turn?i:-1).filter(i=>i>=0);
-  const lock=busy||S.phase==='moving'||S.phase==='over'||tradePending()||!isActor();
+  /* Dalam bilik online, tunjukkan hartanah SENDIRI semasa menunggu giliran
+     orang lain — barulah pemain boleh merancang, bukan memandang senarai lawan.
+     Butang dikunci kerana bukan giliran kita. */
+  const seat=NET?mySeat():-1;
+  const who=(seat>=0&&seat!==S.turn&&S.players[seat]&&!S.players[seat].bankrupt)?seat:S.turn;
+  document.getElementById('propsTitle').textContent=
+    who===S.turn?`Hartanah ${p.name}`:'Hartanah anda';
+  const mine=S.owner.map((o,i)=>o===who?i:-1).filter(i=>i>=0);
+  const lock=busy||S.phase==='moving'||S.phase==='over'||tradePending()||!isActor()||who!==S.turn;
   document.getElementById('props').innerHTML=mine.length?mine.map(i=>{const s=SQ[i];const col=s.t==='prop'?GROUPS[s.g].c:'var(--muted)';
-    const h=S.houses[i];const st=S.mort[i]?'Digadai':h===5?'Hotel':h?`${h} rumah`:(s.t==='prop'&&hasSet(S.turn,s.g)?'Set penuh':'');
+    const h=S.houses[i];const st=S.mort[i]?'Digadai':h===5?'Hotel':h?`${h} rumah`:(s.t==='prop'&&hasSet(who,s.g)?'Set penuh':'');
     const b=s.t==='prop'?`<button class="mini" type="button" data-b="${i}" ${lock||!canBuild(i)?'disabled':''} title="Bina (${fmt(GROUPS[s.g].h)})">+🏠</button><button class="mini" type="button" data-s="${i}" ${lock||!canSell(i)?'disabled':''} title="Jual bangunan">−</button>`:'';
     const m=S.mort[i]?`<button class="mini" type="button" data-u="${i}" ${lock||!canUnmort(i)?'disabled':''} title="Tebus ${fmt(unmortCost(i))}">Tebus</button>`:`<button class="mini" type="button" data-m="${i}" ${lock||!canMort(i)?'disabled':''} title="Gadai +${fmt(s.p/2)}">Gadai</button>`;
-    return `<li class="pp"><span class="c" style="background:${col}"></span><span class="t"><b>${esc(s.n)}</b><small>Sewa ${fmt(rentOf(i))}${st?' · '+st:''}</small></span>${b}${m}</li>`}).join(''):`<li class="empty">Belum ada hartanah. Mendarat di stesen untuk membeli.</li>`;
-  document.getElementById('log').innerHTML=S.log.slice(0,40).map(l=>`<li>${esc(l)}</li>`).join('');
+    return `<li class="pp"><span class="c" style="background:${col}"></span><span class="t"><b>${esc(s.n)}</b><small>Sewa ${fmt(rentOf(i))}${st?' · '+st:''}</small></span>${b}${m}</li>`}).join(''):`<li class="empty">${who===S.turn?'Belum ada hartanah. Mendarat di stesen untuk membeli.':'Anda belum memiliki hartanah.'}</li>`;
+  document.getElementById('log').innerHTML=S.log.slice(0,40).map(l=>{const[ic,tx]=logParts(l);
+    return `<li><span class="lic" aria-hidden="true">${ic}</span><span>${esc(tx)}</span></li>`}).join('');
 }
 function renderAuction(){
   const box=document.getElementById('aucBox');
@@ -1622,7 +1655,35 @@ document.getElementById('btnFinish').onclick=()=>{if(NET&&!NET.host){toast('Hany
 document.getElementById('btnAgain').onclick=()=>{if(NET){document.getElementById('endBox').hidden=true;if(NET.host)restartOnline();return}openSetup()};
 document.getElementById('btnRules').onclick=()=>document.getElementById('rulesBox').hidden=false;
 document.getElementById('btnRulesClose').onclick=()=>document.getElementById('rulesBox').hidden=true;
-document.getElementById('btnSound').onclick=e=>{sound=!sound;e.target.textContent='Bunyi: '+(sound?'Hidup':'Senyap')};
+/* Tema: Auto mengikut tetapan peranti, atau paksa Terang/Gelap. CSS sudah
+   menyokong [data-theme] sejak awal — ini cuma memberinya suis. */
+const THEMES=['auto','light','dark'],THEME_LABEL={auto:'Auto',light:'Terang',dark:'Gelap'};
+let theme='auto';
+const darkNow=()=>theme==='dark'||(theme==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);
+function applyTheme(){
+  const r=document.documentElement;
+  theme==='auto'?r.removeAttribute('data-theme'):r.setAttribute('data-theme',theme);
+  const btn=document.getElementById('btnTheme');
+  if(btn)btn.textContent='Tema: '+THEME_LABEL[theme];
+  /* Warna bar pelayar pada telefon mesti ikut tema yang dipaksa, bukan tetapan sistem. */
+  const m=document.getElementById('metaTheme');
+  if(m)m.setAttribute('content',darkNow()?'#0A1016':'#E3E9EC');
+}
+function setSoundLabel(){const b=document.getElementById('btnSound');
+  if(b)b.textContent='Bunyi: '+(sound?'Hidup':'Senyap')}
+function loadPrefs(){
+  try{const t=localStorage.getItem('mtkl-theme');if(THEMES.includes(t))theme=t}catch(e){}
+  try{sound=localStorage.getItem('mtkl-sound')!=='0'}catch(e){}
+  applyTheme();setSoundLabel();
+}
+matchMedia('(prefers-color-scheme:dark)').addEventListener('change',()=>{if(theme==='auto')applyTheme()});
+document.getElementById('btnTheme').onclick=()=>{
+  theme=THEMES[(THEMES.indexOf(theme)+1)%THEMES.length];
+  try{localStorage.setItem('mtkl-theme',theme)}catch(e){}
+  applyTheme()};
+document.getElementById('btnSound').onclick=()=>{sound=!sound;
+  try{localStorage.setItem('mtkl-sound',sound?'1':'0')}catch(e){}
+  setSoundLabel()};
 
 /* ---------- confetti ---------- */
 function confetti(){if(RM)return;const c=document.getElementById('fx');c.hidden=false;const x=c.getContext('2d');
@@ -1935,7 +1996,7 @@ queueTurnDock();
 
 /* ---------- boot ---------- */
 async function start(){
-  buildBoard();bindZoom();
+  loadPrefs();buildBoard();bindZoom();
   try{$('myName').value=localStorage.getItem('mtkl-name')||''}catch(e){}
   const params=new URLSearchParams(location.search);const invite=(params.get('bilik')||'').toUpperCase();
   let savedRoom=null;try{savedRoom=localStorage.getItem('mtkl-room')}catch(e){}
