@@ -776,7 +776,7 @@ const sfx={
 /* ---------- money ---------- */
 function toastAll(t){S.toast={id:Date.now()+Math.random(),t};toast(t)}
 function toast(t){const el=document.createElement('div');el.className='toast';el.textContent=t;document.body.appendChild(el);setTimeout(()=>el.remove(),2200)}
-function receive(p,a){p.cash+=a;addLog(`${p.name} terima ${fmt(a)}.`);S.msg=`${p.name} terima ${fmt(a)}.`;sfx.coin()}
+function receive(p,a){p.cash+=a;addLog(`${p.name} terima ${fmt(a)}.`);S.msg=`${p.name} terima ${fmt(a)}.`;sfx.coin();fxMoney(p.pos,a>=150)}
 function pay(p,a,to=null){
   p.cash-=a; if(to!==null){S.players[to].cash+=a}
   if(p.cash<0)p.creditor=to;
@@ -820,7 +820,7 @@ const STEP_MS=155, HOP_MS=140;
 async function walk(p,steps){
   const k0=S.players.indexOf(p);
   for(let k=0;k<steps;k++){const from=p.pos;p.pos=(p.pos+1)%40;
-    if(p.pos===0){p.cash+=200;p.laps++;addLog(`${p.name} lalu MULA, kutip RM200 (pusingan ${p.laps}).`);sfx.coin();
+    if(p.pos===0){p.cash+=200;p.laps++;addLog(`${p.name} lalu MULA, kutip RM200 (pusingan ${p.laps}).`);sfx.coin();fxMoney(0,true);
       if(S.qual&&p.laps===S.qual){toastAll(`${p.name} lengkap ${S.qual} pusingan — kini boleh membeli hartanah!`);addLog(`${p.name} kini layak membeli hartanah.`)}}
     sfx.step();renderBoard();renderSide();hop(k0,from,p.pos,k===steps-1);sync();await sleep(STEP_MS)}
 }
@@ -860,7 +860,7 @@ function hop(k,from,to,last){
 }
 async function advanceTo(p,target,opts){await walk(p,(target-p.pos+40)%40);await land(p,opts)}
 function goJail(p){p.pos=10;p.inJail=true;p.jailTurns=0;S.again=false;S.doubles=0;
-  S.msg=`${p.name} dihantar ke Lokap!`;addLog(S.msg,'lokap');sfx.jail()}
+  S.msg=`${p.name} dihantar ke Lokap!`;addLog(S.msg,'lokap');sfx.jail();fxJail()}
 
 async function land(p,opts={}){
   const i=p.pos,s=SQ[i],pi=S.players.indexOf(p);
@@ -1610,7 +1610,7 @@ function showSetupView(v){
   document.getElementById('setupHome').hidden=!home;
   document.getElementById('setupFull').hidden=home;
   if(!home)drawNames()}
-function openSetup(view){clearBot();resetZoom();closeDeed();document.getElementById('endBox').hidden=true;document.getElementById('fx').hidden=true;
+function openSetup(view){clearBot();resetZoom();closeDeed();document.getElementById('endBox').hidden=true;fxClear();
   const canResume=!!(S&&S.phase!=='over'&&!NET&&S.started);
   document.getElementById('btnResume').hidden=!canResume;
   document.getElementById('homeResume').hidden=!canResume;
@@ -1685,12 +1685,135 @@ document.getElementById('btnSound').onclick=()=>{sound=!sound;
   try{localStorage.setItem('mtkl-sound',sound?'1':'0')}catch(e){}
   setSoundLabel()};
 
-/* ---------- confetti ---------- */
-function confetti(){if(RM)return;const c=document.getElementById('fx');c.hidden=false;const x=c.getContext('2d');
-  const W=c.width=innerWidth,H=c.height=innerHeight;const cols=GROUPS.map(g=>g.c);
-  const ps=[...Array(160)].map(()=>({x:Math.random()*W,y:-Math.random()*H,vx:(Math.random()-.5)*2,vy:2+Math.random()*3,r:Math.random()*6.28,s:5+Math.random()*6,c:cols[Math.floor(Math.random()*cols.length)]}));
-  let f=0;(function tick(){x.clearRect(0,0,W,H);ps.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.r+=.1;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);x.restore()});
-    if(++f<320)requestAnimationFrame(tick);else c.hidden=true})()}
+/* ---------- enjin partikel ----------
+   Satu gelung dan satu kanvas untuk semua kesan. Dua gelung berasingan akan
+   saling memadam kerana setiap satu membersihkan kanvas pada setiap bingkai. */
+const FX={p:[],raf:0,dpr:1,w:0,h:0,ctx:null,cap:460};
+function fxSize(){
+  const c=document.getElementById('fx');if(!c)return null;
+  FX.dpr=Math.min(devicePixelRatio||1,2);FX.w=innerWidth;FX.h=innerHeight;
+  c.width=Math.round(FX.w*FX.dpr);c.height=Math.round(FX.h*FX.dpr);
+  FX.ctx=c.getContext('2d');FX.ctx.setTransform(FX.dpr,0,0,FX.dpr,0,0);
+  return FX.ctx}
+function fxClear(){FX.p.length=0;
+  if(FX.raf){cancelAnimationFrame(FX.raf);FX.raf=0}
+  const c=document.getElementById('fx');
+  if(c){if(FX.ctx)FX.ctx.clearRect(0,0,FX.w,FX.h);c.hidden=true}}
+/* Had bilangan supaya telefon lama tidak tersekat kalau kesan bertindih. */
+function fxAdd(q){if(FX.p.length+q.length>FX.cap)FX.p.splice(0,FX.p.length+q.length-FX.cap);
+  FX.p.push(...q);fxStart()}
+/* Kedudukan petak dalam koordinat skrin — getBoundingClientRect mengambil kira
+   zum dan geseran papan, jadi partikel sentiasa jatuh di tempat yang betul. */
+function fxAt(i){const el=document.getElementById('sq'+i);if(!el)return null;
+  const r=el.getBoundingClientRect();
+  if(r.width<1||r.bottom<0||r.top>innerHeight)return null;
+  return {x:r.left+r.width/2,y:r.top+r.height/2,w:r.width,h:r.height}}
+/* Kepulan asap dilukis daripada sprite kecerunan yang disimpan, bukan
+   kecerunan baharu setiap bingkai. */
+function fxPuff(dark){const k=dark?'puffD':'puffL';if(FX[k])return FX[k];
+  const s=document.createElement('canvas');s.width=s.height=64;
+  const cx=s.getContext('2d'),g=cx.createRadialGradient(32,32,0,32,32,32),
+        base=dark?'226,234,240':'34,46,56';
+  g.addColorStop(0,`rgba(${base},.8)`);g.addColorStop(.45,`rgba(${base},.34)`);
+  g.addColorStop(1,`rgba(${base},0)`);
+  cx.fillStyle=g;cx.fillRect(0,0,64,64);FX[k]=s;return s}
+const fxFade=p=>Math.max(0,Math.min(1,p.life/(p.max*.45)));
+function fxStart(){
+  if(FX.raf||!FX.p.length)return;
+  const c=document.getElementById('fx');if(!c)return;
+  c.hidden=false;let x=fxSize()||c.getContext('2d');let last=performance.now();
+  const tick=now=>{
+    const dt=Math.min(50,now-last)/16.67;last=now;
+    if(innerWidth!==FX.w||innerHeight!==FX.h)x=fxSize()||x;
+    x.clearRect(0,0,FX.w,FX.h);
+    for(const p of FX.p){
+      if(p.d>0){p.d-=dt;continue}
+      fxStep(x,p,dt);
+      if(p.y>FX.h+60)p.life=0;
+    }
+    FX.p=FX.p.filter(p=>p.life>0);
+    if(FX.p.length)FX.raf=requestAnimationFrame(tick);
+    else{FX.raf=0;x.clearRect(0,0,FX.w,FX.h);c.hidden=true}};
+  FX.raf=requestAnimationFrame(tick)}
+function fxStep(x,p,dt){
+  p.life-=dt;const a=fxFade(p);
+  if(p.k==='coin'){
+    p.vy+=.23*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.rot+=p.vr*dt;
+    x.save();x.globalAlpha=a;x.translate(p.x,p.y);
+    x.scale(Math.abs(Math.cos(p.rot))*.88+.12,1);      /* syiling berpusing */
+    x.fillStyle=p.c;x.beginPath();x.arc(0,0,p.r,0,6.2832);x.fill();
+    x.fillStyle='rgba(255,255,255,.6)';x.beginPath();
+    x.arc(-p.r*.3,-p.r*.32,p.r*.3,0,6.2832);x.fill();x.restore();return}
+  if(p.k==='spark'){
+    p.vy+=.06*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.rot+=p.vr*dt;
+    const r=p.r*(.4+a*.9);
+    x.save();x.globalAlpha=a;x.translate(p.x,p.y);x.rotate(p.rot);
+    x.fillStyle=p.c;x.beginPath();
+    x.moveTo(0,-r);x.quadraticCurveTo(r*.2,-r*.2,r,0);
+    x.quadraticCurveTo(r*.2,r*.2,0,r);x.quadraticCurveTo(-r*.2,r*.2,-r,0);
+    x.quadraticCurveTo(-r*.2,-r*.2,0,-r);x.fill();x.restore();return}
+  if(p.k==='smoke'){
+    p.x+=p.vx*dt;p.y-=p.rise*dt;p.r+=p.gr*dt;p.rise*=Math.pow(.985,dt);
+    x.save();x.globalAlpha=a*.62;
+    x.drawImage(p.img,p.x-p.r,p.y-p.r,p.r*2,p.r*2);x.restore();return}
+  if(p.k==='bolt'){
+    x.save();x.globalAlpha=Math.min(1,p.life/p.max);
+    x.strokeStyle='#EAF6FF';x.lineWidth=p.lw;x.lineJoin='round';x.lineCap='round';
+    x.shadowColor='#6FC9FF';x.shadowBlur=14;
+    x.beginPath();p.pts.forEach((q,j)=>j?x.lineTo(q[0],q[1]):x.moveTo(q[0],q[1]));
+    x.stroke();x.restore();return}
+  if(p.k==='flash'){
+    p.r+=p.gr*dt;
+    const g=x.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r);
+    g.addColorStop(0,`rgba(233,246,255,${.55*a})`);
+    g.addColorStop(.5,`rgba(120,200,255,${.22*a})`);
+    g.addColorStop(1,'rgba(120,200,255,0)');
+    x.save();x.fillStyle=g;x.beginPath();x.arc(p.x,p.y,p.r,0,6.2832);x.fill();x.restore();return}
+  /* confetti */
+  p.x+=p.vx*dt;p.y+=p.vy*dt;p.rot+=.1*dt;
+  x.save();x.globalAlpha=a;x.translate(p.x,p.y);x.rotate(p.rot);
+  x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);x.restore()}
+
+/* Emas: lalu MULA dan terima duit. */
+const FX_GOLD=['#FFD24A','#F7B500','#FFE9A3','#E8B400','#FFF3C4'];
+function fxMoney(i,big){
+  if(RM)return;const a=fxAt(i);if(!a)return;
+  const q=[],nc=big?26:16,ns=big?12:7;
+  for(let k=0;k<nc;k++){const ang=-Math.PI/2+(Math.random()-.5)*2.2,sp=2.2+Math.random()*(big?4.6:3.4);
+    q.push({k:'coin',x:a.x+(Math.random()-.5)*a.w*.55,y:a.y+(Math.random()-.5)*a.h*.3,
+      vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp-1.1,r:2.4+Math.random()*3.2,
+      rot:Math.random()*6.28,vr:.16+Math.random()*.3,d:Math.random()*4,
+      c:FX_GOLD[k%FX_GOLD.length],life:46+Math.random()*30,max:76})}
+  for(let k=0;k<ns;k++)
+    q.push({k:'spark',x:a.x+(Math.random()-.5)*a.w*.9,y:a.y+(Math.random()-.5)*a.h*.6,
+      vx:(Math.random()-.5)*2.4,vy:-.7-Math.random()*1.6,r:3+Math.random()*4.5,
+      rot:Math.random()*6.28,vr:(Math.random()-.5)*.24,d:Math.random()*10,
+      c:'#FFF0B8',life:26+Math.random()*20,max:46});
+  fxAdd(q)}
+/* Kilat dan asap: masuk Lokap. */
+function fxJail(){
+  if(RM)return;const a=fxAt(10);if(!a)return;
+  const q=[],top=a.y-Math.max(130,a.h*2.4),dark=darkNow(),img=fxPuff(dark);
+  for(let b=0;b<2;b++){
+    const pts=[],x0=a.x+(b?22:-18),steps=6;
+    for(let j=0;j<=steps;j++){const t=j/steps;
+      pts.push([x0+(Math.random()-.5)*30*(1-t*.5),top+(a.y-top)*t])}
+    pts[steps]=[a.x+(Math.random()-.5)*a.w*.3,a.y];
+    q.push({k:'bolt',pts,lw:b?2:3.2,d:b*2,life:10+b*3,max:13})}
+  q.push({k:'flash',x:a.x,y:a.y,r:a.w*.35,gr:a.w*.14,d:1,life:14,max:14});
+  for(let k=0;k<24;k++)
+    q.push({k:'smoke',img,x:a.x+(Math.random()-.5)*a.w*.85,y:a.y+(Math.random()*.4)*a.h,
+      vx:(Math.random()-.5)*1,rise:.45+Math.random()*.95,
+      r:a.w*(.1+Math.random()*.15),gr:a.w*.013,
+      d:4+Math.random()*10,life:44+Math.random()*36,max:84});
+  fxAdd(q)}
+function confetti(){if(RM)return;const cols=GROUPS.map(g=>g.c),q=[];
+  for(let k=0;k<150;k++)
+    q.push({k:'conf',x:Math.random()*innerWidth,y:-Math.random()*innerHeight*.7,
+      vx:(Math.random()-.5)*2.2,vy:2+Math.random()*3,rot:Math.random()*6.28,
+      s:5+Math.random()*6,c:cols[Math.floor(Math.random()*cols.length)],
+      life:330,max:330});
+  fxAdd(q)}
 
 /* ---------- online (Firebase Realtime Database) ---------- */
 let NET=null, fdb=null, applying=false;
