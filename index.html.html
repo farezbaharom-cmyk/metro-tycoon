@@ -79,7 +79,12 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .sq.left .stripe,.sq.right .stripe{flex-direction:column}
 .sq.left .stripe,.sq.right .stripe{flex-basis:22%}
 .body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:3%;gap:1px;min-width:0}
-.nm{font-weight:700;font-size:1.28cqi;line-height:1.1;text-wrap:balance;overflow-wrap:anywhere}
+/* break-word hanya memecahkan perkataan yang benar-benar tidak muat, tidak
+   seperti 'anywhere' yang memecah sesuka hati. Nama berperkataan panjang
+   diberi saiz lebih kecil supaya ia kekal utuh dalam satu baris. */
+.nm{font-weight:700;font-size:1.28cqi;line-height:1.1;text-wrap:balance;overflow-wrap:break-word}
+.nm.tight{font-size:1.1cqi;letter-spacing:-.012em}
+.nm.tighter{font-size:.98cqi;letter-spacing:-.018em}
 .pr{font-family:var(--mono);font-size:1.12cqi;color:var(--muted);font-variant-numeric:tabular-nums}
 .ic{font-family:var(--display);font-weight:900;font-size:2.4cqi;line-height:1}
 .sq.corner .body{padding:6%}
@@ -119,12 +124,48 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .logo h1{margin:0;font-family:var(--display);font-weight:900;font-size:7.6cqi;line-height:.85;letter-spacing:.01em;text-transform:uppercase}
 .logo h1 span{color:var(--accent)}
 .logo p{margin:.8cqi 0 0;font-size:1.5cqi;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;font-weight:600}
-.dice{position:relative;display:flex;gap:2cqi}
-.die{width:7.5cqi;height:7.5cqi;background:#FDFDFB;border-radius:18%;box-shadow:inset 0 -3px 0 rgba(0,0,0,.12),0 4px 10px rgba(0,0,0,.18);display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:14%}
-.die i{width:70%;height:70%;margin:auto;border-radius:50%;background:transparent}
-.die i.on{background:#14202A}
-.die.roll{animation:shake .5s ease-in-out}
-@keyframes shake{20%{transform:rotate(-18deg) translateY(-12%)}50%{transform:rotate(14deg) translateY(4%)}80%{transform:rotate(-6deg)}}
+/* Dadu: kubus 6 muka yang benar-benar berguling ke muka yang dibaling. */
+.dice{position:relative;display:flex;gap:2cqi;perspective:60cqi;perspective-origin:50% 40%}
+.die{--dsz:7.5cqi;width:var(--dsz);height:var(--dsz);position:relative;
+  transform-style:preserve-3d;filter:drop-shadow(0 4px 8px rgba(0,0,0,.28))}
+.cube{position:absolute;inset:0;transform-style:preserve-3d;
+  transition:transform .74s cubic-bezier(.18,.86,.28,1.06)}
+.face{position:absolute;inset:0;background:#FDFDFB;border-radius:18%;
+  display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:14%;
+  box-shadow:inset 0 -3px 0 rgba(0,0,0,.12),inset 0 0 0 1px rgba(20,32,42,.08);
+  backface-visibility:hidden}
+.face i{width:70%;height:70%;margin:auto;border-radius:50%;background:transparent}
+.face i.on{background:#14202A;box-shadow:inset 0 -1px 1px rgba(255,255,255,.35)}
+/* Muka bertentangan berjumlah 7, seperti dadu sebenar. */
+.f1{transform:translateZ(calc(var(--dsz)/2))}
+.f6{transform:rotateY(180deg) translateZ(calc(var(--dsz)/2))}
+.f3{transform:rotateY(90deg)  translateZ(calc(var(--dsz)/2))}
+.f4{transform:rotateY(-90deg) translateZ(calc(var(--dsz)/2))}
+.f5{transform:rotateX(90deg)  translateZ(calc(var(--dsz)/2))}
+.f2{transform:rotateX(-90deg) translateZ(calc(var(--dsz)/2))}
+/* Lambungan dan hentakan mendarat, berasingan daripada putaran. */
+@keyframes dieHop{
+  0%{transform:translateY(0) scale(1)}
+  26%{transform:translateY(-42%) scale(1.07)}
+  58%{transform:translateY(0) scale(.94)}
+  72%{transform:translateY(-11%) scale(1.02)}
+  86%{transform:translateY(0) scale(.98)}
+  100%{transform:translateY(0) scale(1)}}
+.die.roll{animation:dieHop .76s cubic-bezier(.3,.68,.42,1)}
+.die:nth-child(2).roll{animation-delay:.055s}
+.die:nth-child(2) .cube{transition-delay:.055s}
+
+/* Token terbang: lapisan di atas papan supaya lompatan tidak terpotong
+   oleh overflow petak. */
+.flyer{position:absolute;inset:0;pointer-events:none;z-index:4;overflow:visible}
+.fly{position:absolute;left:0;top:0;display:block;
+  filter:drop-shadow(0 3px 4px rgba(0,0,0,.45))}
+.tok.ghost{opacity:0}
+@keyframes land{0%{transform:scale(1.14,.82)}55%{transform:scale(.96,1.06)}100%{transform:scale(1)}}
+@keyframes landflip{0%{transform:scaleX(-1) scale(1.14,.82)}
+  55%{transform:scaleX(-1) scale(.96,1.06)}100%{transform:scaleX(-1)}}
+.tok.land{animation:land .22s ease-out}
+.tok.flip.land{animation:landflip .22s ease-out}
 .msg{position:relative;max-width:78%;text-align:center;font-size:1.75cqi;font-weight:600;min-height:2.4em;text-wrap:balance}
 .card{position:absolute;left:50%;top:50%;width:46%;transform:translate(-50%,-50%);background:var(--panel);border-radius:10px;box-shadow:var(--shadow);border:1px solid var(--rule);overflow:hidden;z-index:5;animation:flip .45s cubic-bezier(.2,.8,.3,1.2)}
 @keyframes flip{from{transform:translate(-50%,-50%) rotateY(90deg) scale(.8);opacity:0}}
@@ -747,13 +788,50 @@ function canUnmort(i){return S.owner[i]===S.turn&&S.mort[i]&&cur().cash>=unmortC
 
 /* ---------- movement ---------- */
 const nextOf=(pos,arr)=>arr.find(j=>j>pos)??arr[0];
+/* Satu lompatan sedikit lebih pendek daripada jeda langkah, supaya token
+   sudah mendarat sebelum render seterusnya membina semula petak. */
+const STEP_MS=155, HOP_MS=140;
 async function walk(p,steps){
-  for(let k=0;k<steps;k++){p.pos=(p.pos+1)%40;
+  const k0=S.players.indexOf(p);
+  for(let k=0;k<steps;k++){const from=p.pos;p.pos=(p.pos+1)%40;
     if(p.pos===0){p.cash+=200;p.laps++;addLog(`${p.name} lalu MULA, kutip RM200 (pusingan ${p.laps}).`);sfx.coin();
       if(S.qual&&p.laps===S.qual){toastAll(`${p.name} lengkap ${S.qual} pusingan — kini boleh membeli hartanah!`);addLog(`${p.name} kini layak membeli hartanah.`)}}
-    sfx.step();renderBoard();renderSide();sync();await sleep(170)}
+    sfx.step();renderBoard();renderSide();hop(k0,from,p.pos,k===steps-1);sync();await sleep(STEP_MS)}
 }
-async function walkBack(p,steps){for(let k=0;k<steps;k++){p.pos=(p.pos+39)%40;sfx.step();renderBoard();sync();await sleep(170)}}
+async function walkBack(p,steps){const k0=S.players.indexOf(p);
+  for(let k=0;k<steps;k++){const from=p.pos;p.pos=(p.pos+39)%40;
+    sfx.step();renderBoard();hop(k0,from,p.pos,k===steps-1);sync();await sleep(STEP_MS)}}
+/* Token melompat dari petak ke petak pada lapisan .flyer. Token sebenar di
+   destinasi disembunyikan sepanjang penerbangan, kemudian mendarat dengan
+   hentakan kecil. */
+function hop(k,from,to,last){
+  if(RM||from===to)return;
+  const fl=document.getElementById('flyer'),ref=document.getElementById('sq1');
+  if(!fl||!ref||!S.players[k])return;
+  const at=i=>{const el=document.getElementById('sq'+i);
+    return el?{x:el.offsetLeft+el.offsetWidth/2,y:el.offsetTop+el.offsetHeight*0.74}:null};
+  const a=at(from),b=at(to);if(!a||!b)return;
+  const w=ref.offsetWidth*0.46,h=w*0.72;
+  const real=()=>document.querySelector(`#sq${to} .tok[data-k="${k}"]`);
+  const r0=real();if(r0)r0.classList.add('ghost');
+  const sp=document.createElement('span');
+  sp.className='fly';
+  sp.style.cssText=`width:${w}px;height:${h}px;color:${S.players[k].color}`;
+  sp.innerHTML=trainSVG(k);
+  const svg=sp.firstChild;
+  if(svg&&svg.style&&to<=19)svg.style.transform='scaleX(-1)';
+  fl.appendChild(sp);
+  const ox=-w/2,oy=-h/2, lift=Math.min(ref.offsetHeight*0.55,30);
+  const at3=(x,y,sc)=>`translate(${x+ox}px,${y+oy}px) scale(${sc})`;
+  const anim=sp.animate([
+    {transform:at3(a.x,a.y,1),offset:0},
+    {transform:at3((a.x+b.x)/2,(a.y+b.y)/2-lift,1.16),offset:.5},
+    {transform:at3(b.x,b.y,1),offset:1}
+  ],{duration:last?HOP_MS+70:HOP_MS,easing:'cubic-bezier(.33,.7,.4,1)'});
+  const done=()=>{sp.remove();const r=real();
+    if(r){r.classList.remove('ghost');r.classList.add('land')}};
+  anim.onfinish=done;anim.oncancel=done;
+}
 async function advanceTo(p,target,opts){await walk(p,(target-p.pos+40)%40);await land(p,opts)}
 function goJail(p){p.pos=10;p.inJail=true;p.jailTurns=0;S.again=false;S.doubles=0;
   S.msg=`${p.name} dihantar ke Lokap!`;addLog(S.msg);sfx.jail()}
@@ -788,9 +866,8 @@ async function rollDice(){
   save(); /* Checkpoint sebelum apa-apa dadu, pergerakan atau bayaran berubah. */
   busy=true;S.card=null;
   const p=cur();S.phase='moving';S.rollId=(S.rollId||0)+1;sfx.dice();
-  const dz=[...document.querySelectorAll('.die')];dz.forEach(d=>d.classList.add('roll'));
-  for(let k=0;k<6;k++){S.dice=[r6(),r6()];renderDice();await sleep(70)}
-  const a=r6(),b=r6(),dbl=a===b;S.dice=[a,b];renderDice();dz.forEach(d=>d.classList.remove('roll'));
+  const a=r6(),b=r6(),dbl=a===b;S.dice=[a,b];
+  rollDiceAnim();await sleep(800);
   addLog(`${p.name} baling ${a} + ${b}${dbl?' (ganda!)':''}.`);
   if(p.inJail){
     if(dbl){p.inJail=false;S.again=false;S.msg=`Dadu ganda! ${p.name} bebas dari Lokap.`;addLog(S.msg);renderAll();await sleep(500);await walk(p,a+b);await land(p)}
@@ -1095,19 +1172,48 @@ function buildBoard(){
     const stripe=s.t==='prop'?`<div class="stripe" style="background:${GROUPS[s.g].c}"></div>`:'';
     const label=s.p?`<span class="pr">${fmt(s.p)}</span>`:s.a?`<span class="pr">${fmt(s.a)}</span>`:'';
     const icon=s.t!=='prop'?`<span class="ic" aria-hidden="true">${s.ic}</span>`:'';
-    h+=`<div class="sq ${side(i)}" id="sq${i}" style="grid-row:${r};grid-column:${c}" data-i="${i}" role="button" tabindex="0" aria-label="${esc(s.n)}">${stripe}<div class="body">${icon}<span class="nm">${esc(s.n)}</span>${label}</div><div class="tokens"></div></div>`});
+    /* Perkataan terpanjang yang menentukan sama ada nama muat dalam satu baris. */
+    const lw=Math.max(...s.n.split(/\s+/).map(w=>w.length));
+    const fit=lw>=11?' tighter':lw>=9?' tight':'';
+    h+=`<div class="sq ${side(i)}" id="sq${i}" style="grid-row:${r};grid-column:${c}" data-i="${i}" role="button" tabindex="0" aria-label="${esc(s.n)}">${stripe}<div class="body">${icon}<span class="nm${fit}">${esc(s.n)}</span>${label}</div><div class="tokens"></div></div>`});
   const lines=GROUPS.map((g,k)=>{const y=12+k*11;return `<path d="M-5 ${y} C 30 ${y+18}, 70 ${y-20}, 105 ${y+6}" stroke="${g.c}" stroke-width="2.2" fill="none"/>`}).join('');
   h+=`<div class="center" id="center"><svg class="map" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${lines}</svg>
     <div class="logo"><h1>Metro<br><span>Tycoon</span></h1><p>Edisi Lembah Klang</p></div>
-    <div class="dice"><div class="die" id="d0"></div><div class="die" id="d1"></div></div>
+    <div class="dice">${dieHTML(0)}${dieHTML(1)}</div>
     <div class="msg" id="msg" aria-live="polite"></div><div id="cardSlot"></div></div>`;
+  h+=`<div class="flyer" id="flyer" aria-hidden="true"></div>`;
   b.innerHTML=h;
   b.addEventListener('click',e=>{const sq=e.target.closest('.sq');
     if(sq&&zPan.moved<7)showDeed(+sq.dataset.i)});   /* seretan bukan ketukan */
   b.addEventListener('keydown',e=>{const sq=e.target.closest('.sq');if(sq&&(e.key==='Enter'||e.key===' ')){e.preventDefault();showDeed(+sq.dataset.i)}});
 }
 const PIPS={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
-function renderDice(){S.dice.forEach((v,k)=>{document.getElementById('d'+k).innerHTML=[...Array(9)].map((_,j)=>`<i class="${PIPS[v].includes(j)?'on':''}"></i>`).join('')})}
+const pipHTML=v=>[...Array(9)].map((_,j)=>`<i class="${PIPS[v].includes(j)?'on':''}"></i>`).join('');
+const dieHTML=k=>`<div class="die" id="d${k}"><div class="cube">${
+  [1,2,3,4,5,6].map(v=>`<div class="face f${v}">${pipHTML(v)}</div>`).join('')}</div></div>`;
+/* Putaran yang membawa setiap muka ke hadapan. */
+const FACE_TO_FRONT={1:'',6:'rotateY(180deg)',3:'rotateY(-90deg)',
+  4:'rotateY(90deg)',5:'rotateX(-90deg)',2:'rotateX(90deg)'};
+/* Pusingan terkumpul: sentiasa bertambah supaya dadu berguling ke hadapan
+   setiap kali, tidak pernah berpusing balik. */
+const dieSpin=[{x:0,y:0},{x:0,y:0}];
+function renderDice(spin){
+  S.dice.forEach((v,k)=>{
+    const d=document.getElementById('d'+k),cube=d&&d.querySelector('.cube');
+    if(!cube)return;
+    if(spin){const t=dieSpin[k];t.x+=1+Math.floor(Math.random()*2);t.y+=2+Math.floor(Math.random()*2)}
+    const t=dieSpin[k];
+    /* Pusingan penuh tidak mengubah orientasi akhir, hanya memberi gulingan. */
+    cube.style.transform=`rotateX(${t.x*360}deg) rotateY(${t.y*360}deg) ${FACE_TO_FRONT[v]||''}`;
+  })}
+let rollTimer=null;
+function rollDiceAnim(){
+  const dz=[...document.querySelectorAll('.die')];
+  dz.forEach(d=>{d.classList.remove('roll');void d.offsetWidth;d.classList.add('roll')});
+  renderDice(true);
+  clearTimeout(rollTimer);
+  rollTimer=setTimeout(()=>dz.forEach(d=>d.classList.remove('roll')),840);
+}
 function renderBoard(){
   SQ.forEach((s,i)=>{const el=document.getElementById('sq'+i);
     el.classList.toggle('mort',!!S.mort[i]);
@@ -1117,7 +1223,7 @@ function renderBoard(){
     const st=el.querySelector('.stripe');if(st){const h=S.houses[i];st.innerHTML=h===5?'<span class="hotel">H</span>':'<span class="house"></span>'.repeat(h)}
     /* Pergerakan mengelilingi papan: petak 0-19 ke kiri, 20-39 ke kanan. */
     const toks=S.players.map((p,k)=>(!p.bankrupt&&p.pos===i)
-      ?`<span class="tok ${k===S.turn&&S.phase!=='over'?'me':''} ${i<=19?'flip':''}" style="color:${p.color}" title="${esc(p.name)} · ${TRAIN_NAMES[k%TRAIN_NAMES.length]}">${trainSVG(k)}</span>`:'').join('');
+      ?`<span class="tok ${k===S.turn&&S.phase!=='over'&&S.phase!=='moving'?'me':''} ${i<=19?'flip':''}" data-k="${k}" style="color:${p.color}" title="${esc(p.name)} · ${TRAIN_NAMES[k%TRAIN_NAMES.length]}">${trainSVG(k)}</span>`:'').join('');
     el.querySelector('.tokens').innerHTML=toks});
   document.getElementById('msg').textContent=S.msg;
   const cs=document.getElementById('cardSlot');
@@ -1629,7 +1735,7 @@ function applyRemote(str,force){
   const prev=S;S=st;applying=true;
   try{renderAll()}finally{applying=false}
   const same=prev&&prev.gid===S.gid;
-  if(same&&S.rollId!==prev.rollId){document.querySelectorAll('.die').forEach(d=>{d.classList.remove('roll');void d.offsetWidth;d.classList.add('roll')});sfx.dice()}
+  if(same&&S.rollId!==prev.rollId){rollDiceAnim();sfx.dice()}
   else if(same&&S.log[0]!==prev.log[0])sfx.step();
   if(same&&S.toast&&(!prev.toast||prev.toast.id!==S.toast.id))toast(S.toast.t);
   if(!same&&S.phase!=='over')$('endBox').hidden=true;
