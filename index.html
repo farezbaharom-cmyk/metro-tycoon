@@ -1457,29 +1457,52 @@ function isActor(){
   return p.uid===UID||(p.bot&&botDriver()===UID)||(NET.host&&NET.override===S.turn)}
 function isOnline(uid){if(String(uid||'').startsWith('bot_'))return true;
   return !!(NET&&NET.room&&NET.room.online&&NET.room.online[uid])}
-let pendingRemote=null;
-/* Tulisan bersyarat: hanya terpakai jika tiada siapa menulis selepas keadaan
-   yang kita asaskan ini. Kalau ada, kita mengalah dan ambil keadaan pelayan —
-   bukan menimpanya. */
+let pendingRemote=null,inflight=false,dirty=false;
+/* Revisi tertinggi yang KITA hantar — belum tentu disahkan. Berasingan
+   daripada S.rev supaya gema tulisan sendiri boleh ditapis tanpa berpura-pura
+   pelayan sudah menerimanya. */
+let sentRev=0,sentGid=null;
+/* S.rev ialah revisi yang pelayan SUDAH terima — tiada lonjakan awal.
+   Revisi yang sedang kita cuba tulis hidup dalam pushState() sahaja sehingga
+   ia disahkan; kalau ia gugur, S.rev tidak pernah bergerak. */
 function sync(){
   if(!NET){save();return}
   if(applying||!S||!NET.room||!NET.room.meta||!NET.room.meta.started||!isActorOrJustActed())return;
-  const base=S.rev||0,gid=S.gid;
-  S.by=UID;S.rev=base+1;
-  const payload=JSON.stringify(S),ref=NET.ref.child('state');
-  if(typeof ref.transaction!=='function'){         /* SDK lama: tiada pilihan lain */
-    ref.set(payload).catch(syncFailed);return}
+  if(inflight){dirty=true;return}        /* satu tulisan dalam penerbangan sahaja */
+  pushState();
+}
+/* Tulisan bersyarat: hanya terpakai jika tiada siapa menulis selepas revisi
+   asas kita. Kalau ada, kita mengalah dan ambil keadaan pelayan. */
+function pushState(){
+  if(!NET||!S)return;
+  const base=S.rev||0,gid=S.gid,next=base+1;
+  if(sentGid!==gid){sentGid=gid;sentRev=0}
+  sentRev=Math.max(sentRev,next);
+  const payload=JSON.stringify(Object.assign({},S,{by:UID,rev:next}));
+  const ref=NET.ref.child('state');
+  inflight=true;dirty=false;
+  const settle=ok=>{
+    inflight=false;
+    if(!ok){dirty=false;return}
+    /* Sahkan revisi hanya selepas pelayan menerimanya, dan jangan undur
+       kalau keadaan yang lebih baharu sudah tiba sementara itu. */
+    if(S&&S.gid===gid&&(S.rev||0)<next){S.rev=next;S.by=UID}
+    if(dirty)pushState();
+  };
+  if(typeof ref.transaction!=='function'){        /* SDK lama: tiada pilihan lain */
+    ref.set(payload).then(()=>settle(true))
+      .catch(err=>{settle(false);syncFailed(err)});return}
   ref.transaction(cur=>{
     if(cur){let c=null;try{c=JSON.parse(cur)}catch(e){}
-      if(c&&c.gid===gid&&(c.rev||0)>base)return;   /* undefined = batalkan tulisan */
+      if(c&&c.gid===gid&&(c.rev||0)>base)return;  /* undefined = batalkan tulisan */
     }
     return payload;
   },(err,committed,snap)=>{
-    if(err){syncFailed(err);return}
-    if(!committed){
-      const v=snap&&snap.val();
-      if(v){toast('Keadaan permainan diselaraskan semula.');applyRemote(v,true)}
-    }
+    if(err){settle(false);syncFailed(err);return}
+    if(committed){settle(true);return}
+    settle(false);
+    const v=snap&&snap.val();
+    if(v){toast('Keadaan permainan diselaraskan semula.');applyRemote(v,true)}
   },false);
 }
 function syncFailed(err){
@@ -1498,24 +1521,29 @@ function validState(st){
     &&typeof st.turn==='number'&&st.turn>=0&&st.turn<st.players.length
     &&typeof st.phase==='string'&&Array.isArray(st.log);
 }
-/* Keadaan yang tiba semasa animasi disimpan dahulu, bukan dibuang. */
+/* Keadaan yang tiba semasa animasi disimpan dahulu, bukan dibuang —
+   berserta tanda force asalnya, supaya ia ditapis sama seperti sekiranya
+   ia tiba tanpa tangguh. */
 function flushRemote(){
   if(!pendingRemote||busy)return;
-  const s=pendingRemote;pendingRemote=null;
-  try{const st=JSON.parse(s);
+  const p=pendingRemote;pendingRemote=null;
+  try{const st=JSON.parse(p.str);
     if(S&&st.gid===S.gid&&(st.rev||0)<=(S.rev||0))return;   /* sudah lapuk */
   }catch(e){return}
-  applyRemote(s,true);
+  applyRemote(p.str,p.force);
 }
 let actedTurn=null;
 function isActorOrJustActed(){return isActor()||actedTurn===true}
 function applyRemote(str,force){
   let st;try{st=JSON.parse(str)}catch(e){return}
   if(!validState(st))return;
-  if(!force&&S&&st.by===UID&&(st.rev||0)<=(S.rev||0)&&S.gid===st.gid)return;
+  /* Gema tulisan kita sendiri — termasuk yang masih dalam penerbangan —
+     tidak boleh menimpa suntingan tempatan yang lebih baharu. */
+  const mineUpTo=S?(sentGid===S.gid?Math.max(S.rev||0,sentRev):(S.rev||0)):0;
+  if(!force&&S&&st.by===UID&&(st.rev||0)<=mineUpTo&&S.gid===st.gid)return;
   /* Betul-betul sama: jangan render semula setiap kali kehadiran berubah. */
   if(S&&st.gid===S.gid&&(st.rev||0)===(S.rev||0)&&st.by===S.by)return;
-  if(busy){pendingRemote=str;return}
+  if(busy){pendingRemote={str,force:!!force};return}
   const prev=S;S=st;applying=true;
   try{renderAll()}finally{applying=false}
   const same=prev&&prev.gid===S.gid;
