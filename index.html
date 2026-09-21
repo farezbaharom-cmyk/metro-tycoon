@@ -92,8 +92,24 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .sq.hl{background:color-mix(in srgb,var(--accent) 14%,var(--board))}
 .tokens{position:absolute;inset:auto 0 0 0;display:flex;flex-wrap:wrap;justify-content:center;gap:1px;padding:2px;pointer-events:none;z-index:2}
 .sq.bottom .tokens{top:auto;bottom:2px}
-.tok{width:2.6cqi;height:2.6cqi;min-width:12px;min-height:12px;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 5px rgba(0,0,0,.35);display:grid;place-items:center;font:800 1.3cqi/1 var(--body);color:#fff}
+/* token tren: siluet berbeza bagi setiap pemain */
+.train{display:block;width:100%;height:100%;overflow:visible}
+.train .body{fill:currentColor;stroke:var(--tstroke,#fff);stroke-width:1.5;
+  paint-order:stroke;stroke-linejoin:round;stroke-linecap:round}
+.train .win{fill:var(--twin,rgba(255,255,255,.92))}
+.tok{width:3.6cqi;height:2.6cqi;min-width:18px;min-height:13px;flex:none;
+  filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))}
+.tok.flip{transform:scaleX(-1)}
 .tok.me{animation:bob .9s ease-in-out infinite}
+.tok.flip.me{animation:bobflip .9s ease-in-out infinite}
+@keyframes bobflip{0%,100%{transform:scaleX(-1) translateY(0)}
+                   50%{transform:scaleX(-1) translateY(-22%)}}
+.tdot{display:inline-block;width:28px;height:20px;flex:none;vertical-align:middle}
+.pl .tdot{width:28px;height:20px}
+.names .nrow .tdot{width:31px;height:22px}
+.seats li .tdot{width:28px;height:20px}
+.rank .tdot{width:30px;height:21px}
+.tdot.av{width:28px;height:20px;--tstroke:transparent;--twin:rgba(0,0,0,.3)}
 @keyframes bob{50%{transform:translateY(-22%)}}
 
 /* center */
@@ -553,6 +569,22 @@ const SQ=[
  P('Persiaran KLCC',7,400,[50,200,600,1400,1700,2000])];
 const HUBS=[5,15,25,35], UTILS=[12,28];
 const COLORS=['#0F766E','#E4572E','#4F46E5','#C98A00','#C2185B'];
+/* Lima siluet tren — dibezakan oleh bentuk, bukan warna sahaja, supaya
+   pemain yang sukar membezakan warna masih boleh mengenal token sendiri. */
+const TRAINS=[
+ /* MRT: hidung landai */
+ "<path class=\"body\" d=\"M3 5.6h9c6.4 0 11 3.4 12.6 6.6v1.6a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6.6a1 1 0 0 1 1-1z\"/><circle class=\"body\" cx=\"7.5\" cy=\"16.4\" r=\"2\"/><circle class=\"body\" cx=\"18\" cy=\"16.4\" r=\"2\"/><path class=\"win\" d=\"M14.4 7.6c3.2.5 5.6 2 7 3.9h-7z\"/>",
+ /* Monorel: kabin atas rasuk */
+ "<path class=\"body\" d=\"M6 2h8a5 5 0 0 1 5 5v5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z\"/><path class=\"body\" d=\"M1 14h26a1.4 1.4 0 0 1 1.4 1.4v2.2A1.4 1.4 0 0 1 27 19H1a1.4 1.4 0 0 1-1.4-1.4v-2.2A1.4 1.4 0 0 1 1 14z\"/><rect class=\"win\" x=\"13\" y=\"4.4\" width=\"4.4\" height=\"3.4\" rx=\"1.1\"/>",
+ /* Komuter: kotak berpantograf */
+ "<path class=\"body\" d=\"M13.5 1 18.4 5.9H8.6z\"/><path class=\"body\" d=\"M2 5.6h22a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1z\"/><circle class=\"body\" cx=\"7\" cy=\"16.4\" r=\"2\"/><circle class=\"body\" cx=\"19\" cy=\"16.4\" r=\"2\"/><rect class=\"win\" x=\"18.4\" y=\"7.8\" width=\"4.6\" height=\"3.4\" rx=\"1.1\"/>",
+ /* ERL: baji rendah */
+ "<path class=\"body\" d=\"M2 7h10l14 5.2v1.6a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z\"/><circle class=\"body\" cx=\"7\" cy=\"16.4\" r=\"2\"/><circle class=\"body\" cx=\"18\" cy=\"16.4\" r=\"2\"/><path class=\"win\" d=\"M13.6 8.9 21 11.6h-7.4z\"/>",
+ /* Lokomotif: bercerobong, tiga roda */
+ "<path class=\"body\" d=\"M18.4 0h4.4a1 1 0 0 1 1 1v5.4h-6.4V1a1 1 0 0 1 1-1z\"/><path class=\"body\" d=\"M2 6.2h22a1 1 0 0 1 1 1v6.6a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V7.2a1 1 0 0 1 1-1z\"/><circle class=\"body\" cx=\"6\" cy=\"16.6\" r=\"2.4\"/><circle class=\"body\" cx=\"13\" cy=\"16.8\" r=\"1.7\"/><circle class=\"body\" cx=\"19.5\" cy=\"16.8\" r=\"1.7\"/><rect class=\"win\" x=\"4.4\" y=\"8.4\" width=\"5\" height=\"3.6\" rx=\"1.1\"/>"];
+const TRAIN_NAMES=['MRT','Monorel','Komuter','ERL','Lokomotif'];
+const trainSVG=k=>`<svg class="train" viewBox="0 0 28 20" aria-hidden="true">${TRAINS[k%TRAINS.length]}</svg>`;
+const trainMark=(k,color,cls)=>`<span class="tdot ${cls||''}" style="color:${color||COLORS[k%COLORS.length]}" title="${TRAIN_NAMES[k%TRAIN_NAMES.length]}">${trainSVG(k)}</span>`;
 const DEFAULT_NAMES=['Zaiq','Farez','Fifah','Laila','Pemain 5'];
 const buyable=i=>['prop','hub','util'].includes(SQ[i].t);
 
@@ -874,7 +906,7 @@ function finish(){S.phase='over';renderAll();showEnd()}
 function showEnd(){
   const rk=S.players.map(p=>({p,w:p.bankrupt?0:netWorth(p)})).sort((a,b)=>b.w-a.w);
   document.getElementById('endTitle').textContent=`${rk[0].p.name} menang!`;
-  document.getElementById('rank').innerHTML=rk.map((r,i)=>`<li><span class="pos">${i+1}</span><span class="dot" style="width:16px;height:16px;border-radius:50%;background:${r.p.color}"></span><span class="n">${esc(r.p.name)}${r.p.bankrupt?' <span class="chip bad">Muflis</span>':''}</span><span class="money">${fmt(r.w)}</span></li>`).join('');
+  document.getElementById('rank').innerHTML=rk.map((r,i)=>`<li><span class="pos">${i+1}</span>${trainMark(S.players.indexOf(r.p),r.p.color)}<span class="n">${esc(r.p.name)}${r.p.bankrupt?' <span class="chip bad">Muflis</span>':''}</span><span class="money">${fmt(r.w)}</span></li>`).join('');
   document.getElementById('endBox').hidden=false;sfx.win();confetti()}
 
 /* ---------- bot ---------- */
@@ -1036,7 +1068,9 @@ function renderBoard(){
     if(o!==null){if(!own){own=document.createElement('span');own.className='own';el.appendChild(own)}own.style.background=S.players[o].color;own.title='Milik '+S.players[o].name}
     else if(own)own.remove();
     const st=el.querySelector('.stripe');if(st){const h=S.houses[i];st.innerHTML=h===5?'<span class="hotel">H</span>':'<span class="house"></span>'.repeat(h)}
-    const toks=S.players.map((p,k)=>(!p.bankrupt&&p.pos===i)?`<span class="tok ${k===S.turn&&S.phase!=='over'?'me':''}" style="background:${p.color}" title="${esc(p.name)}">${esc(p.name[0]||'?')}</span>`:'').join('');
+    /* Pergerakan mengelilingi papan: petak 0-19 ke kiri, 20-39 ke kanan. */
+    const toks=S.players.map((p,k)=>(!p.bankrupt&&p.pos===i)
+      ?`<span class="tok ${k===S.turn&&S.phase!=='over'?'me':''} ${i<=19?'flip':''}" style="color:${p.color}" title="${esc(p.name)} · ${TRAIN_NAMES[k%TRAIN_NAMES.length]}">${trainSVG(k)}</span>`:'').join('');
     el.querySelector('.tokens').innerHTML=toks});
   document.getElementById('msg').textContent=S.msg;
   const cs=document.getElementById('cardSlot');
@@ -1133,10 +1167,10 @@ function renderSide(){
   if(S.phase!=='over'&&p.bot){
     note=`<div class="note">Bot ${BOT_LEVELS[p.bot].toLowerCase()} sedang berfikir…</div>`;
     acts=`<button class="btn" type="button" disabled>${esc(p.name)} bermain…</button>`}
-  t.innerHTML=`<div class="turnhead"><span class="avatar" style="background:${p.color};color:${p.color}">${esc(p.name[0]||'?')}</span><div class="who"><small>${S.phase==='over'?'Permainan tamat':NET&&p.uid===UID?'Giliran anda':p.bot?'Giliran bot':'Giliran sekarang'}</small><b>${esc(p.name)}</b></div><span class="money" style="color:${neg?'var(--bad)':'inherit'}">${fmt(p.cash)}</span></div>${note}<div class="actions">${acts}</div><div class="note">${p.laps<S.qual?`Kelayakan membeli: ${p.laps}/${S.qual} pusingan. `:''}${S.endLaps?`Tamat apabila semua pemain lengkap ${S.endLaps} pusingan.`:'Tamat apabila hanya seorang pemain tidak muflis.'}</div>`;
+  t.innerHTML=`<div class="turnhead"><span class="avatar" style="background:${p.color};color:${p.color}"><span class="tdot av" style="color:#fff">${trainSVG(S.turn)}</span></span><div class="who"><small>${S.phase==='over'?'Permainan tamat':NET&&p.uid===UID?'Giliran anda':p.bot?'Giliran bot':'Giliran sekarang'}</small><b>${esc(p.name)}</b></div><span class="money" style="color:${neg?'var(--bad)':'inherit'}">${fmt(p.cash)}</span></div>${note}<div class="actions">${acts}</div><div class="note">${p.laps<S.qual?`Kelayakan membeli: ${p.laps}/${S.qual} pusingan. `:''}${S.endLaps?`Tamat apabila semua pemain lengkap ${S.endLaps} pusingan.`:'Tamat apabila hanya seorang pemain tidak muflis.'}</div>`;
   document.getElementById('players').innerHTML=S.players.map((q,k)=>{
     const sw=S.owner.map((o,i)=>o===k?`<i style="background:${SQ[i].t==='prop'?GROUPS[SQ[i].g].c:'var(--muted)'}"></i>`:'').join('');
-    return `<li class="pl ${k===S.turn&&S.phase!=='over'?'cur':''} ${q.bankrupt?'out':''}"><span class="dot" style="background:${q.color}"></span><span class="nmx">${NET?`<span class="live ${isOnline(q.uid)?'':'off'}" title="${isOnline(q.uid)?'Dalam talian':'Luar talian'}"></span> `:''}${esc(q.name)}${NET&&q.uid===UID?' <span class="chip ok">Anda</span>':''}</span><span class="money" style="${q.cash<0?'color:var(--bad)':''}">${fmt(q.cash)}</span>
+    return `<li class="pl ${k===S.turn&&S.phase!=='over'?'cur':''} ${q.bankrupt?'out':''}">${trainMark(k,q.color)}<span class="nmx">${NET?`<span class="live ${isOnline(q.uid)?'':'off'}" title="${isOnline(q.uid)?'Dalam talian':'Luar talian'}"></span> `:''}${esc(q.name)}${NET&&q.uid===UID?' <span class="chip ok">Anda</span>':''}</span><span class="money" style="${q.cash<0?'color:var(--bad)':''}">${fmt(q.cash)}</span>
     <span class="meta">${q.bot?`<span class="chip">Bot ${BOT_LEVELS[q.bot]}</span>`:''}${lapBar(q)}${q.bankrupt?'<span class="chip bad">Muflis</span>':S.qual&&q.laps>=S.qual?'<span class="chip ok">Boleh beli</span>':''}${q.inJail?'<span class="chip bad">Lokap</span>':''}${q.cards?`<span class="chip">Kad bebas ×${q.cards}</span>`:''}<span class="chip">Nilai ${fmt(netWorth(q))}</span><span class="swatches">${sw}</span></span></li>`}).join('');
   document.getElementById('propsTitle').textContent=`Hartanah ${p.name}`;
   const mine=S.owner.map((o,i)=>o===S.turn?i:-1).filter(i=>i>=0);
@@ -1158,7 +1192,8 @@ function renderAuction(){
   document.getElementById('aucBid').textContent=a.bid?fmt(a.bid):'—';
   document.getElementById('aucHigh').textContent=a.high===null?'Belum ada':S.players[a.high].name;
   const av=document.getElementById('aucAv');
-  av.style.background=p.color;av.style.color=p.color;av.textContent=p.name[0]||'?';
+  av.style.background=p.color;av.style.color=p.color;
+  av.innerHTML=`<span class="tdot av" style="color:#fff">${trainSVG(a.at)}</span>`;
   document.getElementById('aucWho').textContent=p.name;
   document.getElementById('aucCash').textContent=fmt(p.cash);
   const mine=aucMine();
@@ -1173,7 +1208,7 @@ function renderAuction(){
      <button class="btn" type="button" data-bid="100" ${dis(100)}>+RM100</button>
      <button class="btn danger" type="button" data-bid="0">Lepas</button>`;
   document.getElementById('aucSeats').innerHTML=S.players.map((q,k)=>q.bankrupt?'':
-    `<li><span class="dot" style="background:${q.color}"></span><span class="sp">${esc(q.name)}</span>${
+    `<li>${trainMark(k,q.color)}<span class="sp">${esc(q.name)}</span>${
       a.high===k?'<span class="chip ok">Tertinggi</span>':''}${
       a.out.includes(k)?'<span class="chip bad">Lepas</span>':k===a.at?'<span class="chip">Membida</span>':''
     }<span class="money">${fmt(q.cash)}</span></li>`).join('')}
@@ -1408,7 +1443,7 @@ function drawNames(){const n=+document.getElementById('nPlayers').value;const bo
   const ob=[...box.querySelectorAll('select')].map(x=>x.value);
   const opt=(v,b,txt)=>`<option value="${v}"${b===v?' selected':''}>${txt}</option>`;
   box.innerHTML=[...Array(n)].map((_,i)=>{const b=ob[i]??'';
-    return `<div class="nrow"><span class="dot" style="background:${COLORS[i]}"></span><input id="pname${i}" aria-label="Nama pemain ${i+1}" maxlength="16" value="${esc(old[i]??DEFAULT_NAMES[i])}"><select id="pbot${i}" aria-label="Jenis pemain ${i+1}">${opt('',b,'Manusia')}${opt('mudah',b,'Bot mudah')}${opt('sederhana',b,'Bot sederhana')}</select></div>`}).join('')}
+    return `<div class="nrow">${trainMark(i)}<input id="pname${i}" aria-label="Nama pemain ${i+1}" maxlength="16" value="${esc(old[i]??DEFAULT_NAMES[i])}"><select id="pbot${i}" aria-label="Jenis pemain ${i+1}">${opt('',b,'Manusia')}${opt('mudah',b,'Bot mudah')}${opt('sederhana',b,'Bot sederhana')}</select></div>`}).join('')}
 function botName(i,lv){const inp=document.getElementById('pname'+i);if(!inp)return;
   const v=inp.value.trim();
   if(lv){if(!v||DEFAULT_NAMES.includes(v))inp.value=BOT_NAMES[i]}
@@ -1612,7 +1647,7 @@ function renderLobby(){
   $('lobbyCode').textContent=NET.code;
   const seats=Object.entries(r.seats||{}).sort((a,b)=>a[1].t-b[1].t);
   const started=!!r.meta.started;
-  $('seats').innerHTML=seats.map(([id,v],i)=>`<li><span class="dot" style="background:${COLORS[i]}"></span><span class="sp">${esc(v.name)}${
+  $('seats').innerHTML=seats.map(([id,v],i)=>`<li>${trainMark(i)}<span class="sp">${esc(v.name)}${
     v.bot?` <span class="chip">Bot ${BOT_LEVELS[v.bot]||v.bot}</span>`:''}${
     id===UID?' <span class="chip ok">Anda</span>':''}${
     id===r.meta.host?' <span class="chip">Hos</span>':''}</span>${
