@@ -1643,14 +1643,52 @@ function omsg(t){$('onlineMsg').textContent=t||''}
 function myName(){const n=$('myName').value.trim();try{localStorage.setItem('mtkl-name',n)}catch(e){}return n}
 const CODE_CH='ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 const genCode=()=>[...Array(5)].map(()=>CODE_CH[Math.floor(Math.random()*CODE_CH.length)]).join('');
+/* ---------- simpanan bilik yang SAYA cipta ---------- */
+const MYROOMS='mtkl-myrooms', ROOM_TTL=24*60*60*1000;   /* 24 jam */
+function readMyRooms(){
+  try{const v=JSON.parse(localStorage.getItem(MYROOMS)||'[]');
+    return Array.isArray(v)?v.filter(r=>r&&typeof r.code==='string'):[]}catch(e){return[]}}
+function writeMyRooms(v){try{localStorage.setItem(MYROOMS,JSON.stringify(v.slice(-30)))}catch(e){}}
+function rememberRoom(code){const m=readMyRooms().filter(r=>r.code!==code);
+  m.push({code,t:Date.now()});writeMyRooms(m)}
+function forgetRoom(code){writeMyRooms(readMyRooms().filter(r=>r.code!==code))}
+/* Buang bilik lama milik sendiri sahaja, dan hanya yang sudah lewat tempoh.
+   Bilik orang lain tidak pernah disentuh — kita tidak tahu ia masih dimainkan atau tidak. */
+function sweepMyRooms(keep){
+  if(!fdb)return;
+  const cut=Date.now()-ROOM_TTL,left=[];
+  readMyRooms().forEach(r=>{
+    if(r.code===keep||!r.t||r.t>cut){left.push(r);return}
+    fdb.ref('rooms/'+r.code).remove().catch(()=>{});
+  });
+  writeMyRooms(left);
+}
+/* Tuntut satu kod secara atomik: transaksi hanya menulis jika nod itu masih
+   kosong. Mengembalikan undefined membatalkan tulisan, jadi bilik yang sedang
+   dimainkan tidak mungkin ditimpa — walaupun dua hos menjana kod yang sama serentak. */
+function claimRoom(code,data){
+  return new Promise((res,rej)=>{
+    const ref=fdb.ref('rooms/'+code);
+    if(typeof ref.transaction!=='function'){     /* SDK lama: sekurang-kurangnya jangan timpa */
+      ref.get().then(s=>s.exists()?res(false):ref.set(data).then(()=>res(true)))
+        .catch(rej);return}
+    ref.transaction(cur=>cur===null?data:undefined,
+      (err,committed)=>err?rej(err):res(!!committed),false);
+  });
+}
 async function createRoom(){
   if(!fbReady()){omsg('Firebase belum disediakan.');return}
   const name=myName();if(!name){omsg('Masukkan nama anda dahulu.');$('myName').focus();return}
   omsg('Mencipta bilik…');
-  try{let code,tries=0;do{code=genCode();tries++}while((await fdb.ref('rooms/'+code+'/meta').get()).exists()&&tries<6);
-    await fdb.ref('rooms/'+code).set({meta:{host:UID,qual:+$('oQual').value,endLaps:+$('oEnd').value,cash:+$('oCash').value,auc:$('oAuc').value==='1',created:Date.now(),started:false},
-      seats:{[UID]:{name,t:Date.now()}}});
-    enterRoom(code);omsg('')}
+  const data={meta:{host:UID,qual:+$('oQual').value,endLaps:+$('oEnd').value,cash:+$('oCash').value,auc:$('oAuc').value==='1',created:Date.now(),started:false},
+    seats:{[UID]:{name,t:Date.now()}}};
+  try{
+    let code=null;
+    for(let i=0;i<8&&!code;i++){const c=genCode();if(await claimRoom(c,data))code=c}
+    if(!code){omsg('Tidak dapat mencari kod bilik yang kosong. Cuba sekali lagi.');return}
+    rememberRoom(code);
+    enterRoom(code);omsg('');
+    sweepMyRooms(code)}
   catch(e){omsg('Tidak dapat mencipta bilik: '+e.message+'. Semak peraturan pangkalan data Firebase.')}
 }
 async function joinRoom(code,silent){
@@ -1680,7 +1718,7 @@ function enterRoom(code){
 }
 function onRoom(snap){
   if(!NET)return;const r=snap.val();
-  if(!r||!r.meta){const c=NET.code;leaveRoom();openSetup();omsg(`Bilik ${c} sudah tiada.`);return}
+  if(!r||!r.meta){const c=NET.code;leaveRoom();forgetRoom(c);openSetup();omsg(`Bilik ${c} sudah tiada.`);return}
   NET.room=r;NET.host=r.meta.host===UID;
   if(r.meta.started&&r.state){
     applyRemote(r.state);
@@ -1736,7 +1774,14 @@ function restartOnline(){
 function leaveRoom(quiet){
   if(!NET)return;const n=NET;NET=null;
   try{n.ref.off('value',onRoom);n.ref.child('online/'+UID).remove();
-    if(n.room&&n.room.meta&&!n.room.meta.started)n.ref.child('seats/'+UID).remove()}catch(e){}
+    if(n.room&&n.room.meta&&!n.room.meta.started){
+      const seats=n.room.seats||{};
+      const others=Object.keys(seats).filter(id=>id!==UID&&!String(id).startsWith('bot_'));
+      /* Hos keluar sebelum permainan bermula dan tiada manusia lain tinggal:
+         bilik itu tidak akan digunakan lagi, jadi buang terus. */
+      if(n.room.meta.host===UID&&!others.length){
+        n.ref.remove().catch(()=>{});forgetRoom(n.code)}
+      else n.ref.child('seats/'+UID).remove()}}catch(e){}
   try{localStorage.removeItem('mtkl-room')}catch(e){}
   try{const u=new URL(location.href);u.searchParams.delete('bilik');history.replaceState(null,'',u)}catch(e){}
   $('roomChip').hidden=true;
@@ -1796,6 +1841,7 @@ async function start(){
   openSetup(tryCode?'full':'home');
   setTab(FIREBASE_CONFIG?'online':'local');
   if(!FIREBASE_CONFIG)return;
+  if(fbReady())sweepMyRooms(tryCode||null);   /* kemas bilik lama sendiri setiap kali dibuka */
   if(tryCode){$('joinCode').value=tryCode;
     const ok=await joinRoom(tryCode,true);
     if(!ok){try{localStorage.removeItem('mtkl-room')}catch(e){}
