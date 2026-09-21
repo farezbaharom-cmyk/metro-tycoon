@@ -719,10 +719,10 @@ async function rollDice(){
       if(p.jailTurns>=3){pay(p,50);p.inJail=false;S.again=false;addLog(`${p.name} bayar denda RM50 selepas 3 giliran.`);renderAll();await sleep(500);await walk(p,a+b);await land(p)}
       else{S.msg=`Bukan ganda. ${p.name} kekal di Lokap (${p.jailTurns}/3).`;S.again=false}}
   }else{
-    if(dbl){S.doubles++;if(S.doubles===3){addLog('Tiga kali ganda berturut-turut!');goJail(p);settle();busy=false;renderAll();return}}
+    if(dbl){S.doubles++;if(S.doubles===3){addLog('Tiga kali ganda berturut-turut!');goJail(p);settle();busy=false;renderAll();flushRemote();return}}
     S.again=dbl;await walk(p,a+b);await land(p);
   }
-  if(S.phase!=='buy')settle();busy=false;renderAll();
+  if(S.phase!=='buy')settle();busy=false;renderAll();flushRemote();
 }
 function settle(){const p=cur();
   if(S.phase==='over')return;
@@ -1457,17 +1457,65 @@ function isActor(){
   return p.uid===UID||(p.bot&&botDriver()===UID)||(NET.host&&NET.override===S.turn)}
 function isOnline(uid){if(String(uid||'').startsWith('bot_'))return true;
   return !!(NET&&NET.room&&NET.room.online&&NET.room.online[uid])}
+let pendingRemote=null;
+/* Tulisan bersyarat: hanya terpakai jika tiada siapa menulis selepas keadaan
+   yang kita asaskan ini. Kalau ada, kita mengalah dan ambil keadaan pelayan —
+   bukan menimpanya. */
 function sync(){
   if(!NET){save();return}
   if(applying||!S||!NET.room||!NET.room.meta||!NET.room.meta.started||!isActorOrJustActed())return;
-  S.by=UID;S.rev=(S.rev||0)+1;NET.ref.child('state').set(JSON.stringify(S)).catch(err=>toast('Gagal menyimpan ke pelayan: '+err.message));
+  const base=S.rev||0,gid=S.gid;
+  S.by=UID;S.rev=base+1;
+  const payload=JSON.stringify(S),ref=NET.ref.child('state');
+  if(typeof ref.transaction!=='function'){         /* SDK lama: tiada pilihan lain */
+    ref.set(payload).catch(syncFailed);return}
+  ref.transaction(cur=>{
+    if(cur){let c=null;try{c=JSON.parse(cur)}catch(e){}
+      if(c&&c.gid===gid&&(c.rev||0)>base)return;   /* undefined = batalkan tulisan */
+    }
+    return payload;
+  },(err,committed,snap)=>{
+    if(err){syncFailed(err);return}
+    if(!committed){
+      const v=snap&&snap.val();
+      if(v){toast('Keadaan permainan diselaraskan semula.');applyRemote(v,true)}
+    }
+  },false);
+}
+function syncFailed(err){
+  toast('Gagal menyimpan: '+((err&&err.message)||err||'tidak diketahui'));
+  /* Jangan biarkan keadaan tempatan menyimpang daripada pelayan. */
+  if(NET)NET.ref.child('state').get()
+    .then(s=>{const v=s&&s.val();if(v)applyRemote(v,true)}).catch(()=>{});
+}
+/* Terima hanya keadaan yang berbentuk waras — jangan biarkan data rosak
+   memadam permainan yang sedang berjalan. */
+function validState(st){
+  return !!st&&Array.isArray(st.players)&&st.players.length>=2
+    &&Array.isArray(st.owner)&&st.owner.length===40
+    &&Array.isArray(st.houses)&&st.houses.length===40
+    &&Array.isArray(st.mort)&&st.mort.length===40
+    &&typeof st.turn==='number'&&st.turn>=0&&st.turn<st.players.length
+    &&typeof st.phase==='string'&&Array.isArray(st.log);
+}
+/* Keadaan yang tiba semasa animasi disimpan dahulu, bukan dibuang. */
+function flushRemote(){
+  if(!pendingRemote||busy)return;
+  const s=pendingRemote;pendingRemote=null;
+  try{const st=JSON.parse(s);
+    if(S&&st.gid===S.gid&&(st.rev||0)<=(S.rev||0))return;   /* sudah lapuk */
+  }catch(e){return}
+  applyRemote(s,true);
 }
 let actedTurn=null;
 function isActorOrJustActed(){return isActor()||actedTurn===true}
-function applyRemote(str){
+function applyRemote(str,force){
   let st;try{st=JSON.parse(str)}catch(e){return}
-  if(S&&st.by===UID&&(st.rev||0)<=(S.rev||0)&&S.gid===st.gid)return;
-  if(busy)return;
+  if(!validState(st))return;
+  if(!force&&S&&st.by===UID&&(st.rev||0)<=(S.rev||0)&&S.gid===st.gid)return;
+  /* Betul-betul sama: jangan render semula setiap kali kehadiran berubah. */
+  if(S&&st.gid===S.gid&&(st.rev||0)===(S.rev||0)&&st.by===S.by)return;
+  if(busy){pendingRemote=str;return}
   const prev=S;S=st;applying=true;
   try{renderAll()}finally{applying=false}
   const same=prev&&prev.gid===S.gid;
