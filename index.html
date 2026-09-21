@@ -165,7 +165,9 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .field label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 input,select{background:var(--board);color:var(--ink);border:1px solid var(--rule);border-radius:8px;padding:9px 10px;font:inherit;min-width:0}
 .names{display:flex;flex-direction:column;gap:8px}
-.names .nrow{display:flex;gap:8px;align-items:center}
+.names .nrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.names .nrow input{flex:2 1 120px}
+.names .nrow select{flex:1 1 132px}
 .names .nrow .dot{width:22px;height:22px;border-radius:50%;flex:none}
 .names input{flex:1}
 .rules{font-size:13px;color:var(--muted);background:var(--soft);border-radius:10px;padding:10px 12px;margin:0}
@@ -263,7 +265,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:60;width:100%;heigh
     </div>
 
     <form id="setupForm" hidden style="display:flex;flex-direction:column;gap:14px">
-      <p>Semua pemain berkongsi satu skrin dan bergilir-gilir.</p>
+      <p>Semua pemain berkongsi satu skrin dan bergilir-gilir. Tukar mana-mana pemain kepada bot untuk main sendirian.</p>
       <div class="row">
         <div class="field"><label for="nPlayers">Bilangan pemain</label>
           <select id="nPlayers"><option>2</option><option>3</option><option>4</option><option selected>5</option></select></div>
@@ -273,6 +275,11 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:60;width:100%;heigh
           <select id="nEnd"><option value="0" selected>Seorang sahaja tinggal</option><option value="5">Semua lengkap 5 pusingan</option><option value="7">Semua lengkap 7 pusingan</option><option value="10">Semua lengkap 10 pusingan</option></select></div>
         <div class="field"><label for="nCash">Modal awal</label>
           <select id="nCash"><option value="1000">RM1,000</option><option value="1500" selected>RM1,500</option><option value="2000">RM2,000</option></select></div>
+      </div>
+      <div class="row" id="presets" style="gap:8px">
+        <button class="mini" type="button" data-p="">Semua manusia</button>
+        <button class="mini" type="button" data-p="mudah">Saya + bot mudah</button>
+        <button class="mini" type="button" data-p="sederhana">Saya + bot sederhana</button>
       </div>
       <div class="names" id="names"></div>
       <div class="row">
@@ -287,6 +294,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:60;width:100%;heigh
   <div class="modal">
     <h2>Peraturan</h2>
     <ul class="rules">
+      <li><b>Main sendirian:</b> dalam mod <b>Satu peranti</b>, tukar mana-mana pemain kepada <b>Bot mudah</b> atau <b>Bot sederhana</b>. Bot mudah membeli secara longgar dan jarang membina; bot sederhana mengejar set penuh, menyekat lawan, membina hotel dan bertahan di Lokap pada akhir permainan.</li>
       <li>Baling dua dadu dan gerak. Lalu <b>MULA</b> untuk kutip RM200 dan tambah satu pusingan.</li>
       <li><b>Pusingan kelayakan:</b> secara lalai, setiap pemain mesti lengkapkan 2 pusingan sebelum boleh membeli hartanah. Sewa tetap perlu dibayar dari awal.</li>
       <li>Mendarat di stesen, hab atau utiliti yang belum dimiliki: beli atau lepaskan.</li>
@@ -425,12 +433,15 @@ const TABUNG=[
 /* ---------- state ---------- */
 let S=null, sound=true, busy=false, closedCard=null;
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
-function newGame(names,qual,endLaps,cash){
-  S={players:names.map((n,i)=>({name:n,color:COLORS[i],cash,pos:0,laps:0,inJail:false,jailTurns:0,cards:0,bankrupt:false,creditor:null})),
+function newGame(names,qual,endLaps,cash,bots){
+  clearBot();
+  S={players:names.map((n,i)=>({name:n,color:COLORS[i],cash,pos:0,laps:0,inJail:false,jailTurns:0,cards:0,bankrupt:false,creditor:null,bot:(bots&&bots[i])||null})),
    owner:Array(40).fill(null),houses:Array(40).fill(0),mort:Array(40).fill(false),
    turn:0,phase:'roll',doubles:0,again:false,dice:[3,4],qual,endLaps,msg:`${names[0]}, baling dadu untuk mula.`,
    card:null,log:[],decks:{peluang:shuffle([...PELUANG.keys()]),tabung:shuffle([...TABUNG.keys()])}};
   addLog(qual?`Permainan bermula. Setiap pemain perlu lengkapkan ${qual} pusingan sebelum boleh membeli hartanah.`:'Permainan bermula. Semoga berjaya!');
+  const bl=S.players.filter(p=>p.bot);
+  if(bl.length)addLog(`Lawan bot: ${bl.map(p=>`${p.name} (${BOT_LEVELS[p.bot]})`).join(', ')}.`);
 }
 const cur=()=>S.players[S.turn];
 const fmt=n=>(n<0?'−':'')+'RM'+Math.abs(n).toLocaleString('en-MY');
@@ -587,6 +598,79 @@ function showEnd(){
   document.getElementById('rank').innerHTML=rk.map((r,i)=>`<li><span class="pos">${i+1}</span><span class="dot" style="width:16px;height:16px;border-radius:50%;background:${r.p.color}"></span><span class="n">${esc(r.p.name)}${r.p.bankrupt?' <span class="chip bad">Muflis</span>':''}</span><span class="money">${fmt(r.w)}</span></li>`).join('');
   document.getElementById('endBox').hidden=false;sfx.win();confetti()}
 
+/* ---------- bot ---------- */
+const BOT_LEVELS={mudah:'Mudah',sederhana:'Sederhana'};
+const BOT_NAMES=['Bot Ain','Bot Hafiz','Bot Rina','Bot Zul','Bot Mia'];
+let botTimer=null;
+function clearBot(){if(botTimer){clearTimeout(botTimer);botTimer=null}}
+const isBotTurn=()=>!!(S&&!NET&&S.players[S.turn]&&S.players[S.turn].bot&&!S.players[S.turn].bankrupt);
+const myIdx=()=>S.owner.map((o,i)=>o===S.turn?i:-1).filter(i=>i>=0);
+function scheduleBot(){
+  clearBot();
+  if(NET||!S||busy||S.phase==='over'||S.phase==='moving'||!isBotTurn())return;
+  if(!document.getElementById('setup').hidden)return;
+  const quick=cur().cash<0||S.phase==='end';
+  botTimer=setTimeout(()=>{botTimer=null;botAct()},RM?100:(quick?420:760));
+}
+/* Simpanan tunai yang bot cuba kekalkan — ikut sewa paling tinggi di papan. */
+function botBuffer(){let worst=0;
+  S.owner.forEach((o,i)=>{if(o!==null&&o!==S.turn&&!S.mort[i])worst=Math.max(worst,rentOf(i))});
+  return Math.max(150,Math.min(500,Math.round(worst*1.2)))}
+function botAct(){
+  if(NET||busy||!S||S.phase==='over'||!isBotTurn())return;
+  const p=cur(),lv=p.bot;
+  if(p.cash<0){botRaise(p);return}
+  if(S.phase==='roll'){p.inJail?botJail(p,lv):rollDice();return}
+  if(S.phase==='buy'){botBuy(p,lv);return}
+  if(S.phase==='end'){botManage(p,lv);endTurn();return}
+}
+function botJail(p,lv){
+  if(p.cards){useCard();return}
+  const owned=S.owner.filter(o=>o!==null).length,total=SQ.filter((s,i)=>buyable(i)).length;
+  /* Lewat permainan, tinggal di Lokap lebih selamat daripada merayau di papan penuh hotel. */
+  const wantOut=lv==='mudah'?p.cash>=150:(owned<total*.6&&p.cash>=250);
+  if(wantOut&&p.cash>=50){payBail();return}
+  rollDice()}
+function botBuy(p,lv){
+  const s=SQ[p.pos];
+  if(p.cash<s.p){pass();return}
+  (lv==='mudah'?(p.cash-s.p>=120&&Math.random()>.12):botWants(p,p.pos))?buy():pass()}
+function botWants(p,i){
+  const s=SQ[i],pi=S.turn,after=p.cash-s.p;let reserve=200;
+  if(s.t==='prop'){const gi=groupIdx(s.g);
+    const mine=gi.filter(j=>S.owner[j]===pi).length;
+    const foe=gi.filter(j=>S.owner[j]!==null&&S.owner[j]!==pi).length;
+    if(mine+1===gi.length)reserve=0;            /* melengkapkan set — mesti ambil */
+    else if(mine>=1)reserve=60;                 /* menghampiri set */
+    else if(foe>=gi.length-1)reserve=80;        /* sekat lawan daripada lengkap */
+    else reserve=180}
+  else if(s.t==='hub')reserve=HUBS.filter(j=>S.owner[j]===pi).length?60:140;
+  else reserve=UTILS.filter(j=>S.owner[j]===pi).length?120:260;
+  return after>=reserve}
+function botManage(p,lv){
+  if(lv==='mudah'){
+    for(let g=0;g<8;g++){const o=myIdx().filter(i=>canBuild(i)&&S.houses[i]<3);
+      if(!o.length||p.cash-GROUPS[SQ[o[0]].g].h<400)break;build(o[0])}
+    return}
+  for(let g=0;g<6;g++){const m=myIdx().filter(i=>canUnmort(i)&&p.cash-unmortCost(i)>=450);
+    if(!m.length)break;unmortgage(m[0])}
+  const buf=botBuffer();
+  for(let g=0;g<14;g++){
+    const o=myIdx().filter(i=>canBuild(i)).sort((a,b)=>GROUPS[SQ[b].g].h-GROUPS[SQ[a].g].h);
+    const i=o.find(j=>p.cash-GROUPS[SQ[j].g].h>=buf);
+    if(i===undefined)break;build(i)}
+}
+function botRaise(p){
+  const pi=S.turn;
+  const sl=myIdx().filter(i=>canSell(i));
+  if(sl.length){sl.sort((a,b)=>GROUPS[SQ[a].g].h-GROUPS[SQ[b].g].h);sell(sl[0]);return}
+  const mo=myIdx().filter(i=>canMort(i));
+  if(mo.length){mo.sort((a,b)=>{
+      const sa=SQ[a].t==='prop'&&hasSet(pi,SQ[a].g)?1:0,sb=SQ[b].t==='prop'&&hasSet(pi,SQ[b].g)?1:0;
+      return sa-sb||SQ[a].p-SQ[b].p});                 /* set penuh digadai paling akhir */
+    mortgage(mo[0]);return}
+  bankrupt()}
+
 /* ---------- rendering ---------- */
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function gridPos(i){if(i<=10)return[11,11-i];if(i<=20)return[11-(i-10),1];if(i<=30)return[1,1+(i-20)];return[1+(i-30),11]}
@@ -658,11 +742,14 @@ function renderSide(){
     note=`<div class="note">${on?'':'<span class="chip bad">Luar talian</span> '}Menunggu ${esc(p.name)} bermain…</div>`;
     acts=NET.host?`<button class="btn" type="button" data-a="takeover">Ambil alih giliran ini</button>`:''}
   if(NET&&S.phase==='over'&&!NET.host)acts='';
-  t.innerHTML=`<div class="turnhead"><span class="avatar" style="background:${p.color};color:${p.color}">${esc(p.name[0]||'?')}</span><div class="who"><small>${S.phase==='over'?'Permainan tamat':NET&&p.uid===UID?'Giliran anda':'Giliran sekarang'}</small><b>${esc(p.name)}</b></div><span class="money" style="color:${neg?'var(--bad)':'inherit'}">${fmt(p.cash)}</span></div>${note}<div class="actions">${acts}</div><div class="note">${p.laps<S.qual?`Kelayakan membeli: ${p.laps}/${S.qual} pusingan. `:''}${S.endLaps?`Tamat apabila semua pemain lengkap ${S.endLaps} pusingan.`:'Tamat apabila hanya seorang pemain tidak muflis.'}</div>`;
+  if(!NET&&S.phase!=='over'&&p.bot){
+    note=`<div class="note">Bot ${BOT_LEVELS[p.bot].toLowerCase()} sedang berfikir…</div>`;
+    acts=`<button class="btn" type="button" disabled>${esc(p.name)} bermain…</button>`}
+  t.innerHTML=`<div class="turnhead"><span class="avatar" style="background:${p.color};color:${p.color}">${esc(p.name[0]||'?')}</span><div class="who"><small>${S.phase==='over'?'Permainan tamat':NET&&p.uid===UID?'Giliran anda':p.bot?'Giliran bot':'Giliran sekarang'}</small><b>${esc(p.name)}</b></div><span class="money" style="color:${neg?'var(--bad)':'inherit'}">${fmt(p.cash)}</span></div>${note}<div class="actions">${acts}</div><div class="note">${p.laps<S.qual?`Kelayakan membeli: ${p.laps}/${S.qual} pusingan. `:''}${S.endLaps?`Tamat apabila semua pemain lengkap ${S.endLaps} pusingan.`:'Tamat apabila hanya seorang pemain tidak muflis.'}</div>`;
   document.getElementById('players').innerHTML=S.players.map((q,k)=>{
     const sw=S.owner.map((o,i)=>o===k?`<i style="background:${SQ[i].t==='prop'?GROUPS[SQ[i].g].c:'var(--muted)'}"></i>`:'').join('');
     return `<li class="pl ${k===S.turn&&S.phase!=='over'?'cur':''} ${q.bankrupt?'out':''}"><span class="dot" style="background:${q.color}"></span><span class="nmx">${NET?`<span class="live ${isOnline(q.uid)?'':'off'}" title="${isOnline(q.uid)?'Dalam talian':'Luar talian'}"></span> `:''}${esc(q.name)}${NET&&q.uid===UID?' <span class="chip ok">Anda</span>':''}</span><span class="money" style="${q.cash<0?'color:var(--bad)':''}">${fmt(q.cash)}</span>
-    <span class="meta">${lapBar(q)}${q.bankrupt?'<span class="chip bad">Muflis</span>':S.qual&&q.laps>=S.qual?'<span class="chip ok">Boleh beli</span>':''}${q.inJail?'<span class="chip bad">Lokap</span>':''}${q.cards?`<span class="chip">Kad bebas ×${q.cards}</span>`:''}<span class="chip">Nilai ${fmt(netWorth(q))}</span><span class="swatches">${sw}</span></span></li>`}).join('');
+    <span class="meta">${q.bot?`<span class="chip">Bot ${BOT_LEVELS[q.bot]}</span>`:''}${lapBar(q)}${q.bankrupt?'<span class="chip bad">Muflis</span>':S.qual&&q.laps>=S.qual?'<span class="chip ok">Boleh beli</span>':''}${q.inJail?'<span class="chip bad">Lokap</span>':''}${q.cards?`<span class="chip">Kad bebas ×${q.cards}</span>`:''}<span class="chip">Nilai ${fmt(netWorth(q))}</span><span class="swatches">${sw}</span></span></li>`}).join('');
   document.getElementById('propsTitle').textContent=`Hartanah ${p.name}`;
   const mine=S.owner.map((o,i)=>o===S.turn?i:-1).filter(i=>i>=0);
   const lock=busy||S.phase==='moving'||S.phase==='over'||!isActor();
@@ -673,7 +760,7 @@ function renderSide(){
     return `<li class="pp"><span class="c" style="background:${col}"></span><span class="t"><b>${esc(s.n)}</b><small>Sewa ${fmt(rentOf(i))}${st?' · '+st:''}</small></span>${b}${m}</li>`}).join(''):`<li class="empty">Belum ada hartanah. Mendarat di stesen untuk membeli.</li>`;
   document.getElementById('log').innerHTML=S.log.slice(0,40).map(l=>`<li>${esc(l)}</li>`).join('');
 }
-function renderAll(){renderBoard();renderDice();renderSide();sync()}
+function renderAll(){renderBoard();renderDice();renderSide();sync();scheduleBot()}
 
 /* ---------- events ---------- */
 document.getElementById('turn').addEventListener('click',e=>{const a=e.target.closest('[data-a]')?.dataset.a;if(!a)return;
@@ -688,19 +775,33 @@ document.addEventListener('keydown',e=>{if(e.target.matches('input,select,textar
   if(e.key===' '||e.key==='Enter'){if(e.target.closest('.sq,button')||!isActor())return;e.preventDefault();
     actedTurn=true;try{if(S.phase==='roll')rollDice();else if(S.phase==='end')endTurn()}finally{actedTurn=null}}});
 
-function openSetup(){document.getElementById('endBox').hidden=true;document.getElementById('fx').hidden=true;
+function openSetup(){clearBot();document.getElementById('endBox').hidden=true;document.getElementById('fx').hidden=true;
   document.getElementById('btnResume').hidden=!(S&&S.phase!=='over'&&!NET&&S.started);document.getElementById('setup').hidden=false;drawNames();renderLobby()}
 function drawNames(){const n=+document.getElementById('nPlayers').value;const box=document.getElementById('names');
   const old=[...box.querySelectorAll('input')].map(x=>x.value);
-  box.innerHTML=[...Array(n)].map((_,i)=>`<div class="nrow"><span class="dot" style="background:${COLORS[i]}"></span><input id="pname${i}" aria-label="Nama pemain ${i+1}" maxlength="16" value="${esc(old[i]??DEFAULT_NAMES[i])}"></div>`).join('')}
+  const ob=[...box.querySelectorAll('select')].map(x=>x.value);
+  const opt=(v,b,txt)=>`<option value="${v}"${b===v?' selected':''}>${txt}</option>`;
+  box.innerHTML=[...Array(n)].map((_,i)=>{const b=ob[i]??'';
+    return `<div class="nrow"><span class="dot" style="background:${COLORS[i]}"></span><input id="pname${i}" aria-label="Nama pemain ${i+1}" maxlength="16" value="${esc(old[i]??DEFAULT_NAMES[i])}"><select id="pbot${i}" aria-label="Jenis pemain ${i+1}">${opt('',b,'Manusia')}${opt('mudah',b,'Bot mudah')}${opt('sederhana',b,'Bot sederhana')}</select></div>`}).join('')}
+function botName(i,lv){const inp=document.getElementById('pname'+i);if(!inp)return;
+  const v=inp.value.trim();
+  if(lv){if(!v||DEFAULT_NAMES.includes(v))inp.value=BOT_NAMES[i]}
+  else if(BOT_NAMES.includes(v))inp.value=DEFAULT_NAMES[i]}
+document.getElementById('names').addEventListener('change',e=>{const s=e.target.closest('select');
+  if(s&&s.id.startsWith('pbot'))botName(+s.id.slice(4),s.value)});
+document.getElementById('presets').addEventListener('click',e=>{const b=e.target.closest('[data-p]');if(!b)return;
+  const lv=b.dataset.p,n=+document.getElementById('nPlayers').value;
+  for(let i=0;i<n;i++){const s=document.getElementById('pbot'+i);if(!s)continue;
+    s.value=i===0?'':lv;botName(i,s.value)}});
 document.getElementById('nPlayers').addEventListener('change',drawNames);
 document.getElementById('setupForm').addEventListener('submit',e=>{e.preventDefault();
   const n=+document.getElementById('nPlayers').value;
   const names=[...Array(n)].map((_,i)=>(document.getElementById('pname'+i).value.trim()||`Pemain ${i+1}`));
+  const bots=[...Array(n)].map((_,i)=>document.getElementById('pbot'+i).value||null);
   if(NET)leaveRoom();
-  newGame(names,+document.getElementById('nQual').value,+document.getElementById('nEnd').value,+document.getElementById('nCash').value);S.started=true;
+  newGame(names,+document.getElementById('nQual').value,+document.getElementById('nEnd').value,+document.getElementById('nCash').value,bots);S.started=true;
   document.getElementById('setup').hidden=true;renderAll()});
-document.getElementById('btnResume').onclick=()=>{document.getElementById('setup').hidden=true};
+document.getElementById('btnResume').onclick=()=>{document.getElementById('setup').hidden=true;scheduleBot()};
 document.getElementById('btnNew').onclick=openSetup;
 document.getElementById('btnFinish').onclick=()=>{if(NET&&!NET.host){toast('Hanya hos boleh menamatkan permainan.');return}if(S&&S.phase!=='over'&&!busy&&confirm('Tamatkan permainan dan kira pemenang sekarang?')){if(NET)NET.override=S.turn;actedTurn=true;try{finish()}finally{actedTurn=null}}};
 document.getElementById('btnAgain').onclick=()=>{if(NET){document.getElementById('endBox').hidden=true;if(NET.host)restartOnline();return}openSetup()};
@@ -722,7 +823,7 @@ const UID=(()=>{let u=null;try{u=localStorage.getItem('mtkl-uid')}catch(e){}
 const $=id=>document.getElementById(id);
 function fbReady(){if(fdb)return true;if(!FIREBASE_CONFIG||!window.firebase)return false;
   try{if(!firebase.apps.length)firebase.initializeApp(FIREBASE_CONFIG);fdb=firebase.database();return true}catch(e){console.error(e);return false}}
-function isActor(){if(!NET)return true;if(!S||!S.players[S.turn])return false;return S.players[S.turn].uid===UID||(NET.host&&NET.override===S.turn)}
+function isActor(){if(S&&S.players[S.turn]&&S.players[S.turn].bot)return false;if(!NET)return true;if(!S||!S.players[S.turn])return false;return S.players[S.turn].uid===UID||(NET.host&&NET.override===S.turn)}
 function isOnline(uid){return !!(NET&&NET.room&&NET.room.online&&NET.room.online[uid])}
 function sync(){
   if(!NET){save();return}
