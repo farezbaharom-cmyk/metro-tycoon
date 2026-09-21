@@ -55,6 +55,21 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 @media (max-width:1000px){.boardwrap{max-width:100%}}
 
 /* board */
+/* zum & geser papan */
+.boardview{position:relative;width:100%;aspect-ratio:1;overflow:hidden;border-radius:6px;
+  touch-action:none;-webkit-user-select:none;user-select:none}
+.boardview .board{position:absolute;inset:0;width:100%;height:100%;
+  transform-origin:0 0;will-change:transform}
+.boardview.grab{cursor:grab}
+.boardview.grabbing{cursor:grabbing}
+.zoomctl{display:flex;align-items:center;gap:6px;justify-content:center;margin-top:8px}
+.zoomctl button{background:var(--panel);border:1px solid var(--rule);border-radius:999px;
+  min-width:42px;height:38px;padding:0 14px;font-weight:800;font-size:17px;line-height:1}
+.zoomctl button:hover:not(:disabled){background:var(--soft)}
+.zoomctl button:disabled{opacity:.4;cursor:not-allowed}
+.zoomctl button[data-z="reset"]{font-size:13px;font-weight:700}
+.zlvl{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--muted);
+  min-width:52px;text-align:center;font-variant-numeric:tabular-nums}
 .board{position:relative;aspect-ratio:1;max-width:100%;display:grid;grid-template-columns:1.55fr repeat(9,1fr) 1.55fr;grid-template-rows:1.55fr repeat(9,1fr) 1.55fr;background:var(--rule);gap:1px;border:2px solid var(--ink);border-radius:6px;overflow:hidden;box-shadow:var(--shadow)}
 .sq{position:relative;background:var(--board);display:flex;min-width:0;min-height:0;overflow:hidden;cursor:pointer;transition:background .2s}
 .sq:hover{background:var(--soft)}
@@ -159,6 +174,16 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .overlay{position:fixed;inset:0;background:rgba(8,14,20,.55);backdrop-filter:blur(3px);display:grid;place-items:center;padding:16px;z-index:50;overflow:auto}
 .modal{background:var(--panel);border-radius:16px;box-shadow:var(--shadow);width:100%;max-width:520px;padding:22px;display:flex;flex-direction:column;gap:14px;max-height:100%;overflow:auto}
 .modal h2{margin:0;font-family:var(--display);font-weight:900;font-size:36px;text-transform:uppercase;line-height:1}
+/* skrin mula ringkas */
+#setupHome{display:flex;flex-direction:column;gap:12px;text-align:center;align-items:stretch}
+#setupHome .lines{display:flex;gap:4px;justify-content:center}
+#setupHome .lines i{display:block;width:9px;height:32px;border-radius:4px}
+.hometitle{font-size:clamp(26px,8.6vw,34px)!important;letter-spacing:.01em;text-wrap:balance}
+.hometitle span{color:var(--accent)}
+#setupHome p{margin:0 0 4px}
+.btn.big{padding:16px 18px;font-size:17px;border-radius:12px;width:100%;min-width:0}
+#setupHome .ghost{align-self:center;margin-top:2px}
+.ghost.back{align-self:flex-start;margin-bottom:2px}
 .modal p{margin:0;color:var(--muted)}
 .row{display:flex;gap:10px;flex-wrap:wrap}
 .field{display:flex;flex-direction:column;gap:4px;flex:1 1 140px}
@@ -191,6 +216,26 @@ input,select{background:var(--board);color:var(--ink);border:1px solid var(--rul
 .live.off{background:var(--rule)}
 .omsg{font-size:13px;min-height:1.2em;color:var(--bad);font-weight:600}
 .roomchip{font-family:var(--mono)}
+/* paparan besar maklumat petak */
+.deedwrap{padding:0;overflow:hidden;max-width:460px}
+.deedhead{display:flex;align-items:flex-start;gap:12px;padding:18px 20px;color:#fff}
+.deedhead h2{margin:0;font-family:var(--display);font-weight:900;line-height:.95;
+  font-size:clamp(28px,7.6vw,38px);text-transform:uppercase;letter-spacing:.01em;text-wrap:balance}
+.deedhead p{margin:6px 0 0;font-size:14px;font-weight:600;color:rgba(255,255,255,.9)}
+.deedhead .x.big{flex:none;width:36px;height:36px;font-size:22px;background:rgba(255,255,255,.22);
+  border:0;border-radius:50%;color:#fff;font-weight:800;line-height:1;cursor:pointer}
+.deednow{margin:16px 20px 0;padding:12px 14px;border-radius:12px;background:var(--soft);
+  display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.deednow b{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.deednow span{font-family:var(--mono);font-weight:700;font-size:25px;font-variant-numeric:tabular-nums}
+.deedtable{width:100%;border-collapse:collapse;margin-top:14px}
+.deedtable td{padding:11px 20px;border-top:1px solid var(--soft);font-size:15px}
+.deedtable td:last-child{text-align:right;font-family:var(--mono);font-weight:700;
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.deedtable tr.hl td{background:color-mix(in srgb,var(--accent) 10%,transparent);font-weight:700}
+.deedtable td.prose{text-align:left;font-family:var(--body);font-weight:400;
+  color:var(--muted);white-space:normal;line-height:1.5}
+#deedNote{margin:0;padding:12px 20px 18px}
 /* lelongan & tawaran */
 .auchead{display:flex;gap:10px}
 .auchead>div{flex:1;background:var(--soft);border-radius:10px;padding:10px 12px}
@@ -229,7 +274,15 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:60;width:100%;heigh
 </div>
 
 <div class="app">
-  <div class="boardwrap"><div class="board" id="board"></div></div>
+  <div class="boardwrap">
+    <div class="boardview" id="boardview"><div class="board" id="board"></div></div>
+    <div class="zoomctl" id="zoomctl">
+      <button type="button" data-z="out" aria-label="Zum keluar">−</button>
+      <span class="zlvl" id="zlvl">100%</span>
+      <button type="button" data-z="in" aria-label="Zum masuk">+</button>
+      <button type="button" data-z="reset" aria-label="Kembali ke saiz asal">Muat</button>
+    </div>
+  </div>
   <aside class="side">
     <section class="panel turn" id="turn"></section>
     <section class="panel sect"><h3>Pemain</h3><ul class="plist" id="players"></ul></section>
@@ -240,7 +293,19 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:60;width:100%;heigh
 
 <div class="overlay" id="setup" hidden>
   <div class="modal">
-    <h2>Metro Tycoon</h2>
+
+  <div id="setupHome">
+    <span class="lines" aria-hidden="true"><i style="background:#D6124F"></i><i style="background:#EE7A00"></i><i style="background:#0B8A45"></i><i style="background:#E8B400"></i></span>
+    <h2 class="hometitle">Metro <span>Tycoon</span> KL</h2>
+    <p>Permainan hartanah laluan transit Lembah Klang.</p>
+    <button class="btn primary big" type="button" id="homePlay">Main sekarang</button>
+    <button class="btn big" type="button" id="homeFriends">Main dengan kawan</button>
+    <button class="ghost" type="button" id="homeResume" hidden>Sambung permainan tersimpan</button>
+    <button class="ghost" type="button" id="homeMore">Tetapan lanjut</button>
+  </div>
+
+  <div id="setupFull" hidden>
+    <button class="ghost back" type="button" id="homeBack">← Kembali</button>
     <div class="seg" role="tablist">
       <button type="button" id="tabOnline" role="tab" class="on">Main online</button>
       <button type="button" id="tabLocal" role="tab">Satu peranti</button>
@@ -315,6 +380,8 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:60;width:100%;heigh
       </div>
     </form>
   </div>
+
+  </div>
 </div>
 
 <div class="overlay" id="rulesBox" hidden>
@@ -336,6 +403,21 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:60;width:100%;heigh
       <li>Permainan tamat apabila hanya seorang pemain tinggal, atau apabila semua pemain lengkap bilangan pusingan yang dipilih. Butang <b>Tamatkan &amp; kira</b> menamatkan permainan pada bila-bila masa. Kekayaan bersih tertinggi menang.</li>
     </ul>
     <button class="btn primary" type="button" id="btnRulesClose">Faham</button>
+  </div>
+</div>
+
+<div class="overlay" id="deedBox" hidden>
+  <div class="modal deedwrap">
+    <div class="deedhead" id="deedHead">
+      <div>
+        <h2 id="deedName"></h2>
+        <p id="deedSub"></p>
+      </div>
+      <button class="x big" type="button" id="deedClose" aria-label="Tutup">×</button>
+    </div>
+    <div class="deednow" id="deedNow" hidden></div>
+    <table class="deedtable" id="deedTable"></table>
+    <p class="note" id="deedNote"></p>
   </div>
 </div>
 
@@ -941,7 +1023,8 @@ function buildBoard(){
     <div class="dice"><div class="die" id="d0"></div><div class="die" id="d1"></div></div>
     <div class="msg" id="msg" aria-live="polite"></div><div id="cardSlot"></div></div>`;
   b.innerHTML=h;
-  b.addEventListener('click',e=>{const sq=e.target.closest('.sq');if(sq)showDeed(+sq.dataset.i)});
+  b.addEventListener('click',e=>{const sq=e.target.closest('.sq');
+    if(sq&&zPan.moved<7)showDeed(+sq.dataset.i)});   /* seretan bukan ketukan */
   b.addEventListener('keydown',e=>{const sq=e.target.closest('.sq');if(sq&&(e.key==='Enter'||e.key===' ')){e.preventDefault();showDeed(+sq.dataset.i)}});
 }
 const PIPS={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
@@ -962,21 +1045,65 @@ function renderBoard(){
     cs.dataset.k=String(S.card.id);cs.querySelector('.x').onclick=()=>{closedCard=S.card&&S.card.id;cs.innerHTML='';delete cs.dataset.k}}
   else if(!S.card&&cs.dataset.k&&!cs.dataset.deed){cs.innerHTML='';delete cs.dataset.k}
 }
+function closeDeed(){document.getElementById('deedBox').hidden=true}
 function showDeed(i){
-  const s=SQ[i],cs=document.getElementById('cardSlot');const o=S.owner[i];
-  let head=s.t==='prop'?GROUPS[s.g].c:s.t==='hub'?'#2B3A47':s.t==='util'?'#3C6E71':'#2B3A47';
-  let sub=s.t==='prop'?GROUPS[s.g].n:s.t==='hub'?'Hab pertukaran':s.t==='util'?'Utiliti':'';
-  let rows='';
-  if(s.t==='prop'){const hc=GROUPS[s.g].h;
-    rows=[['Sewa asas',s.r[0]],['Set penuh',s.r[0]*2],['1 rumah',s.r[1]],['2 rumah',s.r[2]],['3 rumah',s.r[3]],['4 rumah',s.r[4]],['Hotel',s.r[5]],['Kos setiap rumah',hc],['Nilai gadai',s.p/2]].map(([a,b])=>`<tr><td>${a}</td><td>${fmt(b)}</td></tr>`).join('')}
-  else if(s.t==='hub')rows=[['1 hab',25],['2 hab',50],['3 hab',100],['4 hab',200],['Nilai gadai',100]].map(([a,b])=>`<tr><td>${a}</td><td>${fmt(b)}</td></tr>`).join('');
-  else if(s.t==='util')rows=`<tr><td>1 utiliti</td><td>4× dadu</td></tr><tr><td>2 utiliti</td><td>10× dadu</td></tr><tr><td>Nilai gadai</td><td>${fmt(75)}</td></tr>`;
-  else{const info={go:'Kutip RM200 setiap kali melepasi MULA. Setiap lintasan dikira satu pusingan.',jail:'Sekadar melawat jika mendarat di sini. Pemain yang ditahan mesti bayar RM50, guna kad, atau baling dadu ganda.',gojail:'Terus ke Lokap. Tidak kutip RM200.',free:'Rehat. Tiada apa-apa berlaku.',tax:`Bayar ${fmt(s.a||0)} kepada bank.`,peluang:'Cabut satu kad Peluang.',tabung:'Cabut satu kad Tabung Komuniti.'}[s.t];
-    rows=`<tr><td style="text-align:left;font-family:var(--body)">${info}</td></tr>`}
-  const ownTxt=buyable(i)?`<tr><td><b>Pemilik</b></td><td>${o===null?'Bank':esc(S.players[o].name)}${S.mort[i]?' (digadai)':''}</td></tr>`:'';
-  cs.innerHTML=`<div class="card deed"><header style="background:${head}"><span>${esc(s.n)}${sub?`<br><span class="sub">${sub}${s.p?' · '+fmt(s.p):''}</span>`:''}</span><button class="x" type="button" aria-label="Tutup">×</button></header><table>${rows}${ownTxt}</table></div>`;
-  cs.dataset.k='1';cs.dataset.deed='1';
-  cs.querySelector('.x').onclick=()=>{cs.innerHTML='';delete cs.dataset.k;delete cs.dataset.deed;if(S.card){renderBoard()}};
+  const s=SQ[i],o=S.owner[i],own=buyable(i);
+  const head=s.t==='prop'?GROUPS[s.g].c:s.t==='hub'?'#2B3A47':s.t==='util'?'#3C6E71':'#2B3A47';
+  const sub=s.t==='prop'?GROUPS[s.g].n:s.t==='hub'?'Hab pertukaran':s.t==='util'?'Utiliti':'Petak khas';
+  document.getElementById('deedHead').style.background=head;
+  document.getElementById('deedName').textContent=s.n;
+  document.getElementById('deedSub').textContent=sub+(s.p?' · '+fmt(s.p):'');
+
+  /* Nombor yang paling dicari dahulu: berapa saya bayar kalau mendarat di sini. */
+  const now=document.getElementById('deedNow');
+  if(own&&o!==null&&!S.mort[i]){now.hidden=false;
+    now.innerHTML=`<b>Sewa sekarang</b><span>${fmt(rentOf(i))}</span>`}
+  else if(own&&o!==null&&S.mort[i]){now.hidden=false;
+    now.innerHTML=`<b>Digadai</b><span>Tiada sewa</span>`}
+  else if(own){now.hidden=false;
+    now.innerHTML=`<b>Harga belian</b><span>${fmt(s.p)}</span>`}
+  else now.hidden=true;
+
+  const row=(a,b,hl)=>`<tr class="${hl?'hl':''}"><td>${a}</td><td>${b}</td></tr>`;
+  let rows='',note='';
+  if(s.t==='prop'){
+    const hc=GROUPS[s.g].h,h=S.houses[i],set=o!==null&&hasSet(o,s.g),live=o!==null&&!S.mort[i];
+    rows=[['Sewa asas',fmt(s.r[0]),live&&h===0&&!set],
+          ['Set penuh, tiada rumah',fmt(s.r[0]*2),live&&h===0&&set],
+          ['1 rumah',fmt(s.r[1]),live&&h===1],
+          ['2 rumah',fmt(s.r[2]),live&&h===2],
+          ['3 rumah',fmt(s.r[3]),live&&h===3],
+          ['4 rumah',fmt(s.r[4]),live&&h===4],
+          ['Hotel',fmt(s.r[5]),live&&h===5],
+          ['Kos setiap rumah',fmt(hc),false],
+          ['Nilai gadai',fmt(s.p/2),false]].map(r=>row(...r)).join('');
+    note='Memiliki kesemua petak dalam laluan ini menggandakan sewa asas. Rumah mesti dibina secara sekata sebelum hotel.';
+  }else if(s.t==='hub'){
+    const n=o===null?0:HUBS.filter(j=>S.owner[j]===o).length,live=o!==null&&!S.mort[i];
+    rows=[['1 hab',fmt(25),live&&n===1],['2 hab',fmt(50),live&&n===2],
+          ['3 hab',fmt(100),live&&n===3],['4 hab',fmt(200),live&&n===4],
+          ['Nilai gadai',fmt(100),false]].map(r=>row(...r)).join('');
+    note='Sewa berganda setiap kali pemilik menambah satu lagi hab.';
+  }else if(s.t==='util'){
+    const n=o===null?0:UTILS.filter(j=>S.owner[j]===o).length,live=o!==null&&!S.mort[i];
+    rows=[['1 utiliti','4× nilai dadu',live&&n===1],['2 utiliti','10× nilai dadu',live&&n===2],
+          ['Nilai gadai',fmt(75),false]].map(r=>row(...r)).join('');
+    note='Sewa dikira daripada balingan dadu pemain yang mendarat, bukan jumlah tetap.';
+  }else{
+    const info={go:'Kutip RM200 setiap kali melepasi petak ini. Setiap lintasan dikira satu pusingan.',
+      jail:'Sekadar melawat jika anda mendarat di sini. Pemain yang ditahan mesti bayar RM50, guna Kad Bebas Lokap, atau baling dadu ganda.',
+      gojail:'Terus ke Lokap tanpa mengutip RM200.',
+      free:'Rehat. Tiada apa-apa berlaku di sini.',
+      tax:`Bayar ${fmt(s.a||0)} kepada bank.`,
+      peluang:'Cabut satu kad Peluang.',
+      tabung:'Cabut satu kad Tabung Komuniti.'}[s.t]||'';
+    rows=`<tr><td class="prose" colspan="2">${info}</td></tr>`;
+  }
+  if(own)rows+=row('<b>Pemilik</b>',o===null?'Bank'
+    :`${esc(S.players[o].name)}${S.mort[i]?' · digadai':''}`,false);
+  document.getElementById('deedTable').innerHTML=rows;
+  document.getElementById('deedNote').textContent=note;
+  document.getElementById('deedBox').hidden=false;
 }
 function lapBar(p){if(!S.qual)return `<span class="chip">Pusingan ${p.laps}</span>`;return `<span class="lap" title="Kelayakan ${Math.min(p.laps,S.qual)}/${S.qual} pusingan">${[...Array(S.qual)].map((_,k)=>`<i class="${k<p.laps?'on':''}"></i>`).join('')}</span><span class="chip">Pusingan ${p.laps}</span>`}
 function renderSide(){
@@ -1115,7 +1242,101 @@ function renderAll(){renderBoard();renderDice();renderSide();renderAuction();
   else document.getElementById('tradeBox').hidden=true;
   sync();scheduleBot()}
 
+/* ---------- zum & geser papan ---------- */
+const ZMIN=1,ZMAX=3.2;
+const zoom={z:1,x:0,y:0};
+const zPan={pts:new Map(),pan:null,pinch:null,moved:0};
+const $bv=()=>document.getElementById('boardview');
+function applyZoom(){
+  const v=$bv();if(!v)return;
+  const b=document.getElementById('board'),w=v.clientWidth,h=v.clientHeight;
+  zoom.z=Math.min(ZMAX,Math.max(ZMIN,zoom.z));
+  /* jangan biarkan papan terapung keluar dari bingkai */
+  zoom.x=Math.min(0,Math.max(w*(1-zoom.z),zoom.x));
+  zoom.y=Math.min(0,Math.max(h*(1-zoom.z),zoom.y));
+  b.style.transform=`translate(${zoom.x}px,${zoom.y}px) scale(${zoom.z})`;
+  document.getElementById('zlvl').textContent=Math.round(zoom.z*100)+'%';
+  v.classList.toggle('grab',zoom.z>1);
+  /* pada telefon, halaman masih boleh diskrol selagi papan tidak dizum */
+  v.style.touchAction=zoom.z>1?'none':'pan-y';
+  const q=s=>document.querySelector('#zoomctl [data-z="'+s+'"]');
+  q('in').disabled=zoom.z>=ZMAX-1e-3;
+  q('out').disabled=q('reset').disabled=zoom.z<=ZMIN+1e-3;
+}
+function zoomAt(cx,cy,nz){          /* kekalkan titik di bawah jari pada tempatnya */
+  const old=zoom.z;nz=Math.min(ZMAX,Math.max(ZMIN,nz));
+  if(nz===old)return;
+  zoom.x=cx-(cx-zoom.x)*(nz/old);zoom.y=cy-(cy-zoom.y)*(nz/old);
+  zoom.z=nz;applyZoom();
+}
+function resetZoom(){zoom.z=1;zoom.x=0;zoom.y=0;applyZoom()}
+/* Bawa satu titik papan (koordinat tanpa zum) ke tengah bingkai. */
+function centerOn(bx,by,nz){
+  const v=$bv();zoom.z=Math.min(ZMAX,Math.max(ZMIN,nz));
+  zoom.x=v.clientWidth/2-bx*zoom.z;zoom.y=v.clientHeight/2-by*zoom.z;applyZoom()}
+/* Zum pertama pergi ke petak pemain semasa, bukan ke logo di tengah. */
+function zoomToMe(nz){
+  const el=S&&S.players[S.turn]?document.getElementById('sq'+S.players[S.turn].pos):null;
+  if(!el)return false;
+  centerOn(el.offsetLeft+el.offsetWidth/2,el.offsetTop+el.offsetHeight/2,nz);
+  return true}
+function bindZoom(){
+  const v=$bv();
+  v.addEventListener('pointerdown',e=>{
+    zPan.pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    zPan.moved=0;
+    if(zPan.pts.size===2){
+      const [a,b]=[...zPan.pts.values()];
+      zPan.pinch={d:Math.hypot(a.x-b.x,a.y-b.y)||1,z:zoom.z};zPan.pan=null;
+      [...zPan.pts.keys()].forEach(id=>{try{v.setPointerCapture(id)}catch(_){}});
+    }else if(zoom.z>1){
+      zPan.pan={x:e.clientX,y:e.clientY,ox:zoom.x,oy:zoom.y};
+      try{v.setPointerCapture(e.pointerId)}catch(_){}
+    }
+  });
+  v.addEventListener('pointermove',e=>{
+    if(!zPan.pts.has(e.pointerId))return;
+    zPan.pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    const r=v.getBoundingClientRect();
+    if(zPan.pts.size===2&&zPan.pinch){
+      const [a,b]=[...zPan.pts.values()],d=Math.hypot(a.x-b.x,a.y-b.y);
+      zPan.moved=99;
+      zoomAt((a.x+b.x)/2-r.left,(a.y+b.y)/2-r.top,zPan.pinch.z*(d/zPan.pinch.d));
+      return;
+    }
+    if(zPan.pan){
+      const dx=e.clientX-zPan.pan.x,dy=e.clientY-zPan.pan.y;
+      zPan.moved=Math.max(zPan.moved,Math.hypot(dx,dy));
+      zoom.x=zPan.pan.ox+dx;zoom.y=zPan.pan.oy+dy;applyZoom();
+      v.classList.add('grabbing');
+    }
+  });
+  const up=e=>{zPan.pts.delete(e.pointerId);
+    if(zPan.pts.size<2)zPan.pinch=null;
+    if(!zPan.pts.size){zPan.pan=null;v.classList.remove('grabbing')}};
+  v.addEventListener('pointerup',up);v.addEventListener('pointercancel',up);
+  v.addEventListener('wheel',e=>{
+    if(!e.ctrlKey&&!e.metaKey)return;          /* biar skrol biasa lalu */
+    e.preventDefault();const r=v.getBoundingClientRect();
+    zoomAt(e.clientX-r.left,e.clientY-r.top,zoom.z*(e.deltaY<0?1.15:1/1.15));
+  },{passive:false});
+  document.getElementById('zoomctl').addEventListener('click',e=>{
+    const t=e.target.closest('[data-z]');if(!t||t.disabled)return;
+    const cx=v.clientWidth/2,cy=v.clientHeight/2;
+    if(t.dataset.z==='in'){
+      if(zoom.z<=ZMIN+1e-3&&zoomToMe(1.8))return;   /* zum pertama: cari saya */
+      zoomAt(cx,cy,zoom.z*1.5);}
+    else if(t.dataset.z==='out')zoomAt(cx,cy,zoom.z/1.5);
+    else resetZoom();
+  });
+  addEventListener('resize',applyZoom);
+  applyZoom();
+}
+
 /* ---------- events ---------- */
+document.getElementById('deedClose').onclick=closeDeed;
+document.getElementById('deedBox').addEventListener('click',e=>{
+  if(e.target.id==='deedBox')closeDeed()});          /* ketuk luar untuk tutup */
 document.getElementById('turn').addEventListener('click',e=>{const a=e.target.closest('[data-a]')?.dataset.a;if(!a)return;
   if(a==='takeover'){if(NET&&NET.host&&confirm(`Ambil alih giliran ${cur().name}? Guna ini jika pemain itu terputus.`)){NET.override=S.turn;renderSide()}return}
   if(a==='again'){if(NET){if(NET.host)restartOnline();return}openSetup();return}
@@ -1157,12 +1378,31 @@ document.getElementById('tradeYes').onclick=asActor(()=>tradeAnswer(true));
 document.getElementById('tradeNo').onclick=asActor(()=>tradeAnswer(false));
 
 document.addEventListener('keydown',e=>{if(e.target.matches('input,select,textarea')||!S||!document.getElementById('setup').hidden)return;
-  if(!document.getElementById('aucBox').hidden||!document.getElementById('tradeBox').hidden)return;
+  if(e.key==='Escape'&&!document.getElementById('deedBox').hidden){closeDeed();return}
+  if(!document.getElementById('aucBox').hidden||!document.getElementById('tradeBox').hidden
+     ||!document.getElementById('deedBox').hidden)return;
   if(e.key===' '||e.key==='Enter'){if(e.target.closest('.sq,button')||!isActor())return;e.preventDefault();
     actedTurn=true;try{if(S.phase==='roll')rollDice();else if(S.phase==='end')endTurn()}finally{actedTurn=null}}});
 
-function openSetup(){clearBot();document.getElementById('endBox').hidden=true;document.getElementById('fx').hidden=true;
-  document.getElementById('btnResume').hidden=!(S&&S.phase!=='over'&&!NET&&S.started);document.getElementById('setup').hidden=false;drawNames();renderLobby()}
+function showSetupView(v){
+  const home=v==='home';
+  document.getElementById('setupHome').hidden=!home;
+  document.getElementById('setupFull').hidden=home;
+  if(!home)drawNames()}
+function openSetup(view){clearBot();resetZoom();closeDeed();document.getElementById('endBox').hidden=true;document.getElementById('fx').hidden=true;
+  const canResume=!!(S&&S.phase!=='over'&&!NET&&S.started);
+  document.getElementById('btnResume').hidden=!canResume;
+  document.getElementById('homeResume').hidden=!canResume;
+  showSetupView(view||'home');
+  document.getElementById('setup').hidden=false;drawNames();renderLobby()}
+document.getElementById('homePlay').onclick=()=>{
+  if(NET)leaveRoom(true);
+  newGame(['Anda','Bot Ain'],0,0,1500,[null,'sederhana'],true);S.started=true;
+  document.getElementById('setup').hidden=true;renderAll()};
+document.getElementById('homeFriends').onclick=()=>{showSetupView('full');setTab(FIREBASE_CONFIG?'online':'local')};
+document.getElementById('homeMore').onclick=()=>{showSetupView('full');setTab('local')};
+document.getElementById('homeBack').onclick=()=>showSetupView('home');
+document.getElementById('homeResume').onclick=()=>{document.getElementById('setup').hidden=true;scheduleBot()};
 function drawNames(){const n=+document.getElementById('nPlayers').value;const box=document.getElementById('names');
   const old=[...box.querySelectorAll('input')].map(x=>x.value);
   const ob=[...box.querySelectorAll('select')].map(x=>x.value);
@@ -1189,7 +1429,7 @@ document.getElementById('setupForm').addEventListener('submit',e=>{e.preventDefa
     +document.getElementById('nCash').value,bots,document.getElementById('nAuc').value==='1');S.started=true;
   document.getElementById('setup').hidden=true;renderAll()});
 document.getElementById('btnResume').onclick=()=>{document.getElementById('setup').hidden=true;scheduleBot()};
-document.getElementById('btnNew').onclick=openSetup;
+document.getElementById('btnNew').onclick=()=>openSetup();
 document.getElementById('btnFinish').onclick=()=>{if(NET&&!NET.host){toast('Hanya hos boleh menamatkan permainan.');return}if(S&&S.phase!=='over'&&!busy&&confirm('Tamatkan permainan dan kira pemenang sekarang?')){if(NET)NET.override=S.turn;actedTurn=true;try{finish()}finally{actedTurn=null}}};
 document.getElementById('btnAgain').onclick=()=>{if(NET){document.getElementById('endBox').hidden=true;if(NET.host)restartOnline();return}openSetup()};
 document.getElementById('btnRules').onclick=()=>document.getElementById('rulesBox').hidden=false;
@@ -1342,7 +1582,7 @@ function leaveRoom(quiet){
   try{localStorage.removeItem('mtkl-room')}catch(e){}
   try{const u=new URL(location.href);u.searchParams.delete('bilik');history.replaceState(null,'',u)}catch(e){}
   $('roomChip').hidden=true;
-  if(!quiet){newGame(DEFAULT_NAMES.slice(),2,0,1500);renderAll()}
+  if(!quiet){newGame(DEFAULT_NAMES.slice(),0,0,1500);renderAll()}
   renderLobby();
 }
 function inviteLink(){const u=new URL(location.href);u.search='';u.hash='';u.searchParams.set('bilik',NET.code);return u.toString()}
@@ -1366,16 +1606,18 @@ $('btnCopy').onclick=copyInvite;$('roomChip').onclick=copyInvite;
 
 /* ---------- boot ---------- */
 async function start(){
-  buildBoard();
+  buildBoard();bindZoom();
   try{$('myName').value=localStorage.getItem('mtkl-name')||''}catch(e){}
   const params=new URLSearchParams(location.search);const invite=(params.get('bilik')||'').toUpperCase();
   let savedRoom=null;try{savedRoom=localStorage.getItem('mtkl-room')}catch(e){}
   const saved=loadSave();
   if(saved&&saved.started&&!invite&&!savedRoom){S=saved;renderAll();return}
-  newGame(DEFAULT_NAMES.slice(),2,0,1500);renderAll();openSetup();
+  const tryCode=FIREBASE_CONFIG?(invite||savedRoom):null;
+  newGame(DEFAULT_NAMES.slice(),0,0,1500);renderAll();
+  /* Pautan jemputan terus ke lobi; selainnya, skrin mula ringkas. */
+  openSetup(tryCode?'full':'home');
   setTab(FIREBASE_CONFIG?'online':'local');
   if(!FIREBASE_CONFIG)return;
-  const tryCode=invite||savedRoom;
   if(tryCode){$('joinCode').value=tryCode;
     const ok=await joinRoom(tryCode,true);
     if(!ok){try{localStorage.removeItem('mtkl-room')}catch(e){}
