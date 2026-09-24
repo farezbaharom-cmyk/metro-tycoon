@@ -61,7 +61,8 @@ Peraturan penuh ada dalam permainan, di **⚙️ Menu → Peraturan**.
 3. Untuk mod online dengan projek Firebase anda sendiri:
    - Cipta projek di [Firebase Console](https://console.firebase.google.com), dan hidupkan **Realtime Database** serta **Authentication → Anonymous**.
    - Ganti nilai dalam `FIREBASE_CONFIG` di bahagian atas skrip dalam `index.html` (`apiKey`, `authDomain`, `projectId`, `databaseURL`).
-   - Tampal peraturan pangkalan data di bawah ke tab **Rules**.
+   - Tampal peraturan pangkalan data di bawah (juga ada dalam `database.rules.json`) ke tab **Rules**. Peraturan ini turut membenarkan sesiapa memadam bilik yang lebih tua daripada 48 jam dan tiada pemain dalam talian, supaya bilik terbiar tidak berlonggok.
+   - (Pilihan) Hidupkan **App Check** dengan reCAPTCHA v3, isi `APPCHECK_SITE_KEY` dalam `index.html`, dan hanya selepas itu tekan **Enforce** untuk Realtime Database.
 
 <details>
 <summary>Peraturan Realtime Database</summary>
@@ -74,26 +75,55 @@ Peraturan penuh ada dalam permainan, di **⚙️ Menu → Peraturan**.
     "rooms": {
       "$code": {
         ".read": "auth != null",
-        ".write": "auth != null && ((!data.exists() && newData.child('meta/host').val() === auth.uid && newData.child('seats/' + auth.uid).exists()) || (data.exists() && !newData.exists() && data.child('meta/host').val() === auth.uid))",
-        ".validate": "$code.length === 5 && $code.matches(/^[A-Z0-9]+$/)",
+        ".write": "auth != null && ((!data.exists() && newData.child('meta/host').val() === auth.uid && newData.child('seats/' + auth.uid).exists()) || (data.exists() && !newData.exists() && data.child('meta/host').val() === auth.uid) || (data.exists() && !newData.exists() && !data.child('online').exists() && data.child('meta/created').val() < now - 172800000))",
+        ".validate": "$code.length === 5 && $code.matches(/^[A-Z0-9]+$/) && newData.hasChild('meta')",
         "meta": {
-          ".write": "auth != null && data.child('host').val() === auth.uid && newData.child('host').val() === auth.uid"
+          ".write": "auth != null && data.child('host').val() === auth.uid && newData.child('host').val() === auth.uid",
+          ".validate": "newData.hasChildren(['host', 'created', 'started'])",
+          "host": { ".validate": "newData.isString()" },
+          "created": { ".validate": "newData.isNumber() && (!data.exists() || newData.val() === data.val())" },
+          "started": { ".validate": "newData.isBoolean()" },
+          "qual": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 3" },
+          "endLaps": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 20" },
+          "cash": { ".validate": "newData.isNumber() && newData.val() >= 500 && newData.val() <= 5000" },
+          "tl": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 300" },
+          "auc": { ".validate": "newData.isBoolean()" },
+          "fast": { ".validate": "newData.isBoolean()" },
+          "$other": { ".validate": false }
         },
         "seats": {
           "$uid": {
             ".write": "auth != null && (($uid === auth.uid && (!newData.exists() || root.child('rooms/' + $code + '/meta/started').val() !== true)) || (root.child('rooms/' + $code + '/meta/host').val() === auth.uid && $uid.beginsWith('bot_')))",
-            ".validate": "newData.child('name').isString() && newData.child('name').val().length <= 16"
+            ".validate": "newData.hasChildren(['name', 't'])",
+            "name": { ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 16" },
+            "t": { ".validate": "newData.isNumber()" },
+            "bot": { ".validate": "newData.val() === 'mudah' || newData.val() === 'sederhana'" },
+            "tok": { ".validate": "newData.isString() && (newData.val() === 'tren' || newData.val().matches(/^c[0-4]$/))" },
+            "$other": { ".validate": false }
           }
         },
         "online": {
           "$uid": {
-            ".write": "auth != null && $uid === auth.uid"
+            ".write": "auth != null && $uid === auth.uid",
+            ".validate": "newData.hasChild('t')",
+            "t": { ".validate": "newData.isNumber() && newData.val() <= now" },
+            "w": { ".validate": "newData.isString() && newData.val().length <= 16" },
+            "$other": { ".validate": false }
           }
         },
         "state": {
           ".write": "auth != null && root.child('rooms/' + $code + '/seats/' + auth.uid).exists()",
           ".validate": "newData.isString() && newData.val().length < 200000"
-        }
+        },
+        "$other": { ".validate": false }
+      }
+    },
+    "roomIndex": {
+      ".read": "auth != null && query.orderByValue == true && query.endAt <= now - 172800000 && query.limitToFirst <= 10",
+      ".indexOn": ".value",
+      "$code": {
+        ".write": "auth != null && ((!data.exists() && root.child('rooms/' + $code + '/meta/host').val() === auth.uid) || (!newData.exists() && (!root.child('rooms/' + $code).exists() || root.child('rooms/' + $code + '/meta/host').val() === auth.uid)))",
+        ".validate": "newData.isNumber() && newData.val() === root.child('rooms/' + $code + '/meta/created').val()"
       }
     }
   }

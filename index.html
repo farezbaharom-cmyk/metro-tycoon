@@ -409,6 +409,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 
 /* overlays */
 .overlay{position:fixed;inset:0;background:rgba(8,14,20,.55);backdrop-filter:blur(3px);display:grid;place-items:center;padding:16px;z-index:50;overflow:auto}
+.modal:focus{outline:none}
 .modal{background:var(--panel);border-radius:16px;box-shadow:var(--shadow);width:100%;max-width:520px;padding:22px;display:flex;flex-direction:column;gap:14px;max-height:100%;overflow:auto}
 .modal h2{margin:0;font-family:var(--display);font-weight:900;font-size:36px;text-transform:uppercase;line-height:1}
 /* skrin mula ringkas */
@@ -756,7 +757,7 @@ root.MetroCats=Object.freeze({names:Object.freeze(names),svg});
 </div>
 
 <div class="overlay" id="setup" hidden>
-  <div class="modal">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Metro Tycoon KL: mula permainan" tabindex="-1">
 
   <div id="setupHome">
     <div class="homesky" id="homeSky" aria-hidden="true"></div>
@@ -860,8 +861,8 @@ root.MetroCats=Object.freeze({names:Object.freeze(names),svg});
 </div>
 
 <div class="overlay" id="rulesBox" hidden>
-  <div class="modal">
-    <h2>Peraturan</h2>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="rulesTitle" tabindex="-1">
+    <h2 id="rulesTitle">Peraturan</h2>
     <ul class="rules">
       <li><b>Main sendirian:</b> dalam mod <b>Satu peranti</b>, tukar mana-mana pemain kepada <b>Bot mudah</b> atau <b>Bot sederhana</b>. Bot mudah membeli secara longgar dan jarang membina; bot sederhana mengejar set penuh, menyekat lawan, membina hotel dan bertahan di Lokap pada akhir permainan.</li>
       <li>Baling dua dadu dan gerak. Lalu <b>MULA</b> untuk kutip RM200 dan tambah satu pusingan.</li>
@@ -886,7 +887,7 @@ root.MetroCats=Object.freeze({names:Object.freeze(names),svg});
 </div>
 
 <div class="overlay" id="deedBox" hidden>
-  <div class="modal deedwrap">
+  <div class="modal deedwrap" role="dialog" aria-modal="true" aria-labelledby="deedName" tabindex="-1">
     <div class="deedhead" id="deedHead">
       <div>
         <h2 id="deedName"></h2>
@@ -901,8 +902,8 @@ root.MetroCats=Object.freeze({names:Object.freeze(names),svg});
 </div>
 
 <div class="overlay" id="aucBox" hidden>
-  <div class="modal">
-    <h2>Lelongan</h2>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="aucTitle" tabindex="-1">
+    <h2 id="aucTitle">Lelongan</h2>
     <p id="aucWhat"></p>
     <div class="auchead">
       <div><small>Bidaan tertinggi</small><b class="money" id="aucBid">—</b></div>
@@ -920,7 +921,7 @@ root.MetroCats=Object.freeze({names:Object.freeze(names),svg});
 </div>
 
 <div class="overlay" id="tradeBox" hidden>
-  <div class="modal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="tradeTitle" tabindex="-1">
     <h2 id="tradeTitle">Tawaran</h2>
     <div id="tradeBuild">
       <div class="field"><label for="tradeWith">Tawar kepada</label><select id="tradeWith"></select></div>
@@ -952,7 +953,7 @@ root.MetroCats=Object.freeze({names:Object.freeze(names),svg});
 </div>
 
 <div class="overlay" id="endBox" hidden>
-  <div class="modal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="endTitle" tabindex="-1">
     <h2 id="endTitle">Tamat!</h2>
     <p>Kedudukan akhir ikut kekayaan bersih (tunai + nilai hartanah + bangunan).</p>
     <ul class="rank" id="rank"></ul>
@@ -988,6 +989,10 @@ const FIREBASE_CONFIG = {
   projectId: "tanah-air-c6047",
   databaseURL: "https://tanah-air-c6047-default-rtdb.asia-southeast1.firebasedatabase.app"
 };
+/* App Check (pilihan): kunci tapak reCAPTCHA v3 daripada Firebase Console →
+   App Check. Selagi null, App Check tidak dimuatkan langsung. Selepas diisi dan
+   laman dikemas kini, barulah hidupkan "Enforce" untuk Realtime Database. */
+const APPCHECK_SITE_KEY = null;
 </script>
 <script>
 (()=>{
@@ -2586,9 +2591,9 @@ document.getElementById('tradeYes').onclick=asActor(()=>tradeAnswer(true));
 document.getElementById('tradeNo').onclick=asActor(()=>tradeAnswer(false));
 
 document.addEventListener('keydown',e=>{if(e.target.matches('input,select,textarea')||!S||!document.getElementById('setup').hidden)return;
-  if(e.key==='Escape'&&!document.getElementById('deedBox').hidden){closeDeed();return}
-  if(!document.getElementById('aucBox').hidden||!document.getElementById('tradeBox').hidden
-     ||!document.getElementById('deedBox').hidden)return;
+  /* Escape untuk tetingkap diurus oleh pengurus modal di bawah. Selagi ada
+     tetingkap terbuka, Space/Enter tidak boleh membaling dadu di belakangnya. */
+  if(document.querySelector('.overlay:not([hidden])'))return;
   if(e.key===' '||e.key==='Enter'){if(e.target.closest('.sq,button')||!isActor())return;e.preventDefault();
     actedTurn=true;try{if(S.phase==='roll')rollDice();else if(S.phase==='end')endTurn()}finally{actedTurn=null}}});
 
@@ -2893,16 +2898,27 @@ let NET=null, fdb=null, applying=false;
 let UID=(()=>{let u=null;try{u=localStorage.getItem('mtkl-uid')}catch(e){}
   if(!u){u='u'+Math.random().toString(36).slice(2,10)+Date.now().toString(36);try{localStorage.setItem('mtkl-uid',u)}catch(e){}}return u})();
 const $=id=>document.getElementById(id);
-let authWait=null;
+let authWait=null,appCheckWait=null;
+/* App Check dimuatkan hanya jika APPCHECK_SITE_KEY diisi, dan diaktifkan
+   sebelum sebarang log masuk atau bacaan pangkalan data. */
+function appCheckReady(){
+  if(typeof APPCHECK_SITE_KEY==='undefined'||!APPCHECK_SITE_KEY)return Promise.resolve();
+  return appCheckWait||(appCheckWait=new Promise((res,rej)=>{
+      const s=document.createElement('script');
+      s.src='https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check-compat.js';
+      s.onload=res;s.onerror=()=>rej(new Error('App Check gagal dimuatkan'));document.head.appendChild(s)})
+    .then(()=>firebase.appCheck().activate(new firebase.appCheck.ReCaptchaV3Provider(APPCHECK_SITE_KEY),true))
+    .catch(e=>console.error(e)));
+}
 function fbReady(){
   if(fdb)return authWait||Promise.resolve(true);
   if(!FIREBASE_CONFIG||!window.firebase)return Promise.resolve(false);
   try{if(!firebase.apps.length)firebase.initializeApp(FIREBASE_CONFIG);fdb=firebase.database()}
   catch(e){console.error(e);return Promise.resolve(false)}
-  if(!FIREBASE_CONFIG.apiKey||!firebase.auth){authWait=Promise.resolve(true);return authWait}
+  if(!FIREBASE_CONFIG.apiKey||!firebase.auth){authWait=appCheckReady().then(()=>true);return authWait}
   /* Firebase mengingati log masuk tanpa nama pada pelayar ini, jadi pemain
      dapat uid yang sama setiap kali — boleh masuk semula ke bilik sendiri. */
-  authWait=firebase.auth().signInAnonymously()
+  authWait=appCheckReady().then(()=>firebase.auth().signInAnonymously())
     .then(c=>{UID=c.user.uid;return true})
     .catch(e=>{console.error(e);fdb=null;authWait=null;
       omsg('Log masuk online gagal: '+(e&&e.message||e)+'. Semak Anonymous sign-in dalam Firebase.');return false});
@@ -3140,9 +3156,31 @@ function sweepMyRooms(keep){
   const cut=Date.now()-ROOM_TTL,left=[];
   readMyRooms().forEach(r=>{
     if(r.code===keep||!r.t||r.t>cut){left.push(r);return}
-    fdb.ref('rooms/'+r.code).remove().catch(()=>{});
+    dropRoom(r.code);
   });
   writeMyRooms(left);
+}
+/* Padam bilik, kemudian entri indeksnya. Indeks hanya boleh dibuang oleh hos
+   atau selepas bilik itu tiada, jadi urutan ini penting. */
+function dropRoom(code){
+  const idx=fdb.ref('roomIndex/'+code);
+  return fdb.ref('rooms/'+code).remove()
+    .then(()=>idx.remove())
+    .catch(()=>fdb.ref('rooms/'+code+'/meta/created').get()
+      .then(s=>{if(!s.exists())return idx.remove()}))
+    .catch(()=>{});
+}
+/* ---------- bilik terbiar sesiapa ----------
+   Setiap bilik didaftarkan dalam roomIndex (kod → masa dicipta). Sesiapa yang
+   membuka laman menyapu beberapa bilik tertua. Peraturan pangkalan data hanya
+   membenarkan pemadaman jika bilik lebih tua daripada 48 jam DAN tiada sesiapa
+   dalam talian, jadi permainan yang sedang dimainkan tidak akan terjejas. */
+const STALE_TTL=48*60*60*1000;
+function sweepStaleRooms(keep){
+  if(!fdb)return;
+  fdb.ref('roomIndex').orderByValue().endAt(Date.now()-STALE_TTL).limitToFirst(10).get()
+    .then(s=>s.forEach(c=>{if(c.key!==keep)dropRoom(c.key)}))
+    .catch(()=>{});
 }
 /* Tuntut satu kod secara atomik: transaksi hanya menulis jika nod itu masih
    kosong. Mengembalikan undefined membatalkan tulisan, jadi bilik yang sedang
@@ -3167,6 +3205,7 @@ async function createRoom(){
     let code=null;
     for(let i=0;i<8&&!code;i++){const c=genCode();if(await claimRoom(c,data))code=c}
     if(!code){omsg('Tidak dapat mencari kod bilik yang kosong. Cuba sekali lagi.');return}
+    fdb.ref('roomIndex/'+code).set(data.meta.created).catch(()=>{});
     rememberRoom(code);
     enterRoom(code);omsg('');
     sweepMyRooms(code)}
@@ -3278,7 +3317,7 @@ function leaveRoom(quiet){
       /* Hos keluar sebelum permainan bermula dan tiada manusia lain tinggal:
          bilik itu tidak akan digunakan lagi, jadi buang terus. */
       if(n.room.meta.host===UID&&!others.length){
-        n.ref.remove().catch(()=>{});forgetRoom(n.code)}
+        dropRoom(n.code);forgetRoom(n.code)}
       else n.ref.child('seats/'+UID).remove()}}catch(e){}
   try{localStorage.removeItem('mtkl-room')}catch(e){}
   try{const u=new URL(location.href);u.searchParams.delete('bilik');history.replaceState(null,'',u)}catch(e){}
@@ -3327,6 +3366,53 @@ dockObserver.observe(turnDock,{childList:true,subtree:true});
 window.addEventListener('resize',queueTurnDock);
 queueTurnDock();
 
+/* ---------- tetingkap (modal) boleh diakses ----------
+   Setiap .overlay dibuka dan ditutup dengan atribut hidden di banyak tempat,
+   jadi pengurus ini hanya memerhati atribut itu. Tetingkap paling atas:
+   - menerima fokus bila dibuka, dan fokus kembali ke tempat asal bila ditutup;
+   - bahagian lain laman dijadikan `inert` (tidak boleh ditab atau dibaca
+     pembaca skrin), jadi fokus tidak terlepas ke papan di belakang;
+   - Escape menutupnya, tetapi hanya jika ada butang tutup yang sah dan kelihatan.
+     Lelongan dan skrin tamat sengaja tiada Escape kerana ia sebahagian permainan. */
+(()=>{
+  const overlays=[...document.querySelectorAll('.overlay')];
+  const usable=id=>{const b=document.getElementById(id);
+    return b&&!b.disabled&&b.getClientRects().length?b:null};
+  const ESC={
+    rulesBox:()=>usable('btnRulesClose'),
+    deedBox:()=>usable('deedClose'),
+    tradeBox:()=>usable('tradeCancel'),
+    setup:()=>usable('homeResume')||usable('btnResume')};
+  let stack=[];const back=new Map(),inerted=new Set();
+  function sync(){
+    const open=overlays.filter(o=>!o.hidden);
+    const closed=stack.filter(o=>!open.includes(o));
+    const added=open.filter(o=>!stack.includes(o));
+    stack=stack.filter(o=>open.includes(o)).concat(added);
+    added.forEach(o=>{const a=document.activeElement;back.set(o,a&&a!==document.body?a:null)});
+    const top=stack[stack.length-1]||null;
+    /* inert: semua anak <body> kecuali tetingkap paling atas */
+    const want=new Set(top?[...document.body.children].filter(el=>el!==top&&el.tagName!=='SCRIPT'):[]);
+    inerted.forEach(el=>{if(!want.has(el)){el.inert=false;inerted.delete(el)}});
+    want.forEach(el=>{if(!el.inert){el.inert=true;inerted.add(el)}});
+    if(added.length&&top){
+      const m=top.querySelector('.modal');
+      if(m&&!m.contains(document.activeElement))m.focus({preventScroll:true})}
+    else if(closed.length){
+      const to=closed.map(o=>back.get(o)).find(el=>el&&el.isConnected&&!el.closest('[inert],[hidden]'));
+      if(to)to.focus({preventScroll:true});
+      else if(top){const m=top.querySelector('.modal');if(m)m.focus({preventScroll:true})}}
+    closed.forEach(o=>back.delete(o));
+  }
+  const mo=new MutationObserver(sync);
+  overlays.forEach(o=>mo.observe(o,{attributes:true,attributeFilter:['hidden']}));
+  document.addEventListener('keydown',e=>{
+    if(e.key!=='Escape'||!stack.length)return;
+    const top=stack[stack.length-1],pick=ESC[top.id],b=pick&&pick();
+    if(b){e.preventDefault();b.click()}});
+  sync();
+})();
+
 /* ---------- boot ---------- */
 async function start(){
   loadPrefs();buildBoard();bindZoom();
@@ -3343,7 +3429,7 @@ async function start(){
   openSetup(tryCode?'full':'home');
   setTab(FIREBASE_CONFIG?'online':'local');
   if(!FIREBASE_CONFIG)return;
-  if(await fbReady())sweepMyRooms(tryCode||null);   /* kemas bilik lama sendiri setiap kali dibuka */
+  if(await fbReady()){sweepMyRooms(tryCode||null);sweepStaleRooms(tryCode||null)}   /* kemas bilik lama setiap kali dibuka */
   if(tryCode){$('joinCode').value=tryCode;
     const ok=await joinRoom(tryCode,true);
     if(!ok){try{localStorage.removeItem('mtkl-room')}catch(e){}
