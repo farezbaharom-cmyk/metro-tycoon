@@ -35,10 +35,12 @@ Peraturan penuh ada dalam permainan, di **⚙️ Menu → Peraturan**.
 - 🗺️ **Laluan sebenar Lembah Klang:** MRT Kajang, MRT Putrajaya, LRT Kelana Jaya, LRT Ampang, LRT Sri Petaling, Monorel KL, KTM Komuter dan ERL, dengan hab KL Sentral, Masjid Jamek, Pasar Seni dan Bandar Tasik Selatan.
 - 🃏 **40 kad Peluang dan Tabung bertema KL:** Grab surge, jem di Jalan Tun Razak, LRT tersadai, banjir kilat, duit raya dan angpau, teh tarik di mamak.
 - 📰 **Berita rawak setiap ronde:** waktu puncak MRT, laluan ditutup, promosi tambang, pengecualian cukai dan lain-lain, dipaparkan pada jalur LED macam papan stesen sebenar.
-- 🔊 **Pengumuman stesen bersuara** dengan dua gaya, iaitu **Pakcik** dan **Slay**.
+- 🔊 **Pengumuman stesen bersuara** dengan tiga gaya, iaitu **Pakcik**, **Slay** dan **Pengulas**.
 - 🎉 **Sambutan laluan penuh** dengan animasi dan pengumuman.
 - 🏅 **Statistik dan lencana di skrin tamat**, contohnya Raja Sewa, Tuan Tanah, Banduan Tetap dan Bangkit Semula, dengan butang kongsi keputusan ke WhatsApp.
 - 🤖 **Bot dua tahap**, Mudah dan Sederhana.
+- ⏱️ **Had masa giliran** dalam bilik online (30, 60 atau 90 saat, atau tiada had). Jika pemain tidak bertindak atau terputus talian, bot mengambil alih giliran itu secara automatik.
+- 👀 **Mod penonton**: kawan yang masuk selepas permainan bermula, atau bila bilik penuh, boleh menonton secara langsung.
 - 🌃 **Langit KL** di tengah papan (Menara Berkembar, KL Tower, Merdeka 118). Ia bertukar siang atau malam ikut tema cerah atau gelap.
 - 📲 **Boleh dipasang macam app** di skrin utama telefon, dan mod satu peranti boleh dimain tanpa internet.
 - 💾 **Permainan disimpan automatik** dalam pelayar.
