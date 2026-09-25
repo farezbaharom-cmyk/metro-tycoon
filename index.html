@@ -946,6 +946,32 @@ body{
 }
 </style>
 
+<style>
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+/* Clear turn guidance and comfortable mobile controls. */
+#turn{border-top:4px solid var(--turn-color,var(--accent))}
+.turn-guide{margin:0;padding:9px 11px;border-radius:9px;background:var(--soft);font-size:14px;line-height:1.4;overflow-wrap:anywhere}
+#turn.your-turn .who small{color:var(--accent);font-weight:900}
+#turn.your-turn .actions .primary:not(:disabled){outline:2px solid var(--turn-color);outline-offset:3px}
+.sq.active-square{outline:3px solid var(--active-color);outline-offset:-3px}
+.sq.active-square .tok.me{filter:drop-shadow(0 0 3px currentColor)}
+.board-help{margin:6px 0;font-size:13px;color:var(--muted);text-align:center}
+@media(max-width:700px){
+  #turn .who small{font-size:12px}
+  #turn .who b{font-size:17px}
+  #turn .turnhead>.money{font-size:18px}
+  #turn .turn-guide{font-size:13px;padding:7px 9px}
+  #turn .actions .btn{font-size:16px;min-height:48px}
+  .modal input,.modal select{font-size:16px}
+  #deedBox .modal{padding:18px;max-width:480px}
+  #deedTable{font-size:15px}
+  #deedTable td{padding:10px 8px}
+  #deedClose{min-width:44px;min-height:44px}
+  #props .mini{min-width:44px;min-height:44px}
+  #props .pp{flex-wrap:wrap}
+  #props .pp .t{min-width:130px}
+}
+</style>
 </head>
 <body>
 
@@ -983,7 +1009,8 @@ body{
     <p class="tapnote">Ketik mana-mana petak untuk lihat nama penuh, harga dan sewa · cubit untuk zum</p>
   </div>
   <aside class="side">
-    <section class="panel turn" id="turn"></section>
+    <p id="turnGuide" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
+    <section class="panel turn" id="turn" aria-label="Giliran dan tindakan"></section>
     <section class="panel sect"><h3>Pemain</h3><ul class="plist" id="players"></ul></section>
     <section class="panel sect"><h3 id="propsTitle">Hartanah anda</h3><ul class="props" id="props"></ul></section>
     <section class="panel sect"><h3 id="missTitle">Misi</h3><ul class="missions" id="missions"></ul></section>
@@ -2409,6 +2436,7 @@ function buildBoard(){
     <div class="msg" id="msg" aria-live="polite"></div><div id="cardSlot"></div></div>`;
   h+=`<div class="flyer" id="flyer" aria-hidden="true"></div>`;
   b.innerHTML=h;
+  if(!document.getElementById('boardHelp')){const help=document.createElement('p');help.id='boardHelp';help.className='board-help';help.textContent='Sentuh mana-mana stesen untuk lihat nama penuh, harga dan sewa.';b.parentElement.insertAdjacentElement('afterend',help)}
   b.addEventListener('click',e=>{const sq=e.target.closest('.sq');
     if(sq&&zPan.moved<7)showDeed(+sq.dataset.i)});   /* seretan bukan ketukan */
   b.addEventListener('keydown',e=>{const sq=e.target.closest('.sq');if(sq&&(e.key==='Enter'||e.key===' ')){e.preventDefault();showDeed(+sq.dataset.i)}});
@@ -2443,6 +2471,8 @@ function rollDiceAnim(){
 }
 function renderBoard(){
   SQ.forEach((s,i)=>{const el=document.getElementById('sq'+i);
+    el.classList.toggle('active-square',S.phase!=='over'&&cur().pos===i);
+    el.style.setProperty('--active-color',cur().color);
     el.classList.toggle('mort',!!S.mort[i]);
     const o=S.owner[i];let own=el.querySelector('.own');
     el.classList.toggle('owned',o!==null);
@@ -2524,6 +2554,20 @@ function showDeed(i){
   document.getElementById('deedBox').hidden=false;
 }
 function lapBar(p){if(!S.qual)return `<span class="chip">Pusingan ${p.laps}</span>`;return `<span class="lap" title="Kelayakan ${Math.min(p.laps,S.qual)}/${S.qual} pusingan">${[...Array(S.qual)].map((_,k)=>`<i class="${k<p.laps?'on':''}"></i>`).join('')}</span><span class="chip">Pusingan ${p.laps}</span>`}
+function turnGuidance(){
+  const p=cur();
+  if(S.phase==='over')return 'Permainan tamat. Lihat keputusan atau main semula.';
+  if(tradePending())return 'Menunggu jawapan tawaran daripada '+S.players[S.trade.to].name+'.';
+  if(S.phase==='auction')return 'Lelongan sedang berjalan. Ikuti arahan dalam panel lelongan.';
+  if(p.bot||(NET&&afkSeat===S.turn))return p.name+' sedang bermain secara automatik.';
+  if(NET&&!isActor())return 'Menunggu '+p.name+'. Anda boleh sentuh stesen untuk semak butirannya.';
+  if(p.cash<0)return 'Jual bangunan atau gadai hartanah untuk pulihkan baki anda.';
+  if(S.phase==='moving'||busy)return 'Token sedang bergerak. Tunggu sehingga tiba.';
+  if(S.phase==='buy')return 'Pilih Beli atau Lepaskan untuk teruskan giliran.';
+  if(S.phase==='end')return 'Selesai? Tekan Tamat giliran untuk pemain seterusnya.';
+  if(p.inJail)return 'Pilih cuba dadu ganda, bayar RM50 atau guna Kad Bebas.';
+  return S.doubles?'Dadu ganda! Tekan Baling lagi.':'Tekan Baling dadu untuk bergerak.';
+}
 function renderSide(){
   const p=cur();const t=document.getElementById('turn');
   let acts='',note='';const neg=p.cash<0;
@@ -2556,7 +2600,11 @@ function renderSide(){
   if(S.phase!=='over'&&p.bot){
     note=`<div class="note">Bot ${BOT_LEVELS[p.bot].toLowerCase()} sedang berfikir…</div>`;
     acts=`<button class="btn" type="button" disabled>${esc(p.name)} bermain…</button>`}
-  t.innerHTML=`<div class="turnhead"><span class="avatar" style="background:${p.color};color:${p.color}"><span class="tdot av" style="color:${p.color}">${trainSVG(S.turn)}</span></span><div class="who"><small>${S.phase==='over'?'Permainan tamat':NET&&p.uid===UID?'Giliran anda':p.bot?'Giliran bot':'Giliran sekarang'}</small><b>${esc(p.name)}</b></div><span class="money" style="color:${neg?'var(--bad)':'inherit'}">${fmt(p.cash)}</span></div>${note}<div class="actions">${acts}</div><div class="afkbar" id="afkClock" hidden></div><div class="note">${p.laps<S.qual?`Kelayakan membeli: ${p.laps}/${S.qual} pusingan. `:''}${S.fast?`<span class="fastnote">⚡ Mod cepat · ronde ${Math.min(S.round||1,S.fastRounds)}/${S.fastRounds}</span>`:S.endLaps?`Tamat apabila semua pemain lengkap ${S.endLaps} pusingan.`:'Tamat apabila hanya seorang pemain tidak muflis.'}</div>`+pstripHTML();
+  t.style.setProperty('--turn-color',p.color);
+  t.classList.toggle('your-turn',S.phase!=='over'&&!p.bot&&isActor()&&!(NET&&afkSeat===S.turn));
+  const guide=document.getElementById('turnGuide');
+  if(guide&&guide.textContent!==turnGuidance())guide.textContent=turnGuidance();
+  t.innerHTML=`<div class="turnhead"><span class="avatar" style="background:${p.color};color:${p.color}"><span class="tdot av" style="color:${p.color}">${trainSVG(S.turn)}</span></span><div class="who"><small>${S.phase==='over'?'Permainan tamat':NET&&p.uid===UID?'Giliran anda':p.bot?'Giliran bot':'Giliran sekarang'}</small><b>${esc(p.name)}</b></div><span class="money" style="color:${neg?'var(--bad)':'inherit'}">${fmt(p.cash)}</span></div>${note}<p class="turn-guide">${esc(turnGuidance())}</p><div class="actions">${acts}</div><div class="afkbar" id="afkClock" hidden></div><div class="note">${p.laps<S.qual?`Kelayakan membeli: ${p.laps}/${S.qual} pusingan. `:''}${S.fast?`<span class="fastnote">⚡ Mod cepat · ronde ${Math.min(S.round||1,S.fastRounds)}/${S.fastRounds}</span>`:S.endLaps?`Tamat apabila semua pemain lengkap ${S.endLaps} pusingan.`:'Tamat apabila hanya seorang pemain tidak muflis.'}</div>`+pstripHTML();
   afkPaint();
   document.getElementById('players').innerHTML=S.players.map((q,k)=>{
     const sw=S.owner.map((o,i)=>o===k?`<i style="background:${SQ[i].t==='prop'?GROUPS[SQ[i].g].c:'var(--muted)'}"></i>`:'').join('');
