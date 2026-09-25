@@ -711,6 +711,61 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:60;width:100%;heigh
   body.turn-dock-obscured #turn{display:none}
   .toast{bottom:calc(16px + max(var(--turn-dock-height,0px),env(safe-area-inset-bottom,0px)))}
 }
+
+/* ---------- tab bawah: Papan · Aset · Log ----------
+   Hanya pada skrin ≤1000px, di mana semuanya bertindan dalam satu lajur.
+   Panel giliran duduk betul-betul di atas bar tab, jadi butang tindakan
+   sentiasa boleh dicapai dari mana-mana tab. */
+.tabbar{display:none}
+@media (max-width:1000px){
+  .tabbar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;
+    position:fixed;left:0;right:0;bottom:0;z-index:41;
+    background:var(--panel);border-top:1px solid var(--rule);
+    padding:4px max(8px,env(safe-area-inset-right,0px)) calc(4px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+  .tabbar button{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    min-height:50px;padding:5px 4px;border:0;border-radius:12px;background:none;
+    color:var(--muted);font:700 12px/1 var(--body);letter-spacing:.02em;touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent}
+  .tabbar .ti{font-size:19px;line-height:1;filter:grayscale(.7);opacity:.75;transition:filter .15s,opacity .15s,transform .15s}
+  .tabbar button[aria-selected="true"]{color:var(--ink);background:var(--soft)}
+  .tabbar button[aria-selected="true"] .ti{filter:none;opacity:1;transform:translateY(-1px)}
+  .tabbar button[aria-selected="true"]::before{content:"";position:absolute;top:-5px;left:30%;right:30%;height:3px;
+    border-radius:0 0 3px 3px;background:var(--accent)}
+  .tabbar button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+  .tabbar .bdg{position:absolute;top:4px;left:calc(50% + 7px);min-width:17px;height:17px;padding:0 5px;box-sizing:border-box;
+    border-radius:99px;background:var(--accent);color:var(--accent-ink);font:800 10px/17px var(--mono);text-align:center;
+    box-shadow:0 0 0 2px var(--panel)}
+  .tabbar .bdg:empty{min-width:9px;width:9px;height:9px;padding:0;top:6px}
+  body.turn-dock-obscured .tabbar{display:none}
+
+  /* Panel giliran naik ke atas bar tab; kawasan selamat kini ditanggung bar tab. */
+  #turn{bottom:var(--tabbar-h,0px);padding-bottom:10px}
+  body{padding-bottom:calc(24px + var(--turn-dock-height,0px) + var(--tabbar-h,0px))}
+  html{scroll-padding-bottom:calc(24px + var(--turn-dock-height,0px) + var(--tabbar-h,0px))}
+  .toast{bottom:calc(12px + var(--turn-dock-height,0px) + var(--tabbar-h,0px))}
+
+  /* Kandungan ikut tab */
+  body[data-tab="aset"] .boardwrap,body[data-tab="log"] .boardwrap{display:none}
+  body[data-tab="papan"] .side .sect{display:none}
+  body[data-tab="aset"] .side .sect-log{display:none}
+  body[data-tab="log"] .side .sect-aset{display:none}
+  /* Dalam tab sendiri, senarai tidak perlu kotak skrol kecil — laman itu sendiri yang skrol. */
+  body[data-tab="log"] .log{max-height:none;font-size:13.5px;gap:8px}
+  body[data-tab="aset"] .missions{max-height:none}
+  /* Panel giliran padat (semua tab): nama, wang, arahan dan butang sahaja.
+     - Langkah 1·2·3 disorok: arahan di bawahnya sudah menyatakan langkah semasa.
+     - Jalur wang pemain disorok: sama seperti tab Aset.
+     - "Bot sedang berfikir" disorok: arahan sudah berkata bot sedang bermain.
+     Amaran (baki negatif, ganda 2/3, tiada respons) dan info mod cepat kekal. */
+  #turn>.turn-stage,#turn>.pstrip,#turn>.note.botnote{display:none!important}
+  #turn{gap:7px;padding-top:9px;max-height:40dvh}
+  #turn .actions .btn{min-height:46px;padding:9px 12px}
+  #turn>.note{font-size:12px}
+  /* Nota akhir (mod cepat / kelayakan) jadi satu baris kecil, bukan kotak. */
+  #turn>.actions~.note{margin:0;padding:0 2px;font-weight:700}
+  /* Di luar Papan, lebih padat: nota akhir juga disorok (ronde ada dalam Log/Aset). */
+  body:not([data-tab="papan"]) #turn>.actions~.note{display:none!important}
+}
 /* Telefon: notis ringkas di atas skrin (bukan gelembung besar di tengah),
    bertingkat jika lebih daripada satu, dan tidak menghalang sentuhan. */
 @media (max-width:700px){
@@ -1050,12 +1105,19 @@ body{
   <aside class="side">
     <p id="turnGuide" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
     <section class="panel turn" id="turn" aria-label="Giliran dan tindakan"></section>
-    <section class="panel sect"><h3>Pemain</h3><ul class="plist" id="players"></ul></section>
-    <section class="panel sect"><h3 id="propsTitle">Hartanah anda</h3><ul class="props" id="props"></ul></section>
-    <section class="panel sect"><h3 id="missTitle">Misi</h3><ul class="missions" id="missions"></ul></section>
-    <section class="panel sect"><h3>Catatan permainan</h3><ul class="log" id="log"></ul></section>
+    <section class="panel sect sect-aset"><h3>Pemain</h3><ul class="plist" id="players"></ul></section>
+    <section class="panel sect sect-aset"><h3 id="propsTitle">Hartanah anda</h3><ul class="props" id="props"></ul></section>
+    <section class="panel sect sect-aset"><h3 id="missTitle">Misi</h3><ul class="missions" id="missions"></ul></section>
+    <section class="panel sect sect-log"><h3>Catatan permainan</h3><ul class="log" id="log"></ul></section>
   </aside>
 </div>
+
+<!-- Tab bawah (telefon & tablet sahaja): tukar paparan tanpa skrol panjang. -->
+<nav class="tabbar" id="tabbar" role="tablist" aria-label="Paparan">
+  <button type="button" role="tab" id="tabPapan" data-tab="papan" aria-selected="true"><span class="ti" aria-hidden="true">🗺️</span><span>Papan</span></button>
+  <button type="button" role="tab" id="tabAset" data-tab="aset" aria-selected="false"><span class="ti" aria-hidden="true">💼</span><span>Aset</span><span class="bdg" id="bdgAset" hidden></span></button>
+  <button type="button" role="tab" id="tabLog" data-tab="log" aria-selected="false"><span class="ti" aria-hidden="true">📜</span><span>Log</span><span class="bdg" id="bdgLog" hidden></span></button>
+</nav>
 
 <div class="overlay" id="setup" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-label="Metro Tycoon KL: mula permainan" tabindex="-1">
@@ -2689,7 +2751,7 @@ function renderSide(){
     note=`<div class="note warn">⏱ ${esc(S.players[afkSeat].name)} tiada respons — bot sedang ambil alih.</div>`;
     if(afkSeat===S.turn)acts=`<button class="btn" type="button" disabled>Bot bermain untuk ${esc(p.name)}…</button>`}
   if(S.phase!=='over'&&p.bot){
-    note=`<div class="note">Bot ${BOT_LEVELS[p.bot].toLowerCase()} sedang berfikir…</div>`;
+    note=`<div class="note botnote">Bot ${BOT_LEVELS[p.bot].toLowerCase()} sedang berfikir…</div>`;
     acts=`<button class="btn" type="button" disabled>${esc(p.name)} bermain…</button>`}
   t.style.setProperty('--turn-color',p.color);
   t.classList.toggle('your-turn',S.phase!=='over'&&!p.bot&&isActor()&&!(NET&&afkSeat===S.turn));
@@ -3896,6 +3958,9 @@ function updateTurnDock(){
   document.body.classList.toggle('turn-dock-obscured',covered);
   const height=turnDockMedia.matches&&!covered?Math.ceil(turnDock.getBoundingClientRect().height):0;
   document.documentElement.style.setProperty('--turn-dock-height',height+'px');
+  const tb=document.getElementById('tabbar');
+  const tbh=tb&&turnDockMedia.matches&&!covered?Math.ceil(tb.getBoundingClientRect().height):0;
+  document.documentElement.style.setProperty('--tabbar-h',tbh+'px');
 }
 function queueTurnDock(){if(!dockFrame)dockFrame=requestAnimationFrame(updateTurnDock)}
 if(window.ResizeObserver)new ResizeObserver(queueTurnDock).observe(turnDock);
@@ -3904,6 +3969,80 @@ document.querySelectorAll('.overlay').forEach(el=>dockObserver.observe(el,{attri
 dockObserver.observe(turnDock,{childList:true,subtree:true});
 window.addEventListener('resize',queueTurnDock);
 queueTurnDock();
+
+/* ---------- tab bawah: Papan · Aset · Log ----------
+   Pilihan tab disimpan pada <body data-tab>, dan CSS yang menyorok/menunjuk
+   bahagian. Pada skrin lebar CSS mengabaikannya, jadi tiada kesan di komputer.
+   - Lencana Log: bilangan catatan baharu sejak kali terakhir tab Log dibuka.
+   - Lencana Aset: titik bila hartanah anda bertambah/berkurang atau misi selesai.
+   - Tekan butang tindakan (baling dadu, beli…) terus kembali ke Papan supaya
+     pergerakan token tidak terlepas. */
+(()=>{
+  const bar=document.getElementById('tabbar');if(!bar)return;
+  const tabs=[...bar.querySelectorAll('[role="tab"]')];
+  const bLog=document.getElementById('bdgLog'),bAset=document.getElementById('bdgAset');
+  let tab='papan',seenLog=null,seenAset=null;
+  const logKey=()=>(S&&S.log&&S.log[0])||'';
+  const asetKey=()=>{
+    const p=document.getElementById('props'),m=document.getElementById('missions');
+    return (p?p.querySelectorAll('li.pp').length:0)+'|'+(m?m.querySelectorAll('li.ms.ok').length:0)};
+  function setTab(t,{focus=false,scroll=true}={}){
+    if(!tabs.some(b=>b.dataset.tab===t))t='papan';
+    const changed=t!==tab;tab=t;document.body.dataset.tab=t;
+    tabs.forEach(b=>{const on=b.dataset.tab===t;b.setAttribute('aria-selected',on?'true':'false');b.tabIndex=on?0:-1;
+      if(on&&focus)b.focus()});
+    if(t==='log')seenLog=null;
+    if(t==='aset')seenAset=asetKey();
+    badges();
+    if(changed&&scroll&&turnDockMedia.matches)window.scrollTo({top:0,behavior:'instant'});
+  }
+  function badges(){
+    /* Log: kira catatan di atas yang terakhir dilihat */
+    if(tab==='log'||!S||!S.log){seenLog=logKey();bLog.hidden=true}
+    else{
+      if(seenLog===null)seenLog=logKey();
+      let n=S.log.indexOf(seenLog);if(n<0)n=Math.min(S.log.length,40);
+      bLog.hidden=n===0;bLog.textContent=n>9?'9+':String(n);
+    }
+    /* Aset: titik sahaja */
+    const k=asetKey();
+    if(tab==='aset'||seenAset===null){seenAset=k;bAset.hidden=true}
+    else bAset.hidden=k===seenAset;
+    const lbl=(b,base,n)=>b.closest('button').setAttribute('aria-label',base+(n?`, ${n}`:''));
+    lbl(bLog,'Log',bLog.hidden?'':bLog.textContent+' catatan baharu');
+    lbl(bAset,'Aset',bAset.hidden?'':'ada perubahan');
+  }
+  bar.addEventListener('click',e=>{const b=e.target.closest('[role="tab"]');if(b)setTab(b.dataset.tab)});
+  /* Anak panah kiri/kanan antara tab, seperti tablist biasa. */
+  bar.addEventListener('keydown',e=>{
+    const i=tabs.findIndex(b=>b.dataset.tab===tab);let j=-1;
+    if(e.key==='ArrowRight')j=(i+1)%tabs.length;else if(e.key==='ArrowLeft')j=(i+tabs.length-1)%tabs.length;
+    else if(e.key==='Home')j=0;else if(e.key==='End')j=tabs.length-1;
+    if(j>=0){e.preventDefault();setTab(tabs[j].dataset.tab,{focus:true})}});
+  /* Butang tindakan dalam panel giliran → kembali ke papan. */
+  document.getElementById('turn').addEventListener('click',e=>{
+    if(tab!=='papan'&&turnDockMedia.matches&&e.target.closest('button.btn'))setTab('papan')},true);
+  /* Pintasan Space/Enter untuk baling dadu juga membawa ke Papan. */
+  document.addEventListener('keydown',e=>{
+    if(tab==='papan'||(e.key!==' '&&e.key!=='Enter'))return;
+    if(e.target.closest&&e.target.closest('input,select,textarea,button,.sq,[role="tab"]'))return;
+    if(document.querySelector('.overlay:not([hidden])'))return;
+    setTab('papan',{scroll:false})},true);
+  /* Kemas kini lencana setiap kali panel sisi dilukis semula. */
+  const watch=new MutationObserver(()=>badges());
+  ['log','props','missions'].forEach(id=>{const el=document.getElementById(id);if(el)watch.observe(el,{childList:true,subtree:true})});
+  /* Permainan baharu: mula semula dari Papan, tanpa lencana lama. */
+  const setupEl=document.getElementById('setup');
+  new MutationObserver(()=>{
+    if(!setupEl.hidden){setTab('papan',{scroll:false});return}
+    /* Skrin mula ditutup: permainan (baharu atau disambung) sudah dilukis.
+       Semua yang ada sekarang dikira "sudah dilihat" — lencana hanya untuk yang berlaku selepas ini. */
+    const mark=()=>{seenLog=logKey();seenAset=asetKey();badges()};
+    /* Mod cepat membahagikan stesen dengan animasi selepas papan dilukis, jadi tandakan sekali lagi selepas itu. */
+    setTimeout(mark,0);setTimeout(()=>{if(S&&!S.log.some(l=>/baling/i.test(l)))mark()},1800)})
+    .observe(setupEl,{attributes:true,attributeFilter:['hidden']});
+  setTab('papan',{scroll:false});
+})();
 
 /* ---------- tetingkap (modal) boleh diakses ----------
    Setiap .overlay dibuka dan ditutup dengan atribut hidden di banyak tempat,
