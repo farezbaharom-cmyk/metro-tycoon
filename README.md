@@ -49,11 +49,30 @@ Peraturan penuh ada dalam permainan, di **⚙️ Menu → Peraturan**.
 
 ## Teknologi
 
-- Satu fail `index.html`: HTML, CSS dan JavaScript biasa, tanpa framework dan tanpa langkah build.
+- HTML, CSS dan JavaScript biasa, tanpa framework dan tanpa langkah build. Muat naik fail seperti sedia ada, dan terus jalan.
 - [Firebase Realtime Database](https://firebase.google.com/docs/database) untuk bilik online, dan Firebase Anonymous Auth untuk log masuk tanpa nama.
 - Web Speech API untuk pengumuman bersuara.
 - Service worker (`sw.js`) dan `manifest.webmanifest` untuk sokongan PWA.
 - Dihoskan di GitHub Pages.
+
+### Struktur fail
+
+| Fail | Isi |
+|---|---|
+| `index.html` | Struktur laman sahaja: papan, panel, tetingkap dan borang. |
+| `css/style.css` | Semua gaya: tema cerah/gelap, papan, panel, telefon, animasi. |
+| `js/config.js` | Konfigurasi Firebase dan App Check. **Satu-satunya fail yang perlu diubah untuk projek Firebase sendiri.** |
+| `js/cats.js` | Lukisan SVG lima token kucing. |
+| `js/data.js` | Petak papan, laluan, token, kad Peluang/Tabung, keadaan permainan, statistik, misi, mod cepat. |
+| `js/audio.js` | Bunyi, getaran dan pengumuman stesen bersuara (Pakcik, Slay, Pengulas). |
+| `js/rules.js` | Peraturan: wang, sewa, pemilikan, berita, pergerakan, giliran, lelongan, tawaran, skrin tamat. |
+| `js/bot.js` | Pemain bot Mudah dan Sederhana. |
+| `js/render.js` | Melukis papan dan panel sisi, animasi Lokap, zum dan geser papan. |
+| `js/ui.js` | Butang, papan kekunci, borang persediaan, pandangan 3D dan enjin partikel. |
+| `js/online.js` | Bilik online Firebase, penonton, had masa giliran, pembersihan bilik terbiar. |
+| `js/app.js` | Panel giliran telefon, tab bawah, tetingkap boleh diakses, boot dan PWA. |
+
+Semua fail `js/` berkongsi skop global dan dimuatkan **mengikut susunan** dalam `index.html` (`config.js` dahulu, `app.js` terakhir). Fungsi boleh dipanggil merentas fail, tetapi kod yang berjalan semasa laman dimuatkan hanya boleh guna apa yang sudah dimuatkan sebelumnya. Jika menambah fail `js/` baharu, tambahkan juga dalam `TERAS` di `sw.js` dan naikkan `VERSI`, supaya mod tanpa internet terus berfungsi.
 
 ## Jalankan sendiri
 
@@ -61,9 +80,9 @@ Peraturan penuh ada dalam permainan, di **⚙️ Menu → Peraturan**.
 2. Buka `index.html` terus dalam pelayar. Mod satu peranti boleh dimain tanpa sebarang persediaan.
 3. Untuk mod online dengan projek Firebase anda sendiri:
    - Cipta projek di [Firebase Console](https://console.firebase.google.com), dan hidupkan **Realtime Database** serta **Authentication → Anonymous**.
-   - Ganti nilai dalam `FIREBASE_CONFIG` di bahagian atas skrip dalam `index.html` (`apiKey`, `authDomain`, `projectId`, `databaseURL`).
+   - Ganti nilai dalam `FIREBASE_CONFIG` dalam `js/config.js` (`apiKey`, `authDomain`, `projectId`, `databaseURL`).
    - Tampal peraturan pangkalan data di bawah (juga ada dalam `database.rules.json`) ke tab **Rules**. Peraturan ini turut membenarkan sesiapa memadam bilik yang lebih tua daripada 48 jam dan tiada pemain dalam talian, supaya bilik terbiar tidak berlonggok.
-   - (Pilihan) Hidupkan **App Check** dengan reCAPTCHA v3, isi `APPCHECK_SITE_KEY` dalam `index.html`, dan hanya selepas itu tekan **Enforce** untuk Realtime Database.
+   - (Pilihan) Hidupkan **App Check** dengan reCAPTCHA v3, isi `APPCHECK_SITE_KEY` dalam `js/config.js`, dan hanya selepas itu tekan **Enforce** untuk Realtime Database.
 
 <details>
 <summary>Peraturan Realtime Database</summary>

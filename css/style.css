@@ -1,0 +1,1032 @@
+/* Metro Tycoon KL — gaya.
+   Dahulu lima blok <style> dalam index.html; susunan dikekalkan kerana
+   peraturan kemudian menimpa yang awal. */
+
+/* ===================== Asas: tema, susun atur, papan, panel, tetingkap ===================== */
+:root{
+  --ground:#E3E9EC; --board:#F9FAF8; --center:#EDF2F1; --panel:#FFFFFF;
+  --ink:#14202A; --muted:#5A6873; --rule:#C2CCD2; --soft:#E8EDEF;
+  --accent:#D6124F; --accent-ink:#FFFFFF; --good:#0B7A3E; --bad:#C0262D;
+  --shadow:0 1px 0 rgba(20,32,42,.05),0 10px 30px rgba(20,32,42,.10);
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  color-scheme:light;
+  /* Langit KL di tengah papan (siang) */
+  --sky-a:#F3EFE3; --sky-b:#BFDDEE; --orb:#FFD27A; --orb-glow:rgba(255,196,90,.35);
+  --bld-back:#C9D6DE; --bld-mid:#A8BBC7; --bld-front:#8BA1B0; --landmark:#7A92A3;
+  --win:#FFFFFF; --win-op:.35; --star-op:0; --track:#6F8595;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0A1016; --board:#131C24; --center:#0F171E; --panel:#17212A;
+    --ink:#E3E9ED; --muted:#8C9BA6; --rule:#2A3843; --soft:#1E2A34;
+    --accent:#FF4379; --accent-ink:#14060B; --good:#3DC57A; --bad:#FF6B6B;
+    --shadow:0 1px 0 rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.45); color-scheme:dark;
+    --sky-a:#1A2C44; --sky-b:#07111D; --orb:#F4F1DE; --orb-glow:rgba(244,241,222,.18);
+    --bld-back:#1C2C3D; --bld-mid:#16283A; --bld-front:#0F1C28; --landmark:#243A50;
+    --win:#FFD27A; --win-op:.85; --star-op:.9; --track:#2E4254;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0A1016; --board:#131C24; --center:#0F171E; --panel:#17212A;
+  --ink:#E3E9ED; --muted:#8C9BA6; --rule:#2A3843; --soft:#1E2A34;
+  --accent:#FF4379; --accent-ink:#14060B; --good:#3DC57A; --bad:#FF6B6B;
+  --shadow:0 1px 0 rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.45); color-scheme:dark;
+    --sky-a:#1A2C44; --sky-b:#07111D; --orb:#F4F1DE; --orb-glow:rgba(244,241,222,.18);
+    --bld-back:#1C2C3D; --bld-mid:#16283A; --bld-front:#0F1C28; --landmark:#243A50;
+    --win:#FFD27A; --win-op:.85; --star-op:.9; --track:#2E4254;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--ground);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.45;padding-inline:16px;padding-block:14px 32px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.money{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:700}
+
+/* top bar */
+.bar{max-width:1320px;margin:0 auto 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{font-family:var(--display);font-weight:900;font-size:30px;letter-spacing:.02em;line-height:1;text-transform:uppercase;display:flex;align-items:center;gap:10px}
+.brand .lines{display:flex;gap:3px}
+.brand .lines i{display:block;width:6px;height:26px;border-radius:3px}
+.bar .sp{flex:1}
+.ghost{background:transparent;border:1px solid var(--rule);border-radius:999px;padding:6px 14px;font-weight:600;font-size:13px}
+.ghost:hover{background:var(--soft)}
+.voicechip{position:relative;display:inline-flex}
+
+/* Menu tetapan: di desktop butang kekal sebaris; di telefon dilipat
+   ke dalam satu butang ⚙️ supaya papan terus kelihatan. */
+.bar{position:relative}
+.barmenu{display:contents}
+.menubtn{display:none}
+.tapnote{display:none}
+/* Skrin lebar: semua butang muat sebaris jika dipadatkan sedikit. */
+@media not all{
+  .bar{flex-wrap:nowrap;gap:8px}
+  .barmenu .ghost{padding:6px 11px}
+}
+/* Laman dihadkan ~1320px, jadi butang tidak pernah muat sebaris: semuanya dilipat ke
+   dalam ⚙️ Menu — laptop dan telefon sama — supaya bar kekal satu baris. */
+@media all{
+  .bar{flex-wrap:nowrap}
+  .menubtn{display:inline-flex;flex:none;padding:8px 14px;font-size:14px}
+  .roomchip{flex:none}
+  .barmenu{display:none;position:absolute;top:calc(100% + 6px);right:0;z-index:60;width:min(290px,calc(100vw - 16px));
+    background:var(--panel);border:1px solid var(--rule);border-radius:14px;box-shadow:var(--shadow);padding:8px;
+    flex-direction:column;gap:4px}
+  .bar.open .barmenu{display:flex}
+  .barmenu .ghost,.barmenu .voicechip{width:100%}
+  .barmenu .ghost{border:0;border-radius:10px;text-align:left;padding:12px 14px;font-size:15px}
+  .barmenu #btnFinish{margin-top:4px;border-top:1px solid var(--rule);border-radius:0 0 10px 10px}
+}
+@media (max-width:700px){
+  body{padding-inline:8px;padding-top:10px}
+  .bar{margin-bottom:10px;gap:8px}
+  .brand{font-size:21px;gap:7px;white-space:nowrap}
+  .brand .lines i{width:4px;height:19px}
+  .roomchip{padding:8px 10px}
+  .tapnote{display:block;text-align:center;font-size:12px;color:var(--muted);margin-top:6px}
+}
+/* Telefon kecil (≤380px): kecilkan jenama supaya butang Menu tidak terkeluar. */
+@media (max-width:380px){
+  .brand{font-size:18px;gap:6px}
+  .menubtn{padding:8px 11px}
+}
+
+/* layout */
+.app{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:20px;align-items:start}
+@media (max-width:1000px){.app{grid-template-columns:minmax(0,1fr)}}
+/* Papan dihadkan oleh lebar DAN tinggi skrin. --chrome = bar atas, jalur LED,
+   kawalan zum dan jarak — semua yang perlu muat bersama papan dalam satu skrin. */
+.boardwrap{--chrome:176px;container-type:inline-size;width:100%;
+  max-width:min(100%,max(340px,calc(100vh - var(--chrome))));min-width:0;margin-inline:auto}
+@supports (height:100dvh){.boardwrap{max-width:min(100%,max(340px,calc(100dvh - var(--chrome))))}}
+@media (max-width:1000px){.boardwrap{--chrome:150px}}
+
+/* board */
+/* zum & geser papan */
+.boardview{position:relative;width:100%;aspect-ratio:1;overflow:hidden;border-radius:6px;
+  touch-action:none;-webkit-user-select:none;user-select:none}
+.boardview .board{position:absolute;inset:0;width:100%;height:100%;
+  transform-origin:0 0;will-change:transform}
+.boardview.grab{cursor:grab}
+.boardview.grabbing{cursor:grabbing}
+.zoomctl{display:flex;align-items:center;gap:6px;justify-content:center;margin-top:8px}
+.zoomctl button{background:var(--panel);border:1px solid var(--rule);border-radius:999px;
+  min-width:42px;height:38px;padding:0 14px;font-weight:800;font-size:17px;line-height:1}
+.zoomctl button:hover:not(:disabled){background:var(--soft)}
+.zoomctl button:disabled{opacity:.4;cursor:not-allowed}
+.zoomctl button[data-z="reset"]{font-size:13px;font-weight:700}
+.zlvl{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--muted);
+  min-width:52px;text-align:center;font-variant-numeric:tabular-nums}
+.board{position:relative;aspect-ratio:1;max-width:100%;display:grid;grid-template-columns:1.55fr repeat(9,1fr) 1.55fr;grid-template-rows:1.55fr repeat(9,1fr) 1.55fr;background:var(--rule);gap:1px;border:2px solid var(--ink);border-radius:6px;overflow:hidden;box-shadow:var(--shadow)}
+.sq{position:relative;background:var(--board);display:flex;min-width:0;min-height:0;overflow:hidden;cursor:pointer;transition:background .2s}
+.sq:hover{background:var(--soft)}
+.sq.bottom{flex-direction:column}.sq.top{flex-direction:column-reverse}
+.sq.left{flex-direction:row-reverse}.sq.right{flex-direction:row}
+.stripe{flex:0 0 22%;display:flex;align-items:center;justify-content:center;gap:1.5%;position:relative}
+.sq.left .stripe,.sq.right .stripe{flex-direction:column}
+.sq.left .stripe,.sq.right .stripe{flex-basis:22%}
+.body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:3%;gap:1px;min-width:0}
+/* break-word hanya memecahkan perkataan yang benar-benar tidak muat, tidak
+   seperti 'anywhere' yang memecah sesuka hati. Nama berperkataan panjang
+   diberi saiz lebih kecil supaya ia kekal utuh dalam satu baris. */
+.nm{font-weight:700;font-size:1.28cqi;line-height:1.1;text-wrap:balance;overflow-wrap:break-word}
+.nm.tight{font-size:1.1cqi;letter-spacing:-.012em}
+.nm.tighter{font-size:.98cqi;letter-spacing:-.018em}
+.nm-s{display:none}
+/* Pil kod stesen: gaya papan tanda sebenar, putih atas warna laluan. */
+.scode{font-family:var(--mono);font-weight:700;font-size:max(8px,1.05cqi);line-height:1;
+  color:var(--lt,#fff);background:var(--lc);padding:.25em .45em .2em;border-radius:99px;letter-spacing:.02em;
+  font-variant-numeric:tabular-nums;margin-bottom:2px;white-space:nowrap;box-shadow:0 0 0 1px rgba(255,255,255,.35) inset}
+.dcode{display:inline-block;margin-top:9px;font-family:var(--mono);font-weight:700;font-size:13px;
+  letter-spacing:.04em;padding:4px 10px 3px;border-radius:99px;background:#fff;color:#1B2530;
+  box-shadow:0 1px 0 rgba(0,0,0,.15)}
+/* Papan kecil (laptop pendek, tablet, telefon): nama penuh terlalu panjang
+   untuk dibaca, jadi nama pendek (nm-s) dipaparkan dengan tulisan lebih besar.
+   Nama penuh sentiasa ada dalam kad apabila petak diketik. */
+@container (max-width:640px){
+  .csub{display:none}
+  .sq .nm-f{display:none}
+  .nm.nm-s{display:block;font-size:max(8px,1.8cqi);letter-spacing:-.025em;line-height:1.02;
+    overflow-wrap:normal;word-break:normal;hyphens:manual}
+  .sq.corner .nm.nm-s{font-size:max(10px,2.4cqi);letter-spacing:0}
+  .sq .pr{font-size:max(7px,1.3cqi)}
+}
+/* Papan telefon: nama sahaja (harga & sewa ada dalam kad bila petak diketik). */
+@media (max-width:700px){
+  .sq .pr{display:none}
+  .sq .scode{display:none}
+  .csub{display:none}
+  .cill{width:84%;max-height:52%;margin-bottom:1px}
+  .nm.nm-s{font-size:max(8.5px,2.3cqi)}
+  /* Baris atas & bawah paling sempit: rapatkan huruf sedikit. */
+  .sq.top .nm.nm-s,.sq.bottom:not(.corner) .nm.nm-s{font-size:max(8px,2.3cqi);letter-spacing:-.045em}
+  .sq.corner .nm.nm-s{font-size:max(10px,2.9cqi);letter-spacing:0}
+  .sq:not(.corner) .ic{font-size:max(11px,3.1cqi)}
+  .sq.left .stripe,.sq.right .stripe{flex-basis:15%}
+  .sq.top .stripe,.sq.bottom .stripe{flex:0 0 15%}
+  .body{padding:1px;gap:0}
+  /* Petak biasa lebih lebar: bucu dikecilkan sedikit (1.55 → 1.4). */
+  .board{grid-template-columns:1.4fr repeat(9,1fr) 1.4fr;grid-template-rows:1.4fr repeat(9,1fr) 1.4fr}
+  .nm.nm-s{hyphens:manual;-webkit-hyphens:manual}
+  /* Token diletak di LUAR petak, di tepi dalam papan (atas gambar tengah),
+     bersebelahan stesennya — petak kecil telefon dikhaskan untuk nama sahaja. */
+  .sq:not(.corner){overflow:visible}
+  .sq:not(.corner) .tokens{position:absolute;z-index:6;gap:0;padding:0;flex-wrap:nowrap}
+  .sq.bottom:not(.corner) .tokens{left:0;right:0;top:-19px;height:18px;flex-direction:row;justify-content:center;align-items:flex-end}
+  .sq.top .tokens{left:0;right:0;bottom:-19px;height:18px;flex-direction:row;justify-content:center;align-items:flex-start}
+  .sq.left .tokens{right:-25px;top:0;bottom:0;width:24px;flex-direction:column;justify-content:center;align-items:flex-start}
+  .sq.right .tokens{left:-25px;top:0;bottom:0;width:24px;flex-direction:column;justify-content:center;align-items:flex-end}
+  .sq:not(.corner) .tok,.sq:not(.corner) .tokens:has(.tok:nth-child(3)) .tok{width:24px;height:18px;min-width:0;min-height:0;box-sizing:border-box;padding:1px 2px;
+    background:var(--panel);border:2px solid currentColor;border-radius:999px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}
+  /* 3–5 tren di satu stesen: bertindih sedikit supaya kekal di sebelah stesennya. */
+  .sq.top .tokens:has(.tok:nth-child(3)) .tok+.tok,.sq.bottom .tokens:has(.tok:nth-child(3)) .tok+.tok{margin-left:-8px}
+  .sq.top .tokens:has(.tok:nth-child(4)) .tok+.tok,.sq.bottom .tokens:has(.tok:nth-child(4)) .tok+.tok{margin-left:-11px}
+  .sq.left .tokens:has(.tok:nth-child(3)) .tok+.tok,.sq.right .tokens:has(.tok:nth-child(3)) .tok+.tok{margin-top:-6px}
+  .sq.left .tokens:has(.tok:nth-child(4)) .tok+.tok,.sq.right .tokens:has(.tok:nth-child(4)) .tok+.tok{margin-top:-9px}
+  /* Lencana huruf pemilik disembunyikan di telefon: petak sudah diwarnakan dan
+     dibingkai dalam warna pemilik (sama dengan warna tren dan senarai pemain). */
+  .sq:not(.corner) .own{display:none}
+  .sq.corner .tok{width:22px;height:16px;min-width:0;min-height:0;box-sizing:border-box;padding:1px 2px;
+    background:var(--panel);border:2px solid currentColor;border-radius:999px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}
+  .sq.corner .tokens:has(.tok:nth-child(3)) .tok{width:18px;height:13px;border-width:1.5px}
+  /* Petak sudut telefon sempit: bila ada token, sembunyikan ikon supaya nama dan token muat. */
+  .sq.corner:has(.tok) .cill{display:none}
+  .sq.corner .tokens{flex-wrap:nowrap;padding:1px 0 0}
+  .sq.corner .tok+.tok{margin-left:-8px}
+  .sq.owned .stripe,.sq.owned .body{padding:1px!important}
+  .sq.left .nm.nm-s,.sq.right .nm.nm-s{letter-spacing:-.035em}
+}
+.pr{font-family:var(--mono);font-size:1.12cqi;color:var(--muted);font-variant-numeric:tabular-nums}
+.ic{font-family:var(--display);font-weight:900;font-size:2.4cqi;line-height:1}
+.sq.corner .body{padding:6%}
+.sq.corner .nm{font-family:var(--display);font-size:2.1cqi;font-weight:900;text-transform:uppercase;letter-spacing:.02em}
+.sq.corner .ic{font-size:4.2cqi}
+/* Lakaran mercu tanda di petak sudut */
+.cill{width:78%;height:auto;max-height:46%;color:var(--ink);opacity:.82;flex:none;margin-bottom:3%;overflow:visible}
+.cill .cut{fill:var(--board)}
+.sq.owned .cill .cut,.sq:hover .cill .cut{fill:var(--soft)}
+.cill .cu{fill:#B87333}
+.cill .ca{stroke:var(--accent)}
+.cill .blip{animation:cblip 1.2s steps(1) infinite}.cill .b2{animation-delay:.6s}
+@keyframes cblip{50%{opacity:.2}}
+@media (prefers-reduced-motion:reduce){.cill .blip{animation:none}}
+/* Token di sudut: lakaran mengecil dan sub-tajuk disembunyikan supaya token tidak tertolak keluar. */
+.sq.corner:has(.tok) .cill{max-height:30%;margin-bottom:1%}
+.sq.corner:has(.tok) .csub{display:none}
+.csub{font-size:max(8px,1cqi);font-weight:600;color:var(--muted);line-height:1.1;margin-top:2px;text-wrap:balance}
+.house{width:1.35cqi;height:1.35cqi;background:#fff;border:1px solid rgba(0,0,0,.45);border-radius:1px}
+.hotel{width:3.2cqi;height:1.6cqi;background:#fff;border:1px solid rgba(0,0,0,.5);border-radius:2px;font:900 1.1cqi/1 var(--display);color:#111;display:grid;place-items:center}
+.own{position:absolute;right:3px;bottom:3px;width:2.7cqi;height:2.7cqi;min-width:10px;min-height:10px;border-radius:50%;
+  display:grid;place-items:center;color:#fff;font:800 max(7px,1.5cqi)/1 var(--body);border:max(1px,.25cqi) solid var(--board);box-shadow:0 1px 2px rgba(0,0,0,.3);z-index:2}
+/* Lencana di sisi jalur warna (sisi dalam), jauh dari token di sisi luar;
+   jalur/badan beri ruang supaya lencana tidak menutup rumah atau harga. */
+.sq.bottom .own{top:3px;bottom:auto}.sq.right .own{left:3px;right:auto}
+.sq.owned.top .stripe,.sq.owned.bottom .stripe{padding-right:2.9cqi}
+.sq.owned.left .stripe,.sq.owned.right .stripe{padding-bottom:2.9cqi}
+.sq.owned.bottom:not(:has(.stripe)) .body{padding-top:2.9cqi}
+.sq.owned.top:not(:has(.stripe)) .body{padding-bottom:2.9cqi}
+.sq.owned.left:not(:has(.stripe)) .body{padding-right:2.9cqi}
+.sq.owned.right:not(:has(.stripe)) .body{padding-left:2.9cqi}
+/* Petak dimiliki: latar dan bingkai dalam warna pemain. */
+.sq.owned{background:color-mix(in srgb,var(--oc) 17%,var(--board));box-shadow:inset 0 0 0 max(2px,.4cqi) var(--oc)}
+.sq.owned:hover{background:color-mix(in srgb,var(--oc) 27%,var(--board))}
+.sq.mort::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(135deg,transparent 0 5px,rgba(120,120,120,.28) 5px 7px);pointer-events:none}
+.sq.hl{background:color-mix(in srgb,var(--accent) 14%,var(--board))}
+/* Token duduk di tepi luar petak (bukan di atas nama/harga): teks beralih
+   memberi ruang, jadi tiada apa yang tertutup. Kosong = tiada ruang diambil. */
+.tokens{flex:none;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;align-content:center;
+  gap:1px;padding:1px 2px 2px;pointer-events:none;z-index:2}
+.tokens:empty{display:none}
+.sq.top .tokens{padding:max(3px,.8cqi) 2px 1px}
+.sq.left .tokens,.sq.right .tokens{flex-direction:column;padding:2px 1px}
+.sq.left .tokens{padding-left:2px}.sq.right .tokens{padding-right:2px}
+/* Ramai pemain di satu petak: token dikecilkan supaya tersusun kemas. */
+.tokens:has(.tok:nth-child(3)) .tok{width:2.9cqi;height:2.1cqi;min-width:12px;min-height:9px}
+.tokens:has(.tok:nth-child(4)) .tok{width:2.5cqi;height:1.8cqi;min-width:11px;min-height:8px}
+/* token tren: siluet berbeza bagi setiap pemain */
+.train{display:block;width:100%;height:100%;overflow:visible}
+.train .body{fill:currentColor;stroke:var(--tstroke,#fff);stroke-width:1.5;
+  paint-order:stroke;stroke-linejoin:round;stroke-linecap:round}
+.train .win{fill:var(--twin,rgba(255,255,255,.92))}
+.tok{width:3.6cqi;height:2.6cqi;min-width:14px;min-height:10px;flex:none;
+  filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))}
+.tok.flip{transform:scaleX(-1)}
+.tok.me{animation:bob .9s ease-in-out infinite}
+.tok.flip.me{animation:bobflip .9s ease-in-out infinite}
+@keyframes bobflip{0%,100%{transform:scaleX(-1) translateY(0)}
+                   50%{transform:scaleX(-1) translateY(-22%)}}
+.tdot{display:inline-block;width:28px;height:20px;flex:none;vertical-align:middle}
+.pl .tdot{width:28px;height:20px}
+.names .nrow .tdot{width:31px;height:22px}
+.seats li .tdot{width:28px;height:20px}
+.rank .tdot{width:30px;height:21px}
+.tdot.av{width:28px;height:20px;--tstroke:transparent;--twin:rgba(0,0,0,.3)}
+@keyframes bob{50%{transform:translateY(-22%)}}
+
+/* center */
+.center{grid-row:2/11;grid-column:2/11;background:var(--center);position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.4cqi;padding:3cqi;overflow:hidden}
+.center svg.map{position:absolute;inset:0;width:100%;height:100%;opacity:.16;pointer-events:none;
+  -webkit-mask-image:linear-gradient(#000 35%,transparent 62%);mask-image:linear-gradient(#000 35%,transparent 62%)}
+/* Langit KL: siluet di separuh bawah tengah papan. Warna langit ditetapkan
+   oleh applySky() ikut jam tempatan (subuh/siang/senja/malam) dan tema. */
+.center svg.sky{position:absolute;left:0;right:0;bottom:0;width:100%;height:58%;pointer-events:none}
+.center>.logo,.center>.dice,.center>.msg{z-index:1}
+.center>.msg:not(:empty){background:color-mix(in srgb,var(--center) 86%,transparent);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);border-radius:12px;padding:.4em .9em;box-shadow:0 1px 4px rgba(0,0,0,.12),0 0 0 1px color-mix(in srgb,var(--ink) 8%,transparent)}
+.sky .sg-a{stop-color:var(--sky-a)}.sky .sg-b{stop-color:var(--sky-b)}
+.sky .orb{fill:var(--orb)}.sky .orbg{fill:var(--orb-glow)}
+.sky .orb,.sky .orbg{transform:translateY(var(--orb-y,0px));transition:transform 2s,fill 2s}
+.sky .b0{fill:var(--bld-back)}.sky .b1{fill:var(--bld-mid)}.sky .b2{fill:var(--bld-front)}.sky .lm{fill:var(--landmark)}
+.sky .lmS{stroke:var(--landmark);fill:none}
+.sky .w{fill:var(--win);opacity:var(--win-op)}
+.sky .st{fill:#fff;opacity:var(--star-op)}
+.sky .tw{animation:skytw 3.2s ease-in-out infinite}
+.sky .tw:nth-child(3n){animation-delay:1.1s}.sky .tw:nth-child(3n+1){animation-delay:2.2s}
+@keyframes skytw{50%{opacity:calc(var(--star-op)*.25)}}
+.sky .beacon{fill:#FF4B4B;animation:skybeacon 1.8s steps(1) infinite}
+@keyframes skybeacon{50%{opacity:.15}}
+.sky .trk{fill:var(--track)}
+.sky .train{animation:skytrain 16s linear infinite}
+@keyframes skytrain{from{transform:translateX(-120px)}to{transform:translateX(420px)}}
+.sky .tbody{fill:#D6124F}.sky .tnose{fill:#A80E3E}.sky .twin{fill:#FFFFFF;opacity:.85}
+:root[data-theme="dark"] .sky .twin{fill:#FFE6A8;opacity:1}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .sky .twin{fill:#FFE6A8;opacity:1}}
+@media (prefers-reduced-motion:reduce){.sky .train{transform:translateX(150px)}}
+.logo{position:relative;text-align:center}
+.logo h1{margin:0;font-family:var(--display);font-weight:900;font-size:7.6cqi;line-height:.85;letter-spacing:.01em;text-transform:uppercase}
+.logo h1 span{color:var(--accent)}
+.logo p{margin:.8cqi 0 0;font-size:1.5cqi;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;font-weight:600}
+/* Dadu: kubus 6 muka yang benar-benar berguling ke muka yang dibaling. */
+.dice{position:relative;display:flex;gap:2cqi;perspective:60cqi;perspective-origin:50% 40%}
+.die{--dsz:7.5cqi;width:var(--dsz);height:var(--dsz);position:relative;
+  transform-style:preserve-3d;filter:drop-shadow(0 4px 8px rgba(0,0,0,.28))}
+.cube{position:absolute;inset:0;transform-style:preserve-3d;
+  transition:transform .74s cubic-bezier(.18,.86,.28,1.06)}
+.face{position:absolute;inset:0;background:#FDFDFB;border-radius:18%;
+  display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:14%;
+  box-shadow:inset 0 -3px 0 rgba(0,0,0,.12),inset 0 0 0 1px rgba(20,32,42,.08);
+  backface-visibility:hidden}
+.face i{width:70%;height:70%;margin:auto;border-radius:50%;background:transparent}
+.face i.on{background:#14202A;box-shadow:inset 0 -1px 1px rgba(255,255,255,.35)}
+/* Muka bertentangan berjumlah 7, seperti dadu sebenar. */
+.f1{transform:translateZ(calc(var(--dsz)/2))}
+.f6{transform:rotateY(180deg) translateZ(calc(var(--dsz)/2))}
+.f3{transform:rotateY(90deg)  translateZ(calc(var(--dsz)/2))}
+.f4{transform:rotateY(-90deg) translateZ(calc(var(--dsz)/2))}
+.f5{transform:rotateX(90deg)  translateZ(calc(var(--dsz)/2))}
+.f2{transform:rotateX(-90deg) translateZ(calc(var(--dsz)/2))}
+/* Lambungan dan hentakan mendarat, berasingan daripada putaran. */
+@keyframes dieHop{
+  0%{transform:translateY(0) scale(1)}
+  26%{transform:translateY(-42%) scale(1.07)}
+  58%{transform:translateY(0) scale(.94)}
+  72%{transform:translateY(-11%) scale(1.02)}
+  86%{transform:translateY(0) scale(.98)}
+  100%{transform:translateY(0) scale(1)}}
+.die.roll{animation:dieHop .76s cubic-bezier(.3,.68,.42,1)}
+.die:nth-child(2).roll{animation-delay:.055s}
+.die:nth-child(2) .cube{transition-delay:.055s}
+
+/* Token terbang: lapisan di atas papan supaya lompatan tidak terpotong
+   oleh overflow petak. */
+.flyer{position:absolute;inset:0;pointer-events:none;z-index:4;overflow:visible}
+.fly{position:absolute;left:0;top:0;display:block;
+  filter:drop-shadow(0 3px 4px rgba(0,0,0,.45))}
+.tok.ghost{opacity:0}
+@keyframes land{0%{transform:scale(1.14,.82)}55%{transform:scale(.96,1.06)}100%{transform:scale(1)}}
+@keyframes landflip{0%{transform:scaleX(-1) scale(1.14,.82)}
+  55%{transform:scaleX(-1) scale(.96,1.06)}100%{transform:scaleX(-1)}}
+.tok.land{animation:land .22s ease-out}
+.tok.flip.land{animation:landflip .22s ease-out}
+.msg{position:relative;max-width:78%;text-align:center;font-size:1.75cqi;font-weight:600;min-height:2.4em;text-wrap:balance}
+.card{position:absolute;left:50%;top:50%;width:46%;transform:translate(-50%,-50%);background:var(--panel);border-radius:10px;box-shadow:var(--shadow);border:1px solid var(--rule);overflow:hidden;z-index:5;animation:flip .45s cubic-bezier(.2,.8,.3,1.2)}
+@keyframes flip{from{transform:translate(-50%,-50%) rotateY(90deg) scale(.8);opacity:0}}
+.card header{padding:1.6cqi 2cqi;font-family:var(--display);font-weight:900;font-size:2.6cqi;text-transform:uppercase;letter-spacing:.04em;color:#fff;display:flex;justify-content:space-between;align-items:center}
+.card .ct{padding:2cqi;font-size:1.9cqi;font-weight:600;line-height:1.35}
+.card .x{background:rgba(255,255,255,.2);border:0;border-radius:50%;width:3.2cqi;height:3.2cqi;min-width:22px;min-height:22px;color:#fff;font-weight:800;line-height:1}
+.deed table{width:100%;border-collapse:collapse;font-size:1.6cqi}
+.deed td{padding:.5cqi 2cqi;border-top:1px solid var(--soft)}
+.deed td:last-child{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.deed .sub{font-size:1.4cqi;color:rgba(255,255,255,.85);font-family:var(--body);font-weight:600;text-transform:none;letter-spacing:0}
+@media (max-width:560px){.card{width:78%}.card .ct{font-size:3.2cqi}.card header{font-size:4cqi}.deed table{font-size:2.8cqi}.msg{font-size:3cqi;max-width:92%}.logo p{font-size:2.4cqi}}
+
+/* side panel */
+.side{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:12px;box-shadow:var(--shadow)}
+.turn{padding:16px;display:flex;flex-direction:column;gap:12px}
+.turnhead{display:flex;align-items:center;gap:10px}
+.avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;border:3px solid var(--panel);box-shadow:0 0 0 2px currentColor}
+.turnhead .who{flex:1;min-width:0}
+.turnhead .who small{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.12em;font-weight:700}
+.turnhead .who b{font-size:18px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.turnhead .money{font-size:18px}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+.btn{border:0;border-radius:10px;padding:11px 16px;font-weight:700;background:var(--soft);flex:1 1 auto;min-width:120px}
+.btn.primary{background:var(--accent);color:var(--accent-ink);font-size:15px;box-shadow:0 3px 0 color-mix(in srgb,var(--accent) 60%,#000)}
+.btn.primary:active{transform:translateY(2px);box-shadow:0 1px 0 color-mix(in srgb,var(--accent) 60%,#000)}
+.btn.danger{background:color-mix(in srgb,var(--bad) 15%,var(--panel));color:var(--bad)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.note{font-size:13px;color:var(--muted)}
+.note.warn,.warn{color:var(--bad);font-weight:700}
+.sect h3{margin:0;padding:12px 16px 8px;font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted)}
+.plist{list-style:none;margin:0;padding:0 8px 10px}
+.pl{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;align-items:center;padding:8px;border-radius:8px}
+.pl.cur{background:var(--soft)}
+.pl.out{opacity:.45}
+.pl .dot{width:14px;height:14px;border-radius:50%}
+.pl .nmx{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl .meta{grid-column:2/4;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.lap{display:flex;gap:3px}
+.lap i{width:16px;height:5px;border-radius:3px;background:var(--rule)}
+.lap i.on{background:var(--good)}
+.chip{font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px;background:var(--soft);color:var(--muted)}
+.chip.ok{background:color-mix(in srgb,var(--good) 16%,var(--panel));color:var(--good)}
+.chip.bad{background:color-mix(in srgb,var(--bad) 16%,var(--panel));color:var(--bad)}
+/* Kiraan detik giliran (bilik online) */
+.afkbar{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--muted);margin-top:6px}
+.afkbar .tr{flex:1;height:5px;border-radius:999px;background:var(--soft);overflow:hidden}
+.afkbar .tr i{display:block;height:100%;background:var(--good);border-radius:inherit;transition:width 1s linear}
+.afkbar.hot{color:var(--bad)}
+.afkbar.hot .tr i{background:var(--bad)}
+.watchers{font-size:13px;color:var(--muted)}
+.swatches{display:flex;gap:2px;flex-wrap:wrap}
+.swatches i{width:8px;height:12px;border-radius:2px}
+.props{list-style:none;margin:0;padding:0 8px 10px;max-height:300px;overflow:auto}
+.pp{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;font-size:13px}
+.pp:hover{background:var(--soft)}
+.pp .c{width:6px;align-self:stretch;border-radius:3px}
+.pp .t{flex:1;min-width:0}
+.pp .t b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.pp .t small{color:var(--muted)}
+/* Skrin sentuh: butang kecil cukup besar untuk ibu jari (±44px) dan dijarakkan. */
+@media (pointer:coarse){
+  .mini{min-height:40px;min-width:44px;padding:6px 10px;font-size:13px;touch-action:manipulation}
+  .pp{gap:6px;padding:8px}
+  .pp .t small{display:block}
+}
+.mini{border:1px solid var(--rule);background:var(--panel);border-radius:7px;padding:3px 7px;font-size:12px;font-weight:700}
+.mini:hover:not(:disabled){background:var(--soft)}
+.mini:disabled{opacity:.35;cursor:not-allowed}
+.log{list-style:none;margin:0;padding:0 16px 14px;max-height:220px;overflow:auto;font-size:12.5px;display:flex;flex-direction:column;gap:5px}
+.log li{color:var(--muted);display:grid;grid-template-columns:1.2em 1fr;gap:7px;align-items:start}
+.log .lic{font-size:12.5px;line-height:1.45;text-align:center;font-style:normal;
+  font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",var(--body)}
+.log li:first-child{color:var(--ink);font-weight:600}
+.empty{padding:4px 16px 14px;color:var(--muted);font-size:13px}
+
+/* overlays */
+.overlay{position:fixed;inset:0;background:rgba(8,14,20,.55);backdrop-filter:blur(3px);display:grid;place-items:center;padding:16px;z-index:50;overflow:auto}
+.modal:focus{outline:none}
+.modal{background:var(--panel);border-radius:16px;box-shadow:var(--shadow);width:100%;max-width:520px;padding:22px;display:flex;flex-direction:column;gap:14px;max-height:100%;overflow:auto}
+.modal h2{margin:0;font-family:var(--display);font-weight:900;font-size:36px;text-transform:uppercase;line-height:1}
+/* skrin mula ringkas */
+#setupHome{display:flex;flex-direction:column;gap:12px;text-align:center;align-items:stretch}
+#setupHome .lines{display:none}
+/* Sepanduk langit KL di atas skrin utama (ilustrasi yang sama dengan papan). */
+.homesky{position:relative;height:150px;margin:-22px -22px 2px;border-radius:16px 16px 0 0;overflow:hidden;
+  background:linear-gradient(var(--center),var(--sky-a))}
+.homesky svg.sky{position:absolute;inset:0;width:100%;height:100%}
+#setupHome .lines i{display:block;width:9px;height:32px;border-radius:4px}
+.hometitle{font-size:clamp(26px,8.6vw,34px)!important;letter-spacing:.01em;text-wrap:balance}
+.hometitle span{color:var(--accent)}
+#setupHome p{margin:0 0 4px}
+.btn.big small{font-size:.72em;font-weight:600;opacity:.7;margin-left:4px}
+.btn.big{padding:16px 18px;font-size:17px;border-radius:12px;width:100%;min-width:0}
+#setupHome .ghost{align-self:center;margin-top:2px}
+.ghost.back{align-self:flex-start;margin-bottom:2px}
+.modal p{margin:0;color:var(--muted)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.field{display:flex;flex-direction:column;gap:4px;flex:1 1 140px}
+.field label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+input,select{background:var(--board);color:var(--ink);border:1px solid var(--rule);border-radius:8px;padding:9px 10px;font:inherit;min-width:0}
+.names{display:flex;flex-direction:column;gap:8px}
+.names .nrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.names .nrow input{flex:2 1 120px}
+.names .nrow select{flex:1 1 132px}
+.names .nrow .dot{width:22px;height:22px;border-radius:50%;flex:none}
+/* Pemilih watak */
+.tokpick{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.tp{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:66px;padding:6px 2px 5px;
+  border:2px solid var(--rule);border-radius:12px;background:var(--panel);color:inherit;font:inherit;cursor:pointer;touch-action:manipulation}
+.tp .tpv{display:block;width:40px;height:30px}
+.tp .tpv>svg{display:block;width:100%;height:100%}
+.tp small{font-size:11px;font-weight:700;color:var(--muted)}
+.tp:hover:not(:disabled){border-color:var(--muted)}
+.tp.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--panel))}
+.tp.on small{color:var(--ink)}
+.tp:disabled{opacity:.35;cursor:not-allowed}
+.tokprev{display:flex;align-items:center;gap:14px;margin:2px 0 10px}
+.tokprev .tpbig{display:block;width:78px;height:60px;flex:none}
+.tokprev .tpbig>svg{display:block;width:100%;height:100%}
+.tokprev small{display:block;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.tokprev b{font-size:20px}
+.toklobby{margin:4px 0 10px}
+.tokbtn{display:inline-flex;align-items:center;gap:2px;border:1px solid var(--rule);background:var(--panel);border-radius:10px;padding:3px 5px;cursor:pointer;color:inherit;font:inherit;flex:none}
+.tokbtn[aria-expanded="true"]{border-color:var(--accent)}
+.tokbtn .car{font-size:10px;color:var(--muted)}
+.tokrow{flex-basis:100%}
+@media (max-width:420px){.tokpick{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.names input{flex:1}
+.rules{font-size:13px;color:var(--muted);background:var(--soft);border-radius:10px;padding:10px 12px;margin:0}
+.rules li{margin-left:1em}
+.rank{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.rank li{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:var(--soft)}
+.rank li.win{background:color-mix(in srgb,#E8B400 22%,var(--panel));font-size:16px}
+.rank .pos{font-family:var(--display);font-weight:900;font-size:22px;width:24px}
+.rank .n{flex:1;font-weight:700;min-width:0}
+/* ---------- pandangan 3D ---------- */
+.bdrop{display:none}
+#btnView{display:inline-flex}
+@media (max-width:700px){#btnView{display:none}}
+.boardview{transition:transform .6s cubic-bezier(.3,.7,.3,1)}
+/* Papan condong mengambil ruang tegak lebih kurang 1.2× lebarnya (latar
+   langit + papan), jadi saiz maksimum dikira semula supaya muat satu skrin. */
+body.v3d .boardwrap{perspective:1500px;perspective-origin:50% 0%;
+  max-width:min(100%,max(360px,calc((100vh - 170px)/1.2)))}
+@supports (height:100dvh){body.v3d .boardwrap{max-width:min(100%,max(360px,calc((100dvh - 170px)/1.2)))}}
+body.v3d .boardview{overflow:visible;transform-style:preserve-3d;transform:rotateX(34deg);
+  transform-origin:50% 100%;margin-top:19%;margin-bottom:-6%;border-radius:10px}
+/* Ketebalan papan (sisi depan) dan bayang di atas "meja". */
+body.v3d .board{box-shadow:0 3px 0 color-mix(in srgb,var(--board) 70%,#000),0 12px 0 -1px color-mix(in srgb,var(--board) 45%,#000),0 60px 80px -20px rgba(0,0,0,.45)}
+body.v3d .pids{z-index:3}
+/* Langit KL berdiri di hujung papan sebagai latar belakang */
+body.v3d .bdrop{display:block;position:absolute;left:-6%;right:-6%;bottom:99.6%;height:40%;pointer-events:none;
+  transform-origin:50% 100%;transform:rotateX(-34deg);
+  -webkit-mask-image:linear-gradient(transparent,#000 22%);mask-image:linear-gradient(transparent,#000 22%)}
+body.v3d .bdrop svg.sky{position:absolute;inset:0;width:100%;height:100%}
+body.v3d .bdrop svg.sky>rect[fill^="url"]{display:none}
+body.v3d .center svg.sky{display:none}
+body.v3d .center svg.map{-webkit-mask-image:none;mask-image:none;opacity:.22}
+body.v3d .zoomctl{visibility:hidden}
+body.v3d .tapnote{display:none}
+/* Token sedikit lebih besar supaya jelas dari sudut condong */
+body.v3d .tok{filter:drop-shadow(0 3px 2px rgba(0,0,0,.45))}
+/* Angka wang terapung */
+.mfloat{position:fixed;z-index:65;transform:translate(-50%,-50%);pointer-events:none;font:800 15px/1 var(--mono);
+  padding:4px 8px;border-radius:999px;background:var(--panel);box-shadow:0 3px 10px rgba(0,0,0,.25);border:2px solid var(--pc);
+  animation:mfloat 1.4s cubic-bezier(.2,.8,.3,1) forwards;white-space:nowrap}
+.mfloat.pos{color:var(--good)}.mfloat.neg{color:var(--bad)}
+@keyframes mfloat{0%{opacity:0;transform:translate(-50%,-30%) scale(.7)}15%{opacity:1;transform:translate(-50%,-80%) scale(1.08)}
+  70%{opacity:1;transform:translate(-50%,-160%) scale(1)}100%{opacity:0;transform:translate(-50%,-210%) scale(.95)}}
+/* Jalur pemain dalam dok telefon */
+.pstrip{display:none}
+@media (max-width:1000px){
+  .pstrip{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:-2px -2px 0;padding:2px}
+  .pstrip::-webkit-scrollbar{display:none}
+  .pstrip .pc{flex:none;display:flex;align-items:center;gap:5px;padding:4px 9px 4px 5px;border-radius:999px;background:var(--soft);font-size:12px;border:1.5px solid transparent}
+  .pstrip .pc .tdot{width:22px;height:16px}
+  .pstrip .pc b{font-weight:700;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .pstrip .pc .money{font-size:12px}
+  .pstrip .pc.cur{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--panel))}
+  .pstrip .pc.out{opacity:.4}
+  .pstrip .pc.up{animation:pcup .7s}.pstrip .pc.down{animation:pcdown .7s}
+  /* Tarik-untuk-muat-semula dimatikan supaya permainan tidak termuat semula tanpa sengaja. */
+  html,body{overscroll-behavior-y:none}
+}
+@keyframes pcup{30%{background:color-mix(in srgb,var(--good) 35%,var(--panel));transform:scale(1.06)}}
+@keyframes pcdown{30%{background:color-mix(in srgb,var(--bad) 30%,var(--panel));transform:scale(1.06)}}
+/* Butang terasa "ditekan" di skrin sentuh */
+.btn:active:not(:disabled),.mini:active:not(:disabled),.ghost:active{transform:scale(.96)}
+.btn,.mini,.ghost{transition:transform .08s}
+/* Panel misi */
+.mcount{float:right;letter-spacing:0;color:var(--ink);font-family:var(--mono)}
+.missions{list-style:none;margin:0;padding:0 12px 12px;display:flex;flex-direction:column;gap:6px;max-height:300px;overflow:auto}
+.ms{display:grid;grid-template-columns:26px 1fr auto;gap:8px;align-items:center;padding:6px 8px;border-radius:9px;background:var(--soft)}
+.ms .me{font-size:17px;text-align:center}
+.ms .mt{min-width:0;display:flex;flex-direction:column;line-height:1.2}
+.ms .mt b{font-size:13px}.ms .mt small{font-size:11.5px;color:var(--muted)}
+.ms .mbar{display:block;height:4px;border-radius:2px;background:var(--rule);margin-top:4px;overflow:hidden}
+.ms .mbar i{display:block;height:100%;background:var(--accent);border-radius:2px;transition:width .4s}
+.ms .mr{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--good)}
+.ms.ok{background:color-mix(in srgb,var(--good) 12%,var(--panel))}
+.ms.ok .mbar i{background:var(--good)}.ms.ok .mt b{text-decoration:none}
+/* Popup misi selesai */
+.achpop{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:75;
+  display:flex;align-items:center;gap:12px;padding:10px 16px 10px 12px;border-radius:14px;min-width:min(320px,calc(100vw - 32px));
+  background:linear-gradient(135deg,#FFE9A3,#FFD24A);color:#3A2A00;box-shadow:0 10px 30px rgba(0,0,0,.3),inset 0 0 0 1px rgba(255,255,255,.6);
+  animation:achin .45s cubic-bezier(.2,.9,.3,1.3)}
+.achpop.out{animation:achout .3s ease-in forwards}
+.achpop .ae{font-size:28px;line-height:1}
+.achpop .at{flex:1;display:flex;flex-direction:column;line-height:1.15}
+.achpop .at small{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;opacity:.75}
+.achpop .at b{font-family:var(--display);font-size:22px;font-weight:900;text-transform:uppercase;letter-spacing:.02em}
+.achpop .ar{font-size:17px;color:#0B6B35}
+@keyframes achin{from{transform:translate(-50%,-140%);opacity:0}}
+@keyframes achout{to{transform:translate(-50%,-140%);opacity:0}}
+.rank .stline{display:block;font-size:11.5px;font-weight:600;color:var(--muted);margin-top:2px}
+.rank .bdg{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.badge{font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--panel);border:1px solid var(--rule);white-space:nowrap}
+.bdlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.bdlist b{color:var(--ink)}
+#endBox .row .btn{flex:1 1 140px}
+.seg{display:flex;background:var(--soft);border-radius:999px;padding:4px;gap:4px}
+.seg button{flex:1;border:0;background:transparent;border-radius:999px;padding:9px 12px;font-weight:700;color:var(--muted)}
+.seg button.on{background:var(--panel);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.modal h4{margin:4px 0 0;font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted)}
+.sep{height:1px;background:var(--rule);margin:2px 0}
+.code{font-family:var(--mono);font-weight:700;font-size:40px;letter-spacing:.18em;text-align:center;padding:10px;border:2px dashed var(--rule);border-radius:12px}
+.seats{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.seats li{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;background:var(--soft);font-weight:700}
+.seats li .dot{width:16px;height:16px;border-radius:50%}
+.seats li .sp{flex:1}
+.live{width:8px;height:8px;border-radius:50%;background:var(--good);display:inline-block}
+.live.off{background:var(--rule)}
+.omsg{font-size:13px;min-height:1.2em;color:var(--bad);font-weight:600}
+.roomchip{font-family:var(--mono)}
+/* paparan besar maklumat petak */
+.deedwrap{padding:0;overflow:hidden;max-width:460px}
+.deedhead{display:flex;align-items:flex-start;gap:12px;padding:18px 20px;color:#fff}
+.deedhead h2{margin:0;font-family:var(--display);font-weight:900;line-height:.95;
+  font-size:clamp(28px,7.6vw,38px);text-transform:uppercase;letter-spacing:.01em;text-wrap:balance}
+.deedhead p{margin:6px 0 0;font-size:14px;font-weight:600;color:rgba(255,255,255,.9)}
+.deedhead>div{flex:1;min-width:0}
+.deedtable:empty,#deedNote:empty{display:none}
+.deedtable tr:first-child td.prose{border-top:0;padding-top:4px}
+.deedtable:has(td.prose){margin-top:-6px}
+.deedhead .x.big{flex:none;margin-left:auto;width:36px;height:36px;font-size:22px;background:rgba(255,255,255,.22);
+  border:0;border-radius:50%;color:#fff;font-weight:800;line-height:1;cursor:pointer}
+.deednow{margin:16px 20px 0;padding:12px 14px;border-radius:12px;background:var(--soft);
+  display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.deednow b{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.deednow span{font-family:var(--mono);font-weight:700;font-size:25px;font-variant-numeric:tabular-nums}
+.deedtable{width:100%;border-collapse:collapse;margin-top:14px}
+.deedtable td{padding:11px 20px;border-top:1px solid var(--soft);font-size:15px}
+.deedtable td:last-child{text-align:right;font-family:var(--mono);font-weight:700;
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.deedtable tr.hl td{background:color-mix(in srgb,var(--accent) 10%,transparent);font-weight:700}
+.deedtable td.prose{text-align:left;font-family:var(--body);font-weight:400;
+  color:var(--muted);white-space:normal;line-height:1.5}
+#deedNote{margin:0;padding:12px 20px 18px}
+/* lelongan & tawaran */
+.auchead{display:flex;gap:10px}
+.auchead>div{flex:1;background:var(--soft);border-radius:10px;padding:10px 12px}
+.auchead small{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:700}
+.auchead b{font-size:19px}
+.picks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;
+  max-height:148px;overflow:auto;background:var(--soft);border-radius:10px;padding:6px}
+.picks li{display:flex;align-items:center;gap:8px;padding:5px 7px;border-radius:7px;font-size:13px}
+.picks li:hover{background:var(--panel)}
+.picks label{display:flex;align-items:center;gap:8px;flex:1;min-width:0;cursor:pointer}
+.picks input{flex:none;width:16px;height:16px;min-width:0;padding:0;accent-color:var(--accent)}
+.picks .c{width:6px;height:16px;border-radius:3px;flex:none}
+.picks .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.picks .t s{color:var(--muted);text-decoration:none;font-size:12px}
+.picks .empty{color:var(--muted);justify-content:center;padding:10px}
+.deal{display:flex;flex-direction:column;gap:8px;background:var(--soft);border-radius:10px;padding:12px}
+.deal .side{font-size:13px}
+.deal .side b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:3px}
+.deal .arrow{text-align:center;color:var(--muted);font-weight:700}
+canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:60;width:100%;height:100%}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--board);padding:10px 16px;border-radius:999px;font-weight:700;z-index:70;box-shadow:var(--shadow);animation:up .25s ease-out;max-width:calc(100% - 32px);text-align:center}
+@keyframes up{from{transform:translate(-50%,20px);opacity:0}}
+/* ---------- papan pengumuman stesen (PIDS) ----------
+   Jalur LED seperti dalam gerabak: menyelinap masuk semasa token bergerak dan
+   berundur selepas tiba. Teksnya sentiasa dipaparkan walaupun peranti tiada
+   suara Bahasa Melayu, jadi pengumuman tetap difahami tanpa bunyi. */
+.pids{position:relative;display:flex;gap:10px;align-items:center;height:32px;margin-bottom:6px;
+  padding:0 11px;background:linear-gradient(#1B2732,#0C141B);border:1px solid #05090C;border-radius:6px;
+  color:#FFB200;font-family:var(--mono);font-size:11.5px;font-weight:700;letter-spacing:.07em;
+  text-transform:uppercase;box-shadow:inset 0 1px 0 rgba(255,255,255,.06);pointer-events:none}
+/* Jalur kini duduk di atas papan (bukan menutupnya) dan sentiasa kelihatan.
+   Semasa rehat teksnya malap; semasa tren bergerak ia menyala. */
+.pids .lbl,.pids .nm{opacity:.38;transition:opacity .25s,text-shadow .25s}
+.pids .dots{opacity:0;transition:opacity .25s}
+.pids.on .lbl,.pids.on .nm{opacity:1}
+.pids.on .nm{text-shadow:0 0 7px rgba(255,178,0,.5)}
+.pids.on .dots{opacity:1}
+@media (max-width:700px){.pids{height:28px;font-size:10.5px;gap:8px;padding:0 9px;margin-bottom:5px}}
+/* Berita pusingan: label merah dan teks menatal, terang walaupun rehat. */
+.pids.news .lbl{opacity:1;color:#FF6B6B;text-shadow:0 0 7px rgba(255,107,107,.5)}
+.pids.news .nm{opacity:1;text-overflow:clip}
+.pids.news .mq{display:inline-block;padding-left:100%;animation:pidsmq 18s linear infinite}
+@keyframes pidsmq{to{transform:translateX(-100%)}}
+@media (prefers-reduced-motion:reduce){.pids.news .mq{padding-left:0}.pids.news .nm{text-overflow:ellipsis}}
+/* Set penuh: petak laluan bersinar dalam warna laluan. */
+.sq.won{animation:sqwon 2.4s ease-out;z-index:3}
+@keyframes sqwon{0%,100%{box-shadow:inset 0 0 0 0 var(--gc)}
+  15%,55%{box-shadow:inset 0 0 0 max(3px,.7cqi) var(--gc),0 0 18px 4px var(--gc)}
+  35%{box-shadow:inset 0 0 0 max(2px,.4cqi) var(--gc),0 0 8px 1px var(--gc)}}
+.pids .lbl{flex:none;color:#7FD4FF}
+.pids.on .lbl{text-shadow:0 0 7px rgba(127,212,255,.45)}
+.pids .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:inherit;line-height:1.2}
+.pids .dots{flex:none;display:flex;gap:3px}
+.pids .dots i{width:5px;height:5px;border-radius:50%;background:#FFB200;opacity:.22;animation:pidsdot 1.1s infinite}
+.pids .dots i:nth-child(2){animation-delay:.17s}
+.pids .dots i:nth-child(3){animation-delay:.34s}
+@keyframes pidsdot{0%,100%{opacity:.22}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){
+  .pids{transition:none}
+  .pids .dots i{animation:none;opacity:.7}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* Telefon: panel giliran yang sama kekal dalam capaian ibu jari. */
+@media (max-width:1000px){
+  body{padding-bottom:calc(32px + var(--turn-dock-height,0px))}
+  html{scroll-padding-bottom:calc(24px + var(--turn-dock-height,0px))}
+  #turn{position:fixed;left:0;right:0;bottom:0;z-index:40;margin:0;
+    border-radius:16px 16px 0 0;border-bottom:0;
+    padding:10px max(12px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));
+    gap:8px;box-shadow:0 -5px 24px rgba(0,0,0,.16);
+    max-height:48dvh;overflow-y:auto;overscroll-behavior:contain}
+  #turn .turnhead{gap:8px}
+  #turn .avatar{width:28px;height:28px;border-width:2px}
+  #turn .who small{font-size:10px;letter-spacing:.06em}
+  #turn .who b{font-size:15px}
+  #turn .turnhead>.money{font-size:16px;white-space:nowrap}
+  #turn .actions{gap:8px}
+  #turn .actions .btn{min-height:48px;min-width:0;flex:1 1 130px;
+    padding:11px 12px;font-size:14px;touch-action:manipulation}
+  #turn>.note{font-size:12px;line-height:1.35}
+  #turn>.note:has(+.pstrip){display:none}
+  #turn>.note:has(+.pstrip):has(.fastnote){display:block;font-weight:700}
+  #turn>.note.keep:has(+.pstrip){display:block}
+  body.turn-dock-obscured #turn{display:none}
+  .toast{bottom:calc(16px + max(var(--turn-dock-height,0px),env(safe-area-inset-bottom,0px)))}
+}
+
+/* ---------- tab bawah: Papan · Aset · Log ----------
+   Hanya pada skrin ≤1000px, di mana semuanya bertindan dalam satu lajur.
+   Panel giliran duduk betul-betul di atas bar tab, jadi butang tindakan
+   sentiasa boleh dicapai dari mana-mana tab. */
+.tabbar{display:none}
+@media (max-width:1000px){
+  .tabbar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;
+    position:fixed;left:0;right:0;bottom:0;z-index:41;
+    background:var(--panel);border-top:1px solid var(--rule);
+    padding:4px max(8px,env(safe-area-inset-right,0px)) calc(4px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+  .tabbar button{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    min-height:50px;padding:5px 4px;border:0;border-radius:12px;background:none;
+    color:var(--muted);font:700 12px/1 var(--body);letter-spacing:.02em;touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent}
+  .tabbar .ti{font-size:19px;line-height:1;filter:grayscale(.7);opacity:.75;transition:filter .15s,opacity .15s,transform .15s}
+  .tabbar button[aria-selected="true"]{color:var(--ink);background:var(--soft)}
+  .tabbar button[aria-selected="true"] .ti{filter:none;opacity:1;transform:translateY(-1px)}
+  .tabbar button[aria-selected="true"]::before{content:"";position:absolute;top:-5px;left:30%;right:30%;height:3px;
+    border-radius:0 0 3px 3px;background:var(--accent)}
+  .tabbar button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+  .tabbar .bdg{position:absolute;top:4px;left:calc(50% + 7px);min-width:17px;height:17px;padding:0 5px;box-sizing:border-box;
+    border-radius:99px;background:var(--accent);color:var(--accent-ink);font:800 10px/17px var(--mono);text-align:center;
+    box-shadow:0 0 0 2px var(--panel)}
+  .tabbar .bdg:empty{min-width:9px;width:9px;height:9px;padding:0;top:6px}
+  body.turn-dock-obscured .tabbar{display:none}
+
+  /* Panel giliran naik ke atas bar tab; kawasan selamat kini ditanggung bar tab. */
+  #turn{bottom:var(--tabbar-h,0px);padding-bottom:10px}
+  body{padding-bottom:calc(24px + var(--turn-dock-height,0px) + var(--tabbar-h,0px))}
+  html{scroll-padding-bottom:calc(24px + var(--turn-dock-height,0px) + var(--tabbar-h,0px))}
+  .toast{bottom:calc(12px + var(--turn-dock-height,0px) + var(--tabbar-h,0px))}
+
+  /* Kandungan ikut tab */
+  body[data-tab="aset"] .boardwrap,body[data-tab="log"] .boardwrap{display:none}
+  body[data-tab="papan"] .side .sect{display:none}
+  body[data-tab="aset"] .side .sect-log{display:none}
+  body[data-tab="log"] .side .sect-aset{display:none}
+  /* Dalam tab sendiri, senarai tidak perlu kotak skrol kecil — laman itu sendiri yang skrol. */
+  body[data-tab="log"] .log{max-height:none;font-size:13.5px;gap:8px}
+  body[data-tab="aset"] .missions{max-height:none}
+  /* Panel giliran padat (semua tab): nama, wang, arahan dan butang sahaja.
+     - Langkah 1·2·3 disorok: arahan di bawahnya sudah menyatakan langkah semasa.
+     - Jalur wang pemain disorok: sama seperti tab Aset.
+     - "Bot sedang berfikir" disorok: arahan sudah berkata bot sedang bermain.
+     Amaran (baki negatif, ganda 2/3, tiada respons) dan info mod cepat kekal. */
+  #turn>.turn-stage,#turn>.pstrip,#turn>.note.botnote{display:none!important}
+  #turn{gap:7px;padding-top:9px;max-height:40dvh}
+  #turn .actions .btn{min-height:46px;padding:9px 12px}
+  #turn>.note{font-size:12px}
+  /* Nota akhir (mod cepat / kelayakan) jadi satu baris kecil, bukan kotak. */
+  #turn>.actions~.note{margin:0;padding:0 2px;font-weight:700}
+  /* Di luar Papan, lebih padat: nota akhir juga disorok (ronde ada dalam Log/Aset). */
+  body:not([data-tab="papan"]) #turn>.actions~.note{display:none!important}
+}
+/* Telefon: notis ringkas di atas skrin (bukan gelembung besar di tengah),
+   bertingkat jika lebih daripada satu, dan tidak menghalang sentuhan. */
+@media (max-width:700px){
+  .toast{top:calc(max(64px + env(safe-area-inset-top,0px),var(--tt,0px)) + var(--ti,0) * 50px);bottom:auto;
+    border-radius:12px;padding:8px 14px;font-size:13.5px;line-height:1.3;width:max-content;
+    max-width:calc(100% - 24px);pointer-events:none;animation:dn .25s ease-out;opacity:.97}
+}
+@keyframes dn{from{transform:translate(-50%,-16px);opacity:0}}
+
+/* Cop "DIBELI" pada petak yang baru dimiliki, dan letupan "GANDA!" atas dadu. */
+.stamp{position:fixed;z-index:64;pointer-events:none;transform:translate(-50%,-50%) rotate(-14deg) scale(2.4);opacity:0;
+  font:900 13px/1 var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--sc);
+  border:2.5px solid var(--sc);border-radius:6px;padding:4px 7px 3px;background:color-mix(in srgb,var(--board) 82%,transparent);
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--sc) 25%,transparent);animation:stampin 1.6s cubic-bezier(.3,1.5,.5,1) forwards}
+@keyframes stampin{12%{opacity:1;transform:translate(-50%,-50%) rotate(-14deg) scale(.92)}
+  20%{transform:translate(-50%,-50%) rotate(-14deg) scale(1)}78%{opacity:1;transform:translate(-50%,-50%) rotate(-14deg) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-62%) rotate(-14deg) scale(1)}}
+.sq.justbought{animation:jb 1.2s ease-out;z-index:2}
+@keyframes jb{0%{box-shadow:inset 0 0 0 0 var(--sc)}25%{box-shadow:inset 0 0 0 3px var(--sc)}100%{box-shadow:inset 0 0 0 0 var(--sc)}}
+.dblpop{position:absolute;left:50%;top:50%;z-index:4;pointer-events:none;white-space:nowrap;
+  font:900 max(18px,5.4cqi)/1 var(--display);letter-spacing:.04em;color:var(--accent);
+  -webkit-text-stroke:max(1px,.35cqi) var(--board);paint-order:stroke fill;
+  text-shadow:0 .4cqi 0 color-mix(in srgb,var(--accent) 40%,#000);
+  transform:translate(-50%,-50%) scale(.3);opacity:0;animation:dblpop 1.3s cubic-bezier(.25,1.6,.45,1) forwards}
+@keyframes dblpop{18%{opacity:1;transform:translate(-50%,-50%) scale(1.15) rotate(-4deg)}
+  30%{transform:translate(-50%,-50%) scale(1) rotate(-4deg)}75%{opacity:1;transform:translate(-50%,-70%) scale(1) rotate(-4deg)}
+  100%{opacity:0;transform:translate(-50%,-110%) scale(.9) rotate(-4deg)}}
+.die.dbl{filter:drop-shadow(0 0 1.4cqi color-mix(in srgb,var(--accent) 70%,transparent))}
+
+/* ===================== Token kucing (MetroCats) ===================== */
+.mt-cat{display:block;width:100%;height:100%;overflow:hidden;color:inherit}
+.mt-cat .cat-tail{transform-origin:72px 68px;animation:cat-tail 2.4s ease-in-out infinite}
+.mt-cat .cat-ring{opacity:0;stroke:currentColor;stroke-width:3;fill:none}
+.is-active .mt-cat .cat-ring,.tok.me .mt-cat .cat-ring{opacity:1;animation:cat-glow 1.8s ease-in-out infinite}
+.is-moving .mt-cat .cat-figure{animation:cat-hop .48s ease-in-out infinite}
+.is-winning .mt-cat .cat-figure,#rank li.win .mt-cat .cat-figure{transform-origin:50px 78px;animation:cat-win .75s ease-in-out 4}
+.mt-cat .cat-spark{opacity:0}
+.is-winning .mt-cat .cat-spark,#rank li.win .mt-cat .cat-spark{animation:cat-spark .75s ease-in-out 4}
+@keyframes cat-tail{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(9deg)}}
+@keyframes cat-hop{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes cat-win{0%,100%{transform:rotate(-5deg)}50%{transform:translateY(-6px) rotate(5deg)}}
+@keyframes cat-glow{0%,100%{stroke-opacity:.45;stroke-width:2}50%{stroke-opacity:1;stroke-width:4}}
+@keyframes cat-spark{0%,100%{opacity:0}50%{opacity:1}}
+/* Keep tokens in the game's reserved token slots. Never enlarge over station names. */
+.tok:has(.mt-cat),.tok.flip:has(.mt-cat),.tok.me:has(.mt-cat){animation:none;transform:none}
+.tdot:has(.mt-cat){height:28px}
+.mt-cat-static .cat-tail{animation:none}
+@media(prefers-reduced-motion:reduce){.mt-cat *{animation:none!important}.is-winning .mt-cat .cat-spark{opacity:1}}
+/* Lawan masuk Lokap: kucing pemain lain ketawa dan mengejek sekejap. */
+.lolpop{position:absolute;left:50%;top:50%;z-index:8;pointer-events:none;display:flex;flex-direction:column;align-items:center;
+  gap:1.2cqi;padding:2cqi 3cqi 2.4cqi;border-radius:18px;max-width:92%;
+  background:var(--panel);box-shadow:0 10px 30px rgba(0,0,0,.28),0 0 0 1px var(--rule);
+  transform:translate(-50%,-50%) scale(.6);opacity:0;animation:lol-in .32s cubic-bezier(.3,1.6,.5,1) forwards}
+.lolpop.out{animation:lol-out .35s ease-in forwards}
+.lolpop .lolhd{font-weight:800;font-size:max(12px,2.2cqi);text-align:center;color:var(--ink);letter-spacing:.01em}
+.lolpop .lolrow{display:flex;gap:2.4cqi;justify-content:center;align-items:flex-end}
+.lolcat{position:relative;display:flex;flex-direction:column;align-items:center;gap:.4cqi}
+.lolcat .av{width:clamp(44px,12cqi,104px);height:clamp(44px,12cqi,104px);display:block;
+  transform-origin:50% 90%;animation:lol-hop .34s ease-in-out infinite alternate}
+.lolcat .av svg{width:100%;height:100%;display:block}
+.lolcat:nth-child(2) .av{animation-delay:-.12s}.lolcat:nth-child(3) .av{animation-delay:-.23s}
+.lolcat .bub{position:relative;background:#FFD93D;color:#2A1E00;font-weight:900;font-size:max(10px,1.75cqi);
+  padding:.35em .7em;border-radius:999px;white-space:nowrap;animation:lol-bub .5s ease-in-out infinite alternate}
+.lolcat .bub::after{content:"";position:absolute;left:50%;bottom:-5px;margin-left:-5px;border:5px solid transparent;border-bottom:0;border-top-color:#FFD93D}
+.lolcat .nm2{font-size:max(9px,1.4cqi);font-weight:700;color:var(--muted);max-width:14cqi;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lolcat .tear{position:absolute;top:38%;font-size:max(10px,1.8cqi);animation:lol-tear .7s ease-in infinite;opacity:0}
+.lolcat .tear.l{left:8%}.lolcat .tear.r{right:8%;animation-delay:.35s}
+.tok.lol .mt-cat .cat-figure,.tok.lol svg.train{transform-origin:50% 90%;animation:lol-hop .3s ease-in-out infinite alternate}
+@keyframes lol-in{to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+@keyframes lol-out{from{transform:translate(-50%,-50%) scale(1);opacity:1}to{transform:translate(-50%,-50%) scale(.85);opacity:0}}
+@keyframes lol-hop{from{transform:translateY(0) rotate(-9deg) scaleY(1)}to{transform:translateY(-12%) rotate(9deg) scaleY(.93)}}
+@keyframes lol-bub{from{transform:rotate(-5deg) scale(1)}to{transform:rotate(5deg) scale(1.08)}}
+@keyframes lol-tear{0%{opacity:0;transform:translateY(0)}20%{opacity:1}100%{opacity:0;transform:translateY(160%)}}
+@media(prefers-reduced-motion:reduce){.lolpop{opacity:1;transform:translate(-50%,-50%)}.lolcat .tear{display:none}}
+
+/* ===================== Kemasan visual v1 ===================== */
+/* === Metro Tycoon visual polish v1 === */
+:root{
+  --panel-glow:rgba(255,255,255,.72);
+  --board-glow:rgba(20,32,42,.14);
+}
+:root[data-theme="dark"]{
+  --panel-glow:rgba(255,255,255,.045);
+  --board-glow:rgba(0,0,0,.5);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --panel-glow:rgba(255,255,255,.045);
+    --board-glow:rgba(0,0,0,.5);
+  }
+}
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(circle at 12% 8%,color-mix(in srgb,var(--accent) 10%,transparent),transparent 30rem),
+    radial-gradient(circle at 88% 18%,color-mix(in srgb,#38BDF8 10%,transparent),transparent 32rem),
+    linear-gradient(180deg,color-mix(in srgb,var(--ground) 96%,#fff),var(--ground));
+  background-attachment:fixed;
+}
+.bar{
+  padding:8px 10px;
+  border:1px solid color-mix(in srgb,var(--rule) 72%,transparent);
+  border-radius:16px;
+  background:color-mix(in srgb,var(--panel) 82%,transparent);
+  -webkit-backdrop-filter:blur(14px) saturate(1.15);
+  backdrop-filter:blur(14px) saturate(1.15);
+  box-shadow:0 10px 30px rgba(20,32,42,.08);
+}
+.brand{text-shadow:0 1px 0 color-mix(in srgb,var(--panel) 90%,transparent)}
+.ghost{transition:transform .16s ease,background .16s ease,border-color .16s ease,box-shadow .16s ease}
+.ghost:hover{
+  transform:translateY(-1px);
+  border-color:color-mix(in srgb,var(--accent) 26%,var(--rule));
+  box-shadow:0 5px 14px rgba(20,32,42,.08);
+}
+.boardview{
+  border-radius:14px;
+  box-shadow:0 2px 0 color-mix(in srgb,var(--ink) 16%,transparent),0 22px 55px var(--board-glow);
+}
+.board{
+  border-radius:13px;
+  border-width:3px;
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,#fff 34%,transparent),0 0 0 1px color-mix(in srgb,var(--ink) 8%,transparent);
+}
+.sq{transition:background .18s ease,filter .18s ease,box-shadow .18s ease,transform .18s ease}
+.sq:hover{filter:brightness(1.025);z-index:3}
+.sq.hl{
+  z-index:3;
+  box-shadow:inset 0 0 0 max(2px,.42cqi) var(--accent),0 0 18px color-mix(in srgb,var(--accent) 35%,transparent);
+  animation:mtPulse 1.1s ease-in-out infinite alternate;
+}
+@keyframes mtPulse{from{filter:brightness(1)}to{filter:brightness(1.08)}}
+.sq.owned{
+  box-shadow:inset 0 0 0 max(2px,.42cqi) var(--oc),inset 0 8px 18px color-mix(in srgb,var(--oc) 8%,transparent);
+}
+.center::after{
+  content:"";
+  position:absolute;
+  inset:7%;
+  border-radius:22px;
+  pointer-events:none;
+  background:radial-gradient(circle at 50% 42%,color-mix(in srgb,var(--panel) 24%,transparent),transparent 66%);
+}
+.center>.logo,.center>.dice,.center>.msg,.center>.card{z-index:2}
+.logo h1{text-shadow:0 2px 0 color-mix(in srgb,var(--panel) 75%,transparent),0 12px 28px rgba(20,32,42,.12)}
+.logo h1 span{filter:drop-shadow(0 6px 12px color-mix(in srgb,var(--accent) 24%,transparent))}
+.die{filter:drop-shadow(0 7px 12px rgba(0,0,0,.3))}
+.side{gap:12px}
+.panel{
+  position:relative;
+  overflow:hidden;
+  border-color:color-mix(in srgb,var(--rule) 82%,transparent);
+  box-shadow:0 10px 26px rgba(20,32,42,.08),inset 0 1px 0 var(--panel-glow);
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+}
+.panel:hover{
+  border-color:color-mix(in srgb,var(--accent) 18%,var(--rule));
+  box-shadow:0 14px 34px rgba(20,32,42,.11),inset 0 1px 0 var(--panel-glow);
+}
+.turn::before{
+  content:"";
+  position:absolute;
+  left:0;top:0;bottom:0;
+  width:4px;
+  background:var(--accent);
+  box-shadow:0 0 14px color-mix(in srgb,var(--accent) 45%,transparent);
+}
+.turnhead .who small{letter-spacing:.15em}
+.turnhead .who b{font-family:var(--display);font-size:21px;letter-spacing:.02em}
+.turnhead .money{
+  padding:5px 9px;
+  border-radius:999px;
+  background:color-mix(in srgb,var(--good) 10%,var(--soft));
+  color:var(--good);
+}
+.btn{
+  position:relative;
+  overflow:hidden;
+  transition:transform .14s ease,filter .14s ease,box-shadow .14s ease;
+}
+.btn:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.035)}
+.btn:active:not(:disabled){transform:translateY(1px)}
+.btn.primary{
+  background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 86%,#fff),var(--accent));
+  box-shadow:0 4px 0 color-mix(in srgb,var(--accent) 58%,#000),0 9px 18px color-mix(in srgb,var(--accent) 18%,transparent);
+}
+.btn.primary::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(110deg,transparent 20%,rgba(255,255,255,.22) 42%,transparent 64%);
+  transform:translateX(-140%);
+  transition:transform .5s ease;
+}
+.btn.primary:hover::after{transform:translateX(140%)}
+.pl{position:relative;transition:background .18s ease,transform .18s ease}
+.pl.cur{
+  background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 10%,var(--soft)),var(--soft));
+  box-shadow:inset 3px 0 0 var(--accent);
+}
+.pl.cur .nmx{font-weight:800}
+.zoomctl button{
+  transition:transform .14s ease,background .14s ease,box-shadow .14s ease;
+  box-shadow:0 4px 10px rgba(20,32,42,.06);
+}
+.zoomctl button:hover:not(:disabled){transform:translateY(-1px)}
+.card{border-radius:16px;box-shadow:0 22px 55px rgba(0,0,0,.24)}
+@media (max-width:700px){
+  body{background-attachment:scroll}
+  .bar{padding:6px 8px;border-radius:13px}
+  .boardview{border-radius:11px;box-shadow:0 14px 34px var(--board-glow)}
+  .board{border-radius:10px;border-width:2px}
+  .side{gap:10px}
+  .panel{border-radius:11px}
+  .turn{padding:13px}
+  .turnhead .who b{font-size:19px}
+  .btn{min-width:108px;padding:10px 13px}
+}
+@media (prefers-reduced-motion:reduce){
+  .sq.hl{animation:none}
+  .ghost,.panel,.btn,.pl,.zoomctl button{transition:none}
+}
+/* 1. Butang ⚙️ Menu kekal di dalam bar: jenama boleh mengecil, butang tidak. */
+.bar .brand{min-width:0;flex:1 1 auto;white-space:nowrap;overflow:hidden}
+.bar .menubtn,.bar .roomchip{flex:none}
+@media (max-width:700px){.bar .brand{font-size:clamp(16px,5.1vw,21px)}}
+@media not all{.barmenu .ghost{white-space:nowrap}.bar .brand{flex:none}}
+/* 2. Satu arahan sahaja di bawah papan: telefon guna .tapnote (ada "cubit untuk zum"). */
+@media (max-width:700px){.board-help{display:none}}
+/* 3. Satu bingkai sahaja pada butang utama giliran anda. */
+#turn.your-turn .actions .primary:not(:disabled){outline:none}
+/* 8. Pemilikan lebih jelas: warna lebih pekat, bingkai lebih tebal dan
+      bendera segi tiga warna pemilik di sudut petak. */
+.sq.owned{background:color-mix(in srgb,var(--oc) 26%,var(--board));
+  box-shadow:inset 0 0 0 max(3px,.6cqi) var(--oc)}
+.sq.owned::after{content:"";position:absolute;top:0;right:0;width:0;height:0;z-index:4;pointer-events:none;
+  border-style:solid;border-width:0 max(11px,2.4cqi) max(11px,2.4cqi) 0;border-color:transparent var(--oc) transparent transparent}
+.sq.owned.mort::after{opacity:.4}
+/* backdrop-filter pada .bar mencipta lapisan (stacking context) sendiri, jadi
+   z-index menu ⚙️ terkurung di dalamnya dan papan menutup menu. Angkat seluruh
+   bar ke atas papan supaya semua butang menu boleh ditekan. */
+.bar{position:relative;z-index:70}
+
+/* ===================== Aksesibiliti & kawalan mudah alih ===================== */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+/* Clear turn guidance and comfortable mobile controls. */
+#turn{border-top:4px solid var(--turn-color,var(--accent))}
+.turn-guide{margin:0;padding:9px 11px;border-radius:9px;background:var(--soft);font-size:14px;line-height:1.4;overflow-wrap:anywhere}
+#turn.your-turn .who small{color:var(--accent);font-weight:900}
+#turn.your-turn .actions .primary:not(:disabled){outline:2px solid var(--turn-color);outline-offset:3px}
+.sq.active-square{outline:3px solid var(--active-color);outline-offset:-3px}
+.sq.active-square .tok.me{filter:drop-shadow(0 0 3px currentColor)}
+.board-help{margin:6px 0;font-size:13px;color:var(--muted);text-align:center}
+@media(max-width:700px){
+  #turn .who small{font-size:12px}
+  #turn .who b{font-size:17px}
+  #turn .turnhead>.money{font-size:18px}
+  #turn .turn-guide{font-size:13px;padding:7px 9px}
+  #turn .actions .btn{font-size:16px;min-height:48px}
+  .modal input,.modal select{font-size:16px}
+  #deedBox .modal{padding:18px;max-width:480px}
+  #deedTable{font-size:15px}
+  #deedTable td{padding:10px 8px}
+  #deedClose{min-width:44px;min-height:44px}
+  #props .mini{min-width:44px;min-height:44px}
+  #props .pp{flex-wrap:wrap}
+  #props .pp .t{min-width:130px}
+}
+
+/* ===================== Kemasan UX (metro-ux-refinement) ===================== */
+.turn-stage{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.turn-stage span{padding:4px 9px;border:1px solid var(--rule);border-radius:20px}
+.turn-stage .active{background:var(--soft);color:var(--ink);border:2px solid var(--turn-color);font-weight:800}
+.turn-feedback{font-size:13px;font-weight:800;margin:0;color:var(--accent)}
+#turn.turn-arrival .turnhead{animation:turn-arrival .45s ease-out}
+@keyframes turn-arrival{from{opacity:.4;transform:translateY(5px)}to{opacity:1;transform:none}}
+@media(max-width:700px){
+ #turn .who{min-width:0} #turn .who b{overflow-wrap:anywhere}
+ #turn .actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr))}
+ #turn .actions .btn{width:100%;min-width:0}
+ #turn .turn-stage{font-size:11px;gap:4px}
+ #deedBox{align-items:flex-end;padding:0}
+ #deedBox .modal{width:100%;max-width:none;max-height:82dvh;overflow:auto;border-radius:20px 20px 0 0;padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))}
+ /* Kad hartanah jadi helaian bawah: kepala berwarna melekat di atas semasa skrol,
+    jadi butang × sentiasa kelihatan. Butang kekal bulat (44px untuk jari). */
+ #deedBox .deedhead{position:sticky;top:0;z-index:2}
+ #deedClose{width:44px;height:44px;flex:none;padding:0;background:rgba(255,255,255,.24)}
+}
+@media(max-height:500px) and (orientation:landscape){#turn{max-height:42dvh}#turn .turn-stage,#turn .pstrip{display:none}}
+@media(prefers-reduced-motion:reduce){#turn.turn-arrival .turnhead{animation:none}}
