@@ -498,7 +498,7 @@ input,select{background:var(--board);color:var(--ink);border:1px solid var(--rul
 .rules li{margin-left:1em}
 .rank{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
 .rank li{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:var(--soft)}
-.rank li:first-child{background:color-mix(in srgb,#E8B400 22%,var(--panel));font-size:16px}
+.rank li.win{background:color-mix(in srgb,#E8B400 22%,var(--panel));font-size:16px}
 .rank .pos{font-family:var(--display);font-weight:900;font-size:22px;width:24px}
 .rank .n{flex:1;font-weight:700;min-width:0}
 /* ---------- pandangan 3D ---------- */
@@ -802,9 +802,9 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:60;width:100%;heigh
 .mt-cat .cat-ring{opacity:0;stroke:currentColor;stroke-width:3;fill:none}
 .is-active .mt-cat .cat-ring,.tok.me .mt-cat .cat-ring{opacity:1;animation:cat-glow 1.8s ease-in-out infinite}
 .is-moving .mt-cat .cat-figure{animation:cat-hop .48s ease-in-out infinite}
-.is-winning .mt-cat .cat-figure,#rank li:first-child .mt-cat .cat-figure{transform-origin:50px 78px;animation:cat-win .75s ease-in-out 4}
+.is-winning .mt-cat .cat-figure,#rank li.win .mt-cat .cat-figure{transform-origin:50px 78px;animation:cat-win .75s ease-in-out 4}
 .mt-cat .cat-spark{opacity:0}
-.is-winning .mt-cat .cat-spark,#rank li:first-child .mt-cat .cat-spark{animation:cat-spark .75s ease-in-out 4}
+.is-winning .mt-cat .cat-spark,#rank li.win .mt-cat .cat-spark{animation:cat-spark .75s ease-in-out 4}
 @keyframes cat-tail{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(9deg)}}
 @keyframes cat-hop{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 @keyframes cat-win{0%,100%{transform:rotate(-5deg)}50%{transform:translateY(-6px) rotate(5deg)}}
@@ -1061,7 +1061,10 @@ body{
  #turn .turn-stage{font-size:11px;gap:4px}
  #deedBox{align-items:flex-end;padding:0}
  #deedBox .modal{width:100%;max-width:none;max-height:82dvh;overflow:auto;border-radius:20px 20px 0 0;padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))}
- #deedClose{position:sticky;bottom:0;background:var(--panel);width:100%}
+ /* Kad hartanah jadi helaian bawah: kepala berwarna melekat di atas semasa skrol,
+    jadi butang × sentiasa kelihatan. Butang kekal bulat (44px untuk jari). */
+ #deedBox .deedhead{position:sticky;top:0;z-index:2}
+ #deedClose{width:44px;height:44px;flex:none;padding:0;background:rgba(255,255,255,.24)}
 }
 @media(max-height:500px) and (orientation:landscape){#turn{max-height:42dvh}#turn .turn-stage,#turn .pstrip{display:none}}
 @media(prefers-reduced-motion:reduce){#turn.turn-arrival .turnhead{animation:none}}
@@ -1319,7 +1322,7 @@ body{
 <div class="overlay" id="endBox" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="endTitle" tabindex="-1">
     <h2 id="endTitle">Tamat!</h2>
-    <p>Kedudukan akhir ikut kekayaan bersih (tunai + nilai hartanah + bangunan).</p>
+    <p id="endLead">Kedudukan akhir ikut kekayaan bersih (tunai + nilai hartanah + bangunan).</p>
     <ul class="rank" id="rank"></ul>
     <div id="endBadges"></div>
     <div class="row"><button class="btn" type="button" id="btnShare">📤 Kongsi keputusan</button>
@@ -2323,17 +2326,24 @@ function badges(){
   return out}
 function endSummary(rk,bd){
   const url=location.origin+location.pathname;
-  return `🚆 Metro Tycoon KL${S.fast?' ⚡ Mod cepat':''}\n`+
+  const seri=rk.filter(r=>r.pos===1&&!r.p.bankrupt).length>1;
+  return `🚆 Metro Tycoon KL${S.fast?' ⚡ Mod cepat':''}${seri?' · Keputusan seri!':''}\n`+
     rk.map((r,i)=>{const k=S.players.indexOf(r.p);const b=bd[k].slice(0,3).map(x=>x.e+' '+x.t).join(', ');
-      return `${['🥇','🥈','🥉'][i]||(i+1)+'.'} ${r.p.name} — ${fmt(r.w)}${r.p.bankrupt?' (muflis)':''}${b?'\n    '+b:''}`}).join('\n')+
+      return `${['🥇','🥈','🥉'][r.pos-1]||r.pos+'.'} ${r.p.name} — ${fmt(r.w)}${r.p.bankrupt?' (muflis)':''}${b?'\n    '+b:''}`}).join('\n')+
     `\n\nMain di sini: ${url}`}
 let lastSummary='', wonSaid=null;
 function showEnd(){
-  const rk=S.players.map(p=>({p,w:p.bankrupt?0:netWorth(p)})).sort((a,b)=>b.w-a.w);
+  const rk=rankPlayers();
   const bd=badges();
-  document.getElementById('endTitle').textContent=`${rk[0].p.name} menang!`;
+  /* Seri: lebih daripada seorang pemain (tidak muflis) berkongsi kekayaan tertinggi. */
+  const top=rk.filter(r=>r.pos===1&&!r.p.bankrupt),tie=top.length>1;
+  const names=tie?joinNames(top.map(r=>r.p.name)):rk[0].p.name;
+  document.getElementById('endTitle').textContent=tie?'Seri!':`${names} menang!`;
+  document.getElementById('endLead').textContent=tie
+    ?`${names} berkongsi tempat pertama dengan kekayaan bersih ${fmt(top[0].w)}.`
+    :'Kedudukan akhir ikut kekayaan bersih (tunai + nilai hartanah + bangunan).';
   document.getElementById('rank').innerHTML=rk.map((r,i)=>{const k=S.players.indexOf(r.p),t=stt(k);
-    return `<li><span class="pos">${i+1}</span>${trainMark(k,r.p.color)}<span class="n">${esc(r.p.name)}${r.p.bankrupt?' <span class="chip bad">Muflis</span>':''}
+    return `<li class="${r.pos===1&&!r.p.bankrupt?'win':''}"><span class="pos">${r.pos}</span>${trainMark(k,r.p.color)}<span class="n">${esc(r.p.name)}${r.p.bankrupt?' <span class="chip bad">Muflis</span>':''}
       <span class="stline">Sewa +${fmt(t.sewaIn)} / −${fmt(t.sewaOut)} · Beli ${t.beli} · Bina ${t.bina} · Lokap ${t.lokap} · Misi ${MISI.filter(m=>missDone(k)[m.id]).length}/${MISI.length}</span>
       <span class="bdg">${bd[k].slice(0,4).map(x=>`<span class="badge" title="${esc(x.d)}">${x.e} ${esc(x.t)}</span>`).join('')}</span></span><span class="money">${fmt(r.w)}</span></li>`}).join('');
   /* Senarai penerangan lencana: apa maksud setiap satu. */
@@ -2341,7 +2351,16 @@ function showEnd(){
   document.getElementById('endBadges').innerHTML=all.length?`<h4>Lencana</h4><ul class="bdlist">${all.join('')}</ul>`:'';
   lastSummary=endSummary(rk,bd);
   document.getElementById('endBox').hidden=false;sfx.win();confetti();
-  if(wonSaid!==S.gid){wonSaid=S.gid;speak(line('menang',rk[0].p.name),false)}}
+  if(wonSaid!==S.gid){wonSaid=S.gid;speak(tie?`Seri! ${names.replace(' & ',' dan ')} sama kuat. Tahniah semua!`:line('menang',names),false)}}
+/* Kedudukan ikut kekayaan bersih. Pemain yang sama kaya berkongsi kedudukan
+   (1, 1, 3…); pemain muflis sentiasa di bawah. */
+function rankPlayers(){
+  const rk=S.players.map(p=>({p,w:p.bankrupt?0:netWorth(p)}))
+    .sort((a,b)=>(a.p.bankrupt-b.p.bankrupt)||(b.w-a.w));
+  rk.forEach((r,i)=>{const prev=rk[i-1];
+    r.pos=prev&&prev.w===r.w&&prev.p.bankrupt===r.p.bankrupt?prev.pos:i+1});
+  return rk}
+function joinNames(a){return a.length<2?a.join(''):a.slice(0,-1).join(', ')+' & '+a[a.length-1]}
 document.getElementById('btnShare').onclick=async()=>{
   const t=lastSummary;if(!t)return;
   try{if(navigator.share){await navigator.share({text:t});return}}catch(e){if(e&&e.name==='AbortError')return}

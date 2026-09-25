@@ -6,7 +6,7 @@
    Pangkalan data Firebase dan log masuk TIDAK disentuh — ia mesti sentiasa
    bercakap terus dengan pelayan.
    Tukar VERSI jika senarai fail teras berubah. */
-const VERSI = 'mtkl-v4-tabs';
+const VERSI = 'mtkl-v5-seri';
 const TERAS = ['./', 'index.html', 'manifest.webmanifest', 'icon-180.png', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {
