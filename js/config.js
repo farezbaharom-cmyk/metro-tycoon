@@ -26,4 +26,4 @@ const APPCHECK_SITE_KEY = null;
 /* Kiraan pemain (pilihan): kod akaun GoatCounter anda, contohnya "metrotycoon"
    untuk https://metrotycoon.goatcounter.com. Percuma, tanpa kuki dan tanpa
    maklumat peribadi. Selagi null, tiada apa-apa dimuatkan atau dihantar. */
-const GOATCOUNTER_CODE = null;
+const GOATCOUNTER_CODE = "metrotycoon";
