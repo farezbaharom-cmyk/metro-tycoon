@@ -132,12 +132,12 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 /* break-word hanya memecahkan perkataan yang benar-benar tidak muat, tidak
    seperti 'anywhere' yang memecah sesuka hati. Nama berperkataan panjang
    diberi saiz lebih kecil supaya ia kekal utuh dalam satu baris. */
-.nm{font-weight:700;font-size:1.28cqi;line-height:1.1;text-wrap:balance;overflow-wrap:break-word}
-.nm.tight{font-size:1.1cqi;letter-spacing:-.012em}
-.nm.tighter{font-size:.98cqi;letter-spacing:-.018em}
+.nm{font-weight:700;font-size:1.5cqi;line-height:1.1;text-wrap:balance;overflow-wrap:break-word}
+.nm.tight{font-size:1.32cqi;letter-spacing:-.012em}
+.nm.tighter{font-size:1.18cqi;letter-spacing:-.018em}
 .nm-s{display:none}
 /* Pil kod stesen: gaya papan tanda sebenar, putih atas warna laluan. */
-.scode{font-family:var(--mono);font-weight:700;font-size:max(8px,1.05cqi);line-height:1;
+.scode{font-family:var(--mono);font-weight:700;font-size:max(8px,1.15cqi);line-height:1;
   color:var(--lt,#fff);background:var(--lc);padding:.25em .45em .2em;border-radius:99px;letter-spacing:.02em;
   font-variant-numeric:tabular-nums;margin-bottom:2px;white-space:nowrap;box-shadow:0 0 0 1px rgba(255,255,255,.35) inset}
 .dcode{display:inline-block;margin-top:9px;font-family:var(--mono);font-weight:700;font-size:13px;
@@ -199,7 +199,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   .sq.owned .stripe,.sq.owned .body{padding:1px!important}
   .sq.left .nm.nm-s,.sq.right .nm.nm-s{letter-spacing:-.035em}
 }
-.pr{font-family:var(--mono);font-size:1.12cqi;color:var(--muted);font-variant-numeric:tabular-nums}
+.pr{font-family:var(--mono);font-size:1.3cqi;color:var(--muted);font-variant-numeric:tabular-nums}
 .ic{font-family:var(--display);font-weight:900;font-size:2.4cqi;line-height:1}
 .sq.corner .body{padding:6%}
 .sq.corner .nm{font-family:var(--display);font-size:2.1cqi;font-weight:900;text-transform:uppercase;letter-spacing:.02em}
