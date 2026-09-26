@@ -14,7 +14,7 @@ Tiada muat turun atau pendaftaran diperlukan. Buka di pelayar telefon atau kompu
 
 | Mod | Penerangan |
 |---|---|
-| **Main sekarang** | Anda lawan satu bot, terus bermula. |
+| **Main sekarang** | Anda lawan satu bot, terus bermula. Tamat selepas 30 ronde; kekayaan bersih tertinggi menang. |
 | **⚡ Main cepat** | Siap dalam lebih kurang 20 minit. Setiap pemain terus dapat beberapa stesen, dan permainan tamat selepas beberapa ronde. |
 | **Main dengan kawan** | Cipta bilik online dan kongsi kod 5 huruf (atau pautan jemputan). Sehingga 5 pemain, dan boleh campur dengan bot. |
 | **Satu peranti** | 2 hingga 5 pemain berkongsi satu skrin. Mana-mana pemain boleh ditukar kepada bot. |

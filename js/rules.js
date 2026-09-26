@@ -376,7 +376,12 @@ function endTurn(){
   if(n<=was){
     /* Mod cepat: ronde terakhir selesai — tamat tanpa berita baharu. */
     if(S.fast&&(S.round||1)>=S.fastRounds){finish();return}
-    newRound()}
+    /* Had ronde (Main sekarang): selepas ronde terakhir, kekayaan tertinggi menang. */
+    if(S.maxRounds&&(S.round||1)>=S.maxRounds){finish();return}
+    newRound();
+    if(S.maxRounds){const left=S.maxRounds-S.round+1;
+      if(left===5)toastAll(`🏁 5 ronde lagi! Kekayaan bersih tertinggi selepas ronde ${S.maxRounds} menang.`);
+      else if(left===1)toastAll('🏁 Ronde terakhir! Kukuhkan kekayaan anda.')}}
   S.turn=n;S.phase='roll';if(NET)NET.override=null;afkSeat=-1;
   const p=cur();S.msg=p.inJail?`${p.name} di Lokap. Bayar RM50, guna kad, atau cuba dadu ganda.`:`Giliran ${p.name}. Baling dadu!`;
   if(mine){actedTurn=true;try{renderAll()}finally{actedTurn=null}}

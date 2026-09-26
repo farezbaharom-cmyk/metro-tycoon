@@ -90,7 +90,7 @@
     <span class="lines" aria-hidden="true"><i style="background:#D6124F"></i><i style="background:#EE7A00"></i><i style="background:#0B8A45"></i><i style="background:#E8B400"></i></span>
     <h2 class="hometitle">Metro <span>Tycoon</span> KL</h2>
     <p>Permainan hartanah laluan transit Lembah Klang.</p>
-    <button class="btn primary big" type="button" id="homePlay"><span>Main sekarang</span><small>Anda lawan bot · Mod biasa</small></button>
+    <button class="btn primary big" type="button" id="homePlay"><span>Main sekarang</span><small>Anda lawan bot · 30 ronde</small></button>
     <button class="btn big" type="button" id="homeFast"><span>⚡ Main cepat</span><small>Anda lawan bot · ±20 minit</small></button>
     <button class="btn big" type="button" id="homeFriends"><span>Main dengan kawan</span><small>Bilik online atau satu peranti</small></button>
     <button class="ghost" type="button" id="homeResume" hidden>Sambung permainan tersimpan</button>
@@ -164,7 +164,7 @@
         <div class="field"><label for="nQual">Pusingan sebelum beli</label>
           <select id="nQual"><option value="0" selected>Terus boleh beli</option><option value="1">1 pusingan</option><option value="2">2 pusingan</option><option value="3">3 pusingan</option></select></div>
         <div class="field"><label for="nEnd">Tamat apabila</label>
-          <select id="nEnd"><option value="0" selected>Seorang sahaja tinggal</option><option value="5">Semua lengkap 5 pusingan</option><option value="7">Semua lengkap 7 pusingan</option><option value="10">Semua lengkap 10 pusingan</option></select></div>
+          <select id="nEnd"><option value="r30">Selepas 30 ronde</option><option value="0" selected>Seorang sahaja tinggal</option><option value="5">Semua lengkap 5 pusingan</option><option value="7">Semua lengkap 7 pusingan</option><option value="10">Semua lengkap 10 pusingan</option></select></div>
         <div class="field"><label for="nCash">Modal awal</label>
           <select id="nCash"><option value="1000">RM1,000</option><option value="1500" selected>RM1,500</option><option value="2000">RM2,000</option></select></div>
         <div class="field"><label for="nAuc">Hartanah yang dilepaskan</label>
@@ -207,6 +207,7 @@
       <li>Di Lokap: bayar RM50, guna Kad Bebas Lokap, atau cuba dapatkan dadu ganda (maks. 3 giliran).</li>
       <li>Kekurangan wang? Jual rumah (separuh harga) atau gadai hartanah. Jika tidak cukup, isytihar muflis.</li>
       <li><b>🦈 Along:</b> jika tunai anda bawah RM300 (atau negatif), anda boleh pinjam <b>RM300</b> daripada Along dalam giliran anda. Along menagih <b>RM400</b> secara automatik bila anda lalu MULA, walaupun tunai anda tak cukup. Satu pinjaman sahaja pada satu masa; boleh bayar awal. Hutang Along ditolak daripada kekayaan bersih, dan lesap jika anda muflis.</li>
+      <li><b>🏁 Had ronde:</b> <b>Main sekarang</b> tamat selepas 30 ronde (satu ronde = setiap pemain dapat satu giliran). Anda diberi amaran bila tinggal 5 ronde dan pada ronde terakhir. Dalam <b>Satu peranti</b>, pilih "Selepas 30 ronde" di bawah <b>Tamat apabila</b>.</li>
       <li>Permainan tamat apabila hanya seorang pemain tinggal, atau apabila semua pemain lengkap bilangan pusingan yang dipilih. Butang <b>Tamatkan &amp; kira</b> menamatkan permainan pada bila-bila masa. Kekayaan bersih tertinggi menang.</li>
     </ul>
     <button class="btn primary" type="button" id="btnRulesClose">Faham</button>

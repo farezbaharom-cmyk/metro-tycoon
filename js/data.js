@@ -279,6 +279,9 @@ function renderMissions(){
    pemain dapat satu giliran). Lebih ramai pemain = kurang ronde, supaya
    tempohnya kekal lebih kurang sama. */
 const fastRounds=n=>n<=2?24:n===3?18:n===4?15:12;
+/* Had ronde lalai untuk Main sekarang: cukup untuk bina set dan hotel,
+   tetapi permainan tidak berlarutan ratusan pusingan. */
+const PLAY_ROUNDS=30;
 function dealFast(){
   const n=S.players.length,each=n<=2?4:n===3?3:2;
   const pool=shuffle(SQ.map((q,i)=>q.t==='prop'?i:-1).filter(i=>i>=0));

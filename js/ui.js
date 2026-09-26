@@ -76,7 +76,7 @@ function openSetup(view){clearBot();resetZoom();closeDeed();document.getElementB
 function quickToks(){const tk=fixToks([prefTok(),null]);S.players.forEach((p,i)=>p.tok=tk[i])}
 document.getElementById('homePlay').onclick=()=>{
   if(NET)leaveRoom(true);
-  newGame(['Anda','Bot Ain'],0,0,1500,[null,'sederhana'],true);quickToks();S.started=true;
+  newGame(['Anda','Bot Ain'],0,0,1500,[null,'sederhana'],true);S.maxRounds=PLAY_ROUNDS;quickToks();S.started=true;
   document.getElementById('setup').hidden=true;renderAll();track('mula-biasa','Main sekarang')};
 document.getElementById('homeFast').onclick=()=>{
   if(NET)leaveRoom(true);
@@ -118,10 +118,12 @@ document.getElementById('setupForm').addEventListener('submit',e=>{e.preventDefa
   const names=[...Array(n)].map((_,i)=>(document.getElementById('pname'+i).value.trim()||`Pemain ${i+1}`));
   const bots=[...Array(n)].map((_,i)=>document.getElementById('pbot'+i).value||null);
   if(NET)leaveRoom();
-  newGame(names,+document.getElementById('nQual').value,+document.getElementById('nEnd').value,
+  const endV=document.getElementById('nEnd').value,endR=/^r\d+$/.test(endV)?+endV.slice(1):0;
+  newGame(names,+document.getElementById('nQual').value,endR?0:+endV,
     +document.getElementById('nCash').value,bots,document.getElementById('nAuc').value==='1',
     document.getElementById('nMode').value==='1');
   const tk=fixToks([...Array(n)].map((_,i)=>rowTok(i)));S.players.forEach((p,i)=>p.tok=tk[i]);
+  if(endR&&!S.fast)S.maxRounds=endR;
   S.started=true;openTok=-1;track('mula-satu-peranti',`Satu peranti · ${n} pemain`);
   document.getElementById('setup').hidden=true;renderAll()});
 document.getElementById('btnResume').onclick=()=>{document.getElementById('setup').hidden=true;scheduleBot()};
