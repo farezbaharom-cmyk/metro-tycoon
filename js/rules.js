@@ -410,7 +410,7 @@ function canBorrow(){const p=cur();
 function alongPinjam(){if(!canBorrow())return;const p=cur();
   p.cash+=ALONG_PINJAM;p.along=ALONG_BAYAR;stt(S.turn).along=(stt(S.turn).along||0)+1;
   const t=`🦈 ${p.name} pinjam ${fmt(ALONG_PINJAM)} daripada Along. Kena bayar ${fmt(ALONG_BAYAR)} bila lalu MULA!`;
-  S.msg=t;addLog(t);toastAll(t);sfx.coin();renderAll()}
+  S.msg=t;addLog(t);sfx.coin();renderAll()}
 function alongBayar(){const p=cur();if(!p||!p.along||p.cash<p.along||busy||tradePending())return;
   const a=p.along;p.cash-=a;p.along=0;
   const t=`${p.name} langsaikan hutang Along (${fmt(a)}) awal. Selamat!`;S.msg=t;addLog(t);sfx.pay();renderAll()}
@@ -418,7 +418,7 @@ function alongTagih(p){if(!p.along)return;const a=p.along;p.cash-=a;p.along=0;
   if(p.cash<0)p.creditor=null;
   const t=p.cash<0?`🦈 Along tunggu di MULA! ${p.name} bayar ${fmt(a)} dan kini berhutang ${fmt(-p.cash)}.`
     :`🦈 Along tunggu di MULA! ${p.name} bayar ${fmt(a)}.`;
-  S.msg=t;addLog(t,'sewa');toastAll(t);sfx.pay()}
+  S.msg=t;addLog(t,'sewa');sfx.pay()}
 function finish(){S.phase='over';renderAll();showEnd()}
 /* Lencana: hanya untuk pemain yang benar-benar menonjol — nilai tertinggi,
    melepasi had minimum, dan lebih tinggi daripada sekurang-kurangnya seorang
