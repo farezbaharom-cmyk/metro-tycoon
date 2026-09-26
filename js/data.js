@@ -18,6 +18,8 @@ function track(name,title){
 (()=>{if(typeof GOATCOUNTER_CODE==='undefined'||!GOATCOUNTER_CODE||!/^[a-z0-9-]+$/.test(GOATCOUNTER_CODE))return;
   const s=document.createElement('script');s.async=true;s.src='https://gc.zgo.at/count.js';
   s.dataset.goatcounter=`https://${GOATCOUNTER_CODE}.goatcounter.com/count`;
+  /* itch.io memaparkan permainan dalam iframe; tanpa ini GoatCounter tidak mengira. */
+  s.dataset.goatcounterSettings=JSON.stringify({allow_frame:true});
   s.onload=()=>{while(trackQ.length){try{window.goatcounter.count(trackQ.shift())}catch(e){}}};
   document.head.appendChild(s)})();
 /* Telefon: menegak (≤700px lebar) atau mendatar (rendah dan ≤1000px lebar). */
