@@ -417,6 +417,17 @@ function pickRow(i,checked,kind){const s=SQ[i];
   return `<li><label><input type="checkbox" data-${kind}="${i}" ${checked?'checked':''}>
     <span class="c" style="background:${col}"></span>
     <span class="t">${esc(s.n)} <s>${fmt(s.p)}${st}</s></span></label></li>`}
+/* Ringkasan tawaran dua belah: hartanah dan tunai setiap pihak, serta anggaran
+   nilai (harga siar + tunai) supaya pemain nampak sama ada tawaran seimbang. */
+function dealHTML(t,leftTitle,rightTitle){
+  const items=(arr,cash)=>{const x=arr.map(i=>`<span class="dchip"><i style="background:${SQ[i].t==='prop'?GROUPS[SQ[i].g].c:'var(--muted)'}"></i>${esc(SQ[i].n)}</span>`);
+    if(cash>0)x.push(`<span class="dchip cash">💵 ${fmt(cash)}</span>`);
+    return x.length?x.join(''):'<span class="dnone">Tiada apa-apa</span>'};
+  const val=(arr,cash)=>arr.reduce((a,i)=>a+(S.mort[i]?SQ[i].p/2:SQ[i].p),0)+Math.max(0,cash);
+  const L=val(t.give,t.cash),R=val(t.want,-t.cash);
+  return `<div class="side"><b>${leftTitle}</b><div class="dlist">${items(t.give,t.cash)}</div><small>Nilai ±${fmt(L)}</small></div>
+    <div class="arrow" aria-hidden="true">⇄</div>
+    <div class="side"><b>${rightTitle}</b><div class="dlist">${items(t.want,-t.cash)}</div><small>Nilai ±${fmt(R)}</small></div>`}
 function renderTrade(){
   const t=S.trade||draft;if(!t)return;
   const build=t.stage==='build';
@@ -436,22 +447,25 @@ function renderTrade(){
     document.getElementById('tradeWant').innerHTML=theirs.length
       ? theirs.map(i=>pickRow(i,t.want.includes(i),'want')).join('')
       : '<li class="empty">Pemain itu tiada hartanah boleh ditawar.</li>';
+    /* Arah tunai (tiada / bayar / minta) dan jumlah positif; t.cash kekal bertanda. */
+    if(t.dir===undefined){t.dir=Math.sign(t.cash);t.amt=Math.abs(t.cash)}
+    document.querySelectorAll('#tradeDir button').forEach(b=>{const on=+b.dataset.dir===t.dir;
+      b.classList.toggle('on',on);b.setAttribute('aria-checked',on)});
+    document.getElementById('tradeCashRow').hidden=!t.dir;
     const ci=document.getElementById('tradeCash');
-    if(document.activeElement!==ci)ci.value=t.cash;   /* jangan ganggu semasa menaip */
+    if(document.activeElement!==ci)ci.value=t.amt||'';   /* jangan ganggu semasa menaip */
+    ci.placeholder=t.dir>0?`Maks. ${A.cash}`:`Maks. ${Math.max(0,B.cash)}`;
+    document.getElementById('tradePreview').innerHTML=dealHTML(t,'Anda beri',`Anda dapat daripada ${esc(B.name)}`);
     const bad=t.cash>A.cash?`Anda hanya ada ${fmt(A.cash)}.`
             :(-t.cash)>B.cash?`${esc(B.name)} hanya ada ${fmt(B.cash)}.`:'';
     document.getElementById('tradeNote').innerHTML=bad
       ? `<span class="warn">${bad}</span>`
-      : 'Tunai positif bermakna anda membayar, negatif bermakna anda menerima. Hartanah yang ada bangunan tidak boleh ditawar — jual bangunan dahulu.';
+      : 'Hartanah yang ada bangunan tidak boleh ditawar. Jual bangunan dahulu.';
     document.getElementById('tradeSend').disabled=!!bad||(!t.give.length&&!t.want.length&&!t.cash);
   }else{
     document.getElementById('tradeTitle').textContent='Tawaran masuk';
     document.getElementById('tradeFor').innerHTML=`<b>${esc(A.name)}</b> menawarkan kepada <b>${esc(B.name)}</b>:`;
-    const list=a=>a.length?a.map(i=>esc(SQ[i].n)).join(', '):'—';
-    document.getElementById('tradeSummary').innerHTML=
-      `<div class="side"><b>${esc(B.name)} dapat</b>${list(t.give)}${t.cash>0?` + ${fmt(t.cash)} tunai`:''}</div>
-       <div class="arrow">⇅</div>
-       <div class="side"><b>${esc(A.name)} dapat</b>${list(t.want)}${t.cash<0?` + ${fmt(-t.cash)} tunai`:''}</div>`;
+    document.getElementById('tradeSummary').innerHTML=dealHTML(t,`${esc(B.name)} dapat`,`${esc(A.name)} dapat`);
     const me=mySeat();
     /* Siapa yang boleh menjawab: dalam bilik online hanya penerima;
        pada satu peranti, orang yang memegang peranti itu. */

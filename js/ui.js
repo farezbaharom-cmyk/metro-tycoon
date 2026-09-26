@@ -42,7 +42,12 @@ document.getElementById('tradeBox').addEventListener('change',e=>{
   c.checked?(at<0&&arr.push(i)):(at>=0&&arr.splice(at,1));
   renderTrade()});
 document.getElementById('tradeCash').addEventListener('input',e=>{
-  if(!draft)return;draft.cash=Math.round(+e.target.value||0);renderTrade()});
+  if(!draft)return;draft.amt=Math.max(0,Math.round(+e.target.value||0));draft.cash=draft.dir*draft.amt;renderTrade()});
+document.getElementById('tradeDir').addEventListener('click',e=>{const b=e.target.closest('[data-dir]');if(!b||!draft)return;
+  draft.dir=+b.dataset.dir;if(!draft.amt&&draft.dir)draft.amt=50;draft.cash=draft.dir*(draft.amt||0);renderTrade();
+  if(draft.dir)document.getElementById('tradeCash').focus({preventScroll:true})});
+document.getElementById('tradeCashRow').addEventListener('click',e=>{const b=e.target.closest('[data-add]');if(!b||!draft)return;
+  draft.amt=(draft.amt||0)+ +b.dataset.add;draft.cash=draft.dir*draft.amt;renderTrade()});
 /* actedTurn memberitahu sync() yang penulis ini dibenarkan, walaupun
    bukan gilirannya — penerima tawaran perlu boleh menulis jawapannya. */
 const asActor=fn=>(...a)=>{actedTurn=true;try{fn(...a)}finally{actedTurn=null}};

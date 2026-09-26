@@ -258,8 +258,19 @@
       <ul class="picks" id="tradeGive"></ul>
       <h4>Anda minta</h4>
       <ul class="picks" id="tradeWant"></ul>
-      <div class="field"><label for="tradeCash">Tunai tambahan</label>
-        <input id="tradeCash" type="number" step="10" value="0" inputmode="numeric"></div>
+      <h4 id="tradeCashLbl">Tunai</h4>
+      <div class="seg tradedir" id="tradeDir" role="radiogroup" aria-labelledby="tradeCashLbl">
+        <button type="button" role="radio" data-dir="0">Tiada tunai</button>
+        <button type="button" role="radio" data-dir="1">Saya bayar</button>
+        <button type="button" role="radio" data-dir="-1">Saya minta</button>
+      </div>
+      <div class="cashrow" id="tradeCashRow" hidden>
+        <span class="rm" aria-hidden="true">RM</span>
+        <input id="tradeCash" type="number" min="0" step="10" value="0" inputmode="numeric" aria-label="Jumlah tunai">
+        <button type="button" class="mini" data-add="50">+50</button>
+        <button type="button" class="mini" data-add="100">+100</button>
+      </div>
+      <div class="deal preview" id="tradePreview" aria-live="polite"></div>
       <div class="note" id="tradeNote"></div>
       <div class="row">
         <button class="btn" type="button" id="tradeCancel">Batal</button>
