@@ -470,16 +470,28 @@ function showEnd(){
   const top=rk.filter(r=>r.pos===1&&!r.p.bankrupt),tie=top.length>1;
   const names=tie?joinNames(top.map(r=>r.p.name)):rk[0].p.name;
   document.getElementById('endTitle').textContent=tie?'Seri!':`${names} menang!`;
-  document.getElementById('endLead').textContent=tie
-    ?`${names} berkongsi tempat pertama dengan kekayaan bersih ${fmt(top[0].w)}.`
-    :'Kedudukan akhir ikut kekayaan bersih (tunai + nilai hartanah + bangunan).';
-  document.getElementById('rank').innerHTML=rk.map((r,i)=>{const k=S.players.indexOf(r.p),t=stt(k);
-    return `<li class="${r.pos===1&&!r.p.bankrupt?'win':''}"><span class="pos">${r.pos}</span>${trainMark(k,r.p.color)}<span class="n">${esc(r.p.name)}${r.p.bankrupt?' <span class="chip bad">Muflis</span>':''}
-      <span class="stline">Sewa +${fmt(t.sewaIn)} / −${fmt(t.sewaOut)} · Beli ${t.beli} · Bina ${t.bina} · Lokap ${t.lokap} · Misi ${MISI.filter(m=>missDone(k)[m.id]).length}/${MISI.length}</span>
-      <span class="bdg">${bd[k].slice(0,4).map(x=>`<span class="badge" title="${esc(x.d)}">${x.e} ${esc(x.t)}</span>`).join('')}</span></span><span class="money">${fmt(r.w)}</span></li>`}).join('');
-  /* Senarai penerangan lencana: apa maksud setiap satu. */
-  const all=[];bd.forEach((l,k)=>l.forEach(x=>all.push(`<li><b>${x.e} ${esc(x.t)}</b> — ${esc(S.players[k].name)}, ${esc(x.d)}</li>`)));
-  document.getElementById('endBadges').innerHTML=all.length?`<h4>Lencana</h4><ul class="bdlist">${all.join('')}</ul>`:'';
+  /* Wira: token pemenang besar bermahkota. */
+  document.getElementById('endHero').innerHTML=top.length
+    ?top.slice(0,3).map(r=>{const k=S.players.indexOf(r.p);return `<span class="herotok"><span class="crown">👑</span>${trainMark(k,r.p.color)}</span>`}).join(''):'';
+  const rounds=Math.min(S.round||1,S.maxRounds||S.fastRounds||999);
+  document.getElementById('endLead').textContent=top.length
+    ?`${tie?'Berkongsi tempat pertama dengan':'Kekayaan bersih'} ${fmt(top[0].w)} · ${rounds} ronde`
+    :`${rounds} ronde`;
+  const medal=['🥇','🥈','🥉'];
+  document.getElementById('rank').innerHTML=rk.map(r=>{const k=S.players.indexOf(r.p),t=stt(k);
+    const owned=S.owner.filter(o=>o===k).length,misi=MISI.filter(m=>missDone(k)[m.id]).length;
+    /* Statistik sebagai cip ikon; yang kosong disembunyikan kecuali hartanah dan misi. */
+    const st=[['💸',`+${fmt(t.sewaIn)}`,'Sewa dikutip',t.sewaIn],['🧾',`−${fmt(t.sewaOut)}`,'Sewa dibayar',t.sewaOut],
+      ['🏠',owned,'Hartanah dimiliki',1],['🏗️',t.bina,'Kali membina',t.bina],['🔒',t.lokap,'Kali masuk Lokap',t.lokap],
+      ['🦈',t.along||0,'Pinjaman Along',t.along||0],['🏆',`${misi}/${MISI.length}`,'Misi selesai',1]]
+      .filter(x=>x[3]).map(x=>`<span class="stat" title="${x[2]}"><span aria-hidden="true">${x[0]}</span><span class="sr-only">${x[2]}:</span> ${x[1]}</span>`).join('');
+    const win=r.pos===1&&!r.p.bankrupt;
+    /* Lencana sekali sahaja, dengan penerangan pendek terus pada cip. */
+    const bg=bd[k].slice(0,3).map(x=>`<span class="badge"><b>${x.e} ${esc(x.t)}</b> <small>· ${esc(x.d)}</small></span>`).join('');
+    return `<li class="rk ${win?'win':''} ${r.p.bankrupt?'out':''}"><span class="pos" aria-label="Kedudukan ${r.pos}">${!r.p.bankrupt&&r.pos<=3?medal[r.pos-1]:r.pos}</span>${trainMark(k,r.p.color)}
+      <span class="nm1">${esc(r.p.name)}${r.p.bankrupt?' <span class="chip bad">Muflis</span>':''}</span><span class="money">${fmt(r.w)}</span>
+      <span class="rdet"><span class="stats">${st}</span>${bg?`<span class="bdg">${bg}</span>`:''}</span></li>`}).join('');
+  document.getElementById('endBadges').innerHTML='';
   lastSummary=endSummary(rk,bd);
   document.getElementById('endBox').hidden=false;sfx.win();confetti();
   if(wonSaid!==S.gid){wonSaid=S.gid;speak(tie?`Seri! ${names.replace(' & ',' dan ')} sama kuat. Tahniah semua!`:line('menang',names),false)}}

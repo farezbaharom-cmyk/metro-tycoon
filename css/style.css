@@ -1312,3 +1312,35 @@ body:has(.overlay:not([hidden])) .bar{z-index:40}
   /* Tutorial dalam lajur sempit: langkah 1·2·3 di atas, teks di bawah. */
   #turn .turn-tutorial{grid-template-columns:minmax(0,1fr);gap:6px}
 }
+
+/* ===================== Skrin tamat ===================== */
+#endBox .modal{gap:12px}
+.endhero{display:flex;justify-content:center;gap:14px;margin:-4px 0 -6px}
+.endhero:empty{display:none}
+.herotok{position:relative;display:inline-grid;place-items:center;width:84px;height:84px;border-radius:50%;
+  background:radial-gradient(circle at 50% 40%,color-mix(in srgb,#FFD24A 55%,var(--panel)),color-mix(in srgb,#E8B400 18%,var(--panel)) 70%);
+  box-shadow:0 0 0 3px color-mix(in srgb,#E8B400 60%,transparent),0 10px 28px rgba(232,180,0,.35);animation:heropop .6s cubic-bezier(.2,.9,.3,1.4)}
+.herotok .tdot{width:56px;height:40px}
+.herotok .crown{position:absolute;top:-20px;font-size:28px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3));animation:crownbob 2.4s ease-in-out infinite}
+@keyframes heropop{from{transform:scale(.4);opacity:0}}
+@keyframes crownbob{50%{transform:translateY(-3px) rotate(-6deg)}}
+@media (prefers-reduced-motion:reduce){.herotok,.herotok .crown{animation:none}}
+#endTitle{text-align:center;margin:0}
+#endLead{text-align:center;margin:-6px 0 2px;font-weight:700;color:var(--muted)}
+/* Baris: pingat · token · nama · wang di atas; statistik dan lencana guna lebar penuh di bawah. */
+.rank li.rk{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;align-items:center;column-gap:9px;row-gap:6px;padding:10px 12px}
+.rank .pos{font-size:22px;width:28px;text-align:center;line-height:1}
+.rank li.win{border:2px solid color-mix(in srgb,#E8B400 70%,transparent);font-size:inherit}
+.rank li.out{opacity:.72}
+.rank .nm1{font-weight:800;font-size:16px;line-height:1.2;min-width:0;overflow-wrap:anywhere}
+.rank li .money{font-size:16px;white-space:nowrap}
+.rank li.win .money{font-size:18px;color:color-mix(in srgb,#8A5F00 70%,var(--ink))}
+.rank .rdet{grid-column:1/-1;display:flex;flex-direction:column;gap:6px;padding-left:2px}
+.rank .stats{display:flex;flex-wrap:wrap;gap:3px 12px;font-size:12.5px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.rank .stat{white-space:nowrap}
+.rank .bdg{display:flex;flex-wrap:wrap;gap:5px;margin:0}
+.rank .badge{display:inline-block;white-space:normal;padding:3px 10px;font-size:12px;line-height:1.35;border-radius:10px;text-align:left}
+.rank .badge small{font-weight:600;color:var(--muted);font-size:11.5px}
+.endnote{margin:-4px 0 0;font-size:11.5px;color:var(--muted);text-align:center}
+:root[data-skin="songket"] .herotok{background:radial-gradient(circle at 50% 40%,#5A2A1A,#2A0F18 70%);box-shadow:0 0 0 3px #D9A93E,0 10px 28px rgba(217,169,62,.35)}
+:root[data-skin="songket"] .rank li.win .money{color:#F4D27A}

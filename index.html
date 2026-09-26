@@ -283,10 +283,12 @@
 
 <div class="overlay" id="endBox" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="endTitle" tabindex="-1">
+    <div class="endhero" id="endHero" aria-hidden="true"></div>
     <h2 id="endTitle">Tamat!</h2>
-    <p id="endLead">Kedudukan akhir ikut kekayaan bersih (tunai + nilai hartanah + bangunan).</p>
+    <p id="endLead">Kedudukan akhir ikut kekayaan bersih.</p>
     <ul class="rank" id="rank"></ul>
-    <div id="endBadges"></div>
+    <p class="endnote">Kekayaan bersih = tunai + nilai hartanah + bangunan − hutang Along.</p>
+    <div id="endBadges" hidden></div>
     <div class="row"><button class="btn" type="button" id="btnShare">📤 Kongsi keputusan</button>
     <button class="btn primary" type="button" id="btnAgain">Main semula</button></div>
   </div>

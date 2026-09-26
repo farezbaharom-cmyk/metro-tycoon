@@ -7,7 +7,7 @@
    Pangkalan data Firebase dan log masuk TIDAK disentuh — ia mesti sentiasa
    bercakap terus dengan pelayan.
    Tukar VERSI jika senarai fail teras berubah (contohnya fail js/ baharu). */
-const VERSI = 'mtkl-v16-gc-iframe';
+const VERSI = 'mtkl-v17-skrin-tamat';
 const TERAS = [
   './', 'index.html', 'manifest.webmanifest', 'icon-180.png', 'icon-192.png', 'icon-512.png',
   'css/style.css',
