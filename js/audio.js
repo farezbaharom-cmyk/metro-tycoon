@@ -120,7 +120,7 @@ function pidsShow(lbl,name){
   const el=document.getElementById('pids');if(!el)return;
   const L=el.querySelector('.lbl'),N=el.querySelector('.nm');
   if(L)L.textContent=lbl;if(N){N.textContent=name;N.dataset.t=''}
-  el.classList.remove('news');el.classList.add('on');
+  el.classList.remove('news','idle');el.classList.add('on');
   if(pidsTimer){clearTimeout(pidsTimer);pidsTimer=null}
 }
 function pidsHide(ms){
@@ -134,7 +134,14 @@ function pidsIdle(){
   if(e){if(!el.classList.contains('news')||N.dataset.t!==e.t){
       el.classList.add('news');L.textContent='Berita';N.dataset.t=e.t;
       N.innerHTML='';const m=document.createElement('span');m.className='mq';m.textContent=e.t;N.appendChild(m)}}
-  else if(el.classList.contains('news')){el.classList.remove('news');L.textContent='Stesen seterusnya';N.textContent='';N.dataset.t=''}
+  else{
+    /* Tiada berita: tunjuk giliran siapa dan di stesen mana. */
+    const p=typeof S!=='undefined'&&S&&S.players?S.players[S.turn]:null;
+    const t=p&&SQ[p.pos]?`${p.name} · ${SQ[p.pos].n}`:'Selamat datang ke Metro Tycoon KL';
+    if(el.classList.contains('news')||N.dataset.t!=='i:'+t){
+      el.classList.remove('news');el.classList.add('idle');L.textContent='Giliran';N.textContent=t;N.dataset.t='i:'+t}
+    return}
+  el.classList.remove('idle');
 }
 /* Tiga gaya suara, dipilih dalam menu. Enjin suara pelayar tidak boleh ditukar
    wataknya; yang boleh dikawal hanyalah ayat dan rentak (rate serta pitch).

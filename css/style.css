@@ -1030,3 +1030,53 @@ body{
 }
 @media(max-height:500px) and (orientation:landscape){#turn{max-height:42dvh}#turn .turn-stage,#turn .pstrip{display:none}}
 @media(prefers-reduced-motion:reduce){#turn.turn-arrival .turnhead{animation:none}}
+
+/* ===================== Kemasan reka letak (Sept 2026) ===================== */
+/* Bar atas lebih nipis di skrin lebar, supaya papan dapat lebih ruang menegak. */
+@media (min-width:701px){
+  .bar{padding:5px 8px 5px 12px;margin-bottom:10px}
+  .brand{font-size:25px}
+  .brand .lines i{width:5px;height:21px}
+  .menubtn{padding:6px 13px}
+}
+/* Papan + kawalan zum + teks petunjuk mesti muat dalam satu skrin tanpa skrol.
+   --chrome dikira semula selepas bar dinipiskan: bar, jalur LED, zum, petunjuk
+   dan jarak bawah. */
+.boardwrap{--chrome:214px}
+@media (max-width:1000px){.boardwrap{--chrome:150px}}
+/* Skrin lebar: lajur papan selebar papan itu sendiri, dan papan + panel
+   diletak bersama di tengah. Tiada lagi jurang kosong antara papan dan panel. */
+@media (min-width:1001px){
+  body{--cap:max(340px,calc(100vh - 214px))}
+  @supports (height:100dvh){body{--cap:max(340px,calc(100dvh - 214px))}}
+  body.v3d{--cap:max(360px,calc((100vh - 170px)/1.2))}
+  .app{grid-template-columns:minmax(0,var(--cap)) 360px;justify-content:center;gap:24px}
+  .boardwrap{margin-inline:0}
+  /* Bar atas selebar papan + panel, supaya tepinya sejajar. */
+  .bar{max-width:min(1320px,calc(var(--cap) + 384px))}
+}
+/* Sari kata petak sudut (cth. "Dataran Merdeka") hanya bila papan cukup besar. */
+@container (max-width:720px){.csub{display:none}}
+/* Jalur LED semasa rehat: tunjuk giliran siapa dan di stesen mana,
+   bukan bar gelap yang kosong. */
+.pids.idle .lbl{opacity:.7}
+.pids.idle .nm{opacity:.85}
+/* Petunjuk di bawah papan hilang selepas pemain mula mengetik petak. */
+body.tapped .tapnote,body.tapped .board-help{display:none}
+/* Butang utama giliran anda: satu bingkai sahaja (butang itu sendiri),
+   dengan denyut lembut dalam warna pemain untuk menarik perhatian. */
+#turn.your-turn .actions .primary:not(:disabled){outline:none;animation:rollpulse 1.8s ease-in-out infinite}
+@keyframes rollpulse{
+  0%,100%{box-shadow:0 4px 0 color-mix(in srgb,var(--accent) 58%,#000),0 0 0 0 color-mix(in srgb,var(--turn-color,var(--accent)) 55%,transparent)}
+  50%{box-shadow:0 4px 0 color-mix(in srgb,var(--accent) 58%,#000),0 0 0 6px color-mix(in srgb,var(--turn-color,var(--accent)) 0%,transparent)}}
+#turn.your-turn .actions .primary:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){#turn.your-turn .actions .primary:not(:disabled){animation:none}}
+/* Telefon: petak Peluang dan Tabung cukup dengan ikon (! dan ?) dalam warna
+   kad masing-masing — tiada lagi nama dipecah "Pe-luang" / "Ta-bung". */
+@media (max-width:700px){
+  .sq.t-peluang .nm,.sq.t-tabung .nm{display:none!important}
+  .sq.t-peluang .ic,.sq.t-tabung .ic{display:grid;place-items:center;width:max(15px,4.4cqi);height:max(15px,4.4cqi);
+    border-radius:50%;color:#fff;font-size:max(11px,3.1cqi);line-height:1}
+  .sq.t-peluang .ic{background:#EE7A00}
+  .sq.t-tabung .ic{background:#1F5FAD}
+}

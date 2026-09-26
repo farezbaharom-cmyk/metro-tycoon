@@ -16,7 +16,9 @@ function side(i){if(i%10===0)return'corner bottom';return i<10?'bottom':i<20?'le
    fon dikecilkan sedikit (hingga 7.5px). Hanya jika masih tak muat — petak
    sempit baris atas/bawah — nama dipecah ikut suku kata (SHORT_SYL). */
 const fitCtx=document.createElement('canvas').getContext('2d');
-const FIT_MIN=7;
+/* 6.5px: nama penuh yang kecil lebih mudah dibaca daripada nama yang dipecah
+   dengan sempang. Pecahan suku kata hanya untuk skrin paling sempit (≤340px). */
+const FIT_MIN=6.5;
 function fitNeed(txt,cs,sz){
   if(cs.textTransform==='uppercase')txt=txt.toUpperCase();
   fitCtx.font=`${cs.fontWeight} ${sz}px ${cs.fontFamily}`;const ls=parseFloat(cs.letterSpacing)||0;
@@ -87,10 +89,10 @@ function buildBoard(){
     /* Perkataan terpanjang yang menentukan sama ada nama muat dalam satu baris. */
     const lw=Math.max(...s.n.split(/\s+/).map(w=>w.length));
     const fit=lw>=11?' tighter':lw>=9?' tight':'';
-    h+=`<div class="sq ${side(i)}" id="sq${i}" style="grid-row:${r};grid-column:${c}" data-i="${i}" role="button" tabindex="0" aria-label="${esc(s.n)}">${stripe}<div class="body">${icon}${code}<span class="nm nm-f${fit}">${esc(s.n)}</span><span class="nm nm-s" aria-hidden="true">${esc(SHORT[i]||s.n)}</span>${csub}${label}</div><div class="tokens"></div></div>`});
+    h+=`<div class="sq ${side(i)} t-${s.t}" id="sq${i}" style="grid-row:${r};grid-column:${c}" data-i="${i}" role="button" tabindex="0" aria-label="${esc(s.n)}">${stripe}<div class="body">${icon}${code}<span class="nm nm-f${fit}">${esc(s.n)}</span><span class="nm nm-s" aria-hidden="true">${esc(SHORT[i]||s.n)}</span>${csub}${label}</div><div class="tokens"></div></div>`});
   const lines=GROUPS.map((g,k)=>{const y=12+k*11;return `<path d="M-5 ${y} C 30 ${y+18}, 70 ${y-20}, 105 ${y+6}" stroke="${g.c}" stroke-width="2.2" fill="none"/>`}).join('');
   h+=`<div class="center" id="center"><svg class="map" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${lines}</svg>${skylineSVG()}
-    <div class="logo"><h1>Metro<br><span>Tycoon</span></h1><p>Edisi Lembah Klang</p></div>
+    <div class="logo"><h1>Metro<br><span>Tycoon</span> KL</h1><p>Edisi Lembah Klang</p></div>
     <div class="dice">${dieHTML(0)}${dieHTML(1)}</div>
     <div class="msg" id="msg" aria-live="polite"></div><div id="cardSlot"></div></div>`;
   h+=`<div class="flyer" id="flyer" aria-hidden="true"></div>`;
