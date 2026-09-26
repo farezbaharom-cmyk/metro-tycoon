@@ -321,7 +321,7 @@ async function createRoom(){
     if(!code){omsg('Tidak dapat mencari kod bilik yang kosong. Cuba sekali lagi.');return}
     fdb.ref('roomIndex/'+code).set(data.meta.created).catch(()=>{});
     rememberRoom(code);
-    enterRoom(code);omsg('');
+    enterRoom(code);omsg('');track('online-cipta','Cipta bilik online');
     sweepMyRooms(code)}
   catch(e){omsg('Tidak dapat mencipta bilik: '+e.message+'. Semak peraturan pangkalan data Firebase.')}
 }
@@ -333,11 +333,11 @@ async function joinRoom(code,silent){
     const r=snap.val();const seats=r.seats||{};
     if(!seats[UID]){
       /* Permainan sudah bermula atau bilik penuh: masuk sebagai penonton. */
-      if(r.meta.started||Object.keys(seats).length>=5){enterRoom(code,true);omsg('');return true}
+      if(r.meta.started||Object.keys(seats).length>=5){enterRoom(code,true);omsg('');if(!silent)track('online-tonton','Tonton bilik online');return true}
       if(silent)return false;
       const name=myName();if(!name){omsg('Masukkan nama anda dahulu.');$('myName').focus();return false}
       await fdb.ref(`rooms/${code}/seats/${UID}`).set(seatVal(name,seats))}
-    enterRoom(code);omsg('');return true}
+    enterRoom(code);omsg('');if(!silent)track('online-sertai','Sertai bilik online');return true}
   catch(e){if(!silent)omsg('Tidak dapat menyertai bilik: '+e.message);return false}
 }
 function enterRoom(code,watch){
@@ -412,6 +412,7 @@ async function startOnline(){
   newGame(seats.map(s=>s[1].name),r.meta.qual,r.meta.endLaps,r.meta.cash,
           seats.map(s=>s[1].bot||null),r.meta.auc!==false,!!r.meta.fast);
   S.players.forEach((p,i)=>p.uid=seats[i][0]);S.gid=Date.now().toString(36);S.started=true;S.rev=0;
+  track('online-mula',`Mula online · ${seats.length} pemain`);
   S.tl=r.meta.tl==null?60:+r.meta.tl;afkSeat=-1;
   {const tk=fixToks(seats.map(s=>s[1].tok));S.players.forEach((p,i)=>p.tok=tk[i])}
   await NET.ref.child('meta/started').set(true);

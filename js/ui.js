@@ -77,11 +77,11 @@ function quickToks(){const tk=fixToks([prefTok(),null]);S.players.forEach((p,i)=
 document.getElementById('homePlay').onclick=()=>{
   if(NET)leaveRoom(true);
   newGame(['Anda','Bot Ain'],0,0,1500,[null,'sederhana'],true);quickToks();S.started=true;
-  document.getElementById('setup').hidden=true;renderAll()};
+  document.getElementById('setup').hidden=true;renderAll();track('mula-biasa','Main sekarang')};
 document.getElementById('homeFast').onclick=()=>{
   if(NET)leaveRoom(true);
   newGame(['Anda','Bot Ain'],0,0,1500,[null,'sederhana'],true,true);quickToks();S.started=true;
-  document.getElementById('setup').hidden=true;renderAll();toast('⚡ Mod cepat: stesen dibahagikan, tamat selepas '+S.fastRounds+' ronde.')};
+  document.getElementById('setup').hidden=true;renderAll();toast('⚡ Mod cepat: stesen dibahagikan, tamat selepas '+S.fastRounds+' ronde.');track('mula-cepat','Main cepat')};
 document.getElementById('homeFriends').onclick=()=>{showSetupView('full');setTab(FIREBASE_CONFIG?'online':'local')};
 document.getElementById('homeMore').onclick=()=>{showSetupView('full');setTab('local')};
 document.getElementById('homeBack').onclick=()=>showSetupView('home');
@@ -122,7 +122,7 @@ document.getElementById('setupForm').addEventListener('submit',e=>{e.preventDefa
     +document.getElementById('nCash').value,bots,document.getElementById('nAuc').value==='1',
     document.getElementById('nMode').value==='1');
   const tk=fixToks([...Array(n)].map((_,i)=>rowTok(i)));S.players.forEach((p,i)=>p.tok=tk[i]);
-  S.started=true;openTok=-1;
+  S.started=true;openTok=-1;track('mula-satu-peranti',`Satu peranti · ${n} pemain`);
   document.getElementById('setup').hidden=true;renderAll()});
 document.getElementById('btnResume').onclick=()=>{document.getElementById('setup').hidden=true;scheduleBot()};
 document.getElementById('btnNew').onclick=()=>openSetup();
@@ -211,6 +211,7 @@ matchMedia('(prefers-color-scheme:dark)').addEventListener('change',()=>{if(them
 document.getElementById('btnTheme').onclick=()=>{
   theme=THEMES[(THEMES.indexOf(theme)+1)%THEMES.length];
   try{localStorage.setItem('mtkl-theme',theme)}catch(e){}
+  track('tema-'+theme,'Tema: '+THEME_LABEL[theme]);
   applyTheme()};
 /* Suis getaran hanya muncul pada peranti yang benar-benar boleh bergetar. */
 /* ---------- pandangan 3D ----------

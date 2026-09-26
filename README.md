@@ -54,6 +54,7 @@ Peraturan penuh ada dalam permainan, di **⚙️ Menu → Peraturan**.
 - HTML, CSS dan JavaScript biasa, tanpa framework dan tanpa langkah build. Muat naik fail seperti sedia ada, dan terus jalan.
 - [Firebase Realtime Database](https://firebase.google.com/docs/database) untuk bilik online, dan Firebase Anonymous Auth untuk log masuk tanpa nama.
 - Web Speech API untuk pengumuman bersuara.
+- (Pilihan) [GoatCounter](https://www.goatcounter.com) untuk kiraan pemain tanpa nama: tanpa kuki dan tanpa data peribadi. Isi `GOATCOUNTER_CODE` dalam `js/config.js` untuk menghidupkannya.
 - Service worker (`sw.js`) dan `manifest.webmanifest` untuk sokongan PWA.
 - Dihoskan di GitHub Pages.
 
@@ -63,7 +64,7 @@ Peraturan penuh ada dalam permainan, di **⚙️ Menu → Peraturan**.
 |---|---|
 | `index.html` | Struktur laman sahaja: papan, panel, tetingkap dan borang. |
 | `css/style.css` | Semua gaya: tema cerah/gelap, papan, panel, telefon, animasi. |
-| `js/config.js` | Konfigurasi Firebase dan App Check. **Satu-satunya fail yang perlu diubah untuk projek Firebase sendiri.** |
+| `js/config.js` | Konfigurasi Firebase, App Check dan GoatCounter. **Satu-satunya fail yang perlu diubah untuk projek Firebase sendiri.** |
 | `js/cats.js` | Lukisan SVG lima token kucing. |
 | `js/data.js` | Petak papan, laluan, token, kad Peluang/Tabung, keadaan permainan, statistik, misi, mod cepat. |
 | `js/audio.js` | Bunyi, getaran dan pengumuman stesen bersuara (Pakcik, Slay, Pengulas). |

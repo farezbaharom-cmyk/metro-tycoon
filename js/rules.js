@@ -408,7 +408,7 @@ function canBorrow(){const p=cur();
   return !!p&&!p.bankrupt&&!p.along&&p.cash<ALONG_PINJAM&&!busy&&!tradePending()
     &&(p.cash<0||S.phase==='roll'||S.phase==='end')}
 function alongPinjam(){if(!canBorrow())return;const p=cur();
-  p.cash+=ALONG_PINJAM;p.along=ALONG_BAYAR;stt(S.turn).along=(stt(S.turn).along||0)+1;
+  p.cash+=ALONG_PINJAM;p.along=ALONG_BAYAR;if(!p.bot)track('along','Pinjam Along');stt(S.turn).along=(stt(S.turn).along||0)+1;
   const t=`🦈 ${p.name} pinjam ${fmt(ALONG_PINJAM)} daripada Along. Kena bayar ${fmt(ALONG_BAYAR)} bila lalu MULA!`;
   S.msg=t;addLog(t);sfx.coin();renderAll()}
 function alongBayar(){const p=cur();if(!p||!p.along||p.cash<p.along||busy||tradePending())return;
@@ -455,6 +455,11 @@ function endSummary(rk,bd){
 let lastSummary='', wonSaid=null;
 function showEnd(){
   const rk=rankPlayers();
+  /* Sekali bagi setiap permainan: mod dan bilangan ronde, tanpa nama pemain. */
+  if(!S.tracked){S.tracked=true;
+    const mode=NET?'online':S.fast?'cepat':S.players.some(p=>p.bot)?'lawan-bot':'satu-peranti';
+    const r=S.round||1,band=r<=10?'1-10':r<=20?'11-20':r<=40?'21-40':r<=80?'41-80':'80+';
+    track('tamat-'+mode,`Tamat ${mode} · ${band} ronde`)}
   const bd=badges();
   /* Seri: lebih daripada seorang pemain (tidak muflis) berkongsi kekayaan tertinggi. */
   const top=rk.filter(r=>r.pos===1&&!r.p.bankrupt),tie=top.length>1;
@@ -483,6 +488,6 @@ function rankPlayers(){
   return rk}
 function joinNames(a){return a.length<2?a.join(''):a.slice(0,-1).join(', ')+' & '+a[a.length-1]}
 document.getElementById('btnShare').onclick=async()=>{
-  const t=lastSummary;if(!t)return;
+  const t=lastSummary;if(!t)return;track('kongsi','Kongsi keputusan');
   try{if(navigator.share){await navigator.share({text:t});return}}catch(e){if(e&&e.name==='AbortError')return}
   try{await navigator.clipboard.writeText(t);toast('Keputusan disalin. Tampal dalam WhatsApp!')}catch(e){prompt('Salin keputusan ini:',t)}};

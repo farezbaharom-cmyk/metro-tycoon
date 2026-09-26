@@ -4,6 +4,22 @@
    susunan dalam index.html. Fungsi boleh dipanggil merentas fail, tetapi
    kod yang BERJALAN semasa muat hanya boleh guna apa yang sudah dimuatkan. */
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* ---------- kiraan pemain (GoatCounter) ----------
+   Hanya dimuatkan jika GOATCOUNTER_CODE diisi dalam config.js. Merekod paparan
+   laman dan beberapa peristiwa tanpa nama (mod yang dimainkan, permainan tamat,
+   kongsi keputusan). Tiada kuki, nama pemain atau data peribadi dihantar.
+   Peristiwa sebelum skrip siap dimuat disimpan dahulu, kemudian dihantar. */
+const trackQ=[];
+function track(name,title){
+  if(typeof GOATCOUNTER_CODE==='undefined'||!GOATCOUNTER_CODE)return;
+  const ev={path:'ev/'+name,title:title||name,event:true};
+  if(window.goatcounter&&window.goatcounter.count){try{window.goatcounter.count(ev)}catch(e){}}
+  else if(trackQ.length<30)trackQ.push(ev)}
+(()=>{if(typeof GOATCOUNTER_CODE==='undefined'||!GOATCOUNTER_CODE||!/^[a-z0-9-]+$/.test(GOATCOUNTER_CODE))return;
+  const s=document.createElement('script');s.async=true;s.src='https://gc.zgo.at/count.js';
+  s.dataset.goatcounter=`https://${GOATCOUNTER_CODE}.goatcounter.com/count`;
+  s.onload=()=>{while(trackQ.length){try{window.goatcounter.count(trackQ.shift())}catch(e){}}};
+  document.head.appendChild(s)})();
 /* Telefon: menegak (≤700px lebar) atau mendatar (rendah dan ≤1000px lebar). */
 const PHONE_Q='(max-width:700px),(max-width:1000px) and (max-height:520px) and (orientation:landscape)';
 const GROUPS=[

@@ -23,3 +23,7 @@ const FIREBASE_CONFIG = {
    App Check. Selagi null, App Check tidak dimuatkan langsung. Selepas diisi dan
    laman dikemas kini, barulah hidupkan "Enforce" untuk Realtime Database. */
 const APPCHECK_SITE_KEY = null;
+/* Kiraan pemain (pilihan): kod akaun GoatCounter anda, contohnya "metrotycoon"
+   untuk https://metrotycoon.goatcounter.com. Percuma, tanpa kuki dan tanpa
+   maklumat peribadi. Selagi null, tiada apa-apa dimuatkan atau dihantar. */
+const GOATCOUNTER_CODE = null;

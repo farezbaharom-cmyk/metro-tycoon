@@ -202,7 +202,7 @@ if('serviceWorker'in navigator&&(location.protocol==='https:'||location.hostname
   addEventListener('appinstalled',()=>{btn.hidden=true;deferred=null;toast('Metro Tycoon KL dipasang! Buka dari skrin utama.')});
   if(ios&&!standalone)btn.hidden=false;
   btn.onclick=async()=>{
-    if(deferred){deferred.prompt();try{await deferred.userChoice}catch(e){}deferred=null;btn.hidden=true;return}
+    if(deferred){deferred.prompt();try{const c=await deferred.userChoice;if(c&&c.outcome==='accepted')track('pasang-app','Pasang app')}catch(e){}deferred=null;btn.hidden=true;return}
     if(ios)alert('Pasang di iPhone/iPad:\n\n1. Tekan butang Kongsi (petak dengan anak panah ke atas) di Safari.\n2. Pilih "Add to Home Screen" / "Tambah ke Skrin Utama".\n3. Tekan "Add".')}})();
 /* Petunjuk "Ketik petak…" hanya perlu dibaca sekali. Selepas pemain
    mengetik petak pertama, petunjuk disembunyikan (dan diingati untuk lawatan
