@@ -195,7 +195,7 @@ async function land(p,opts={}){
     const idx=deck.shift();deck.push(idx);stt(pi).kad++;
     const [text,fx]=(key==='peluang'?PELUANG:TABUNG)[idx];
     S.card={deck:key,text,id:Date.now()+Math.random()};S.msg=`${p.name} cabut kad ${s.n}.`;addLog(`${s.n}: ${text}`);sfx.card();renderAll();
-    await sleep(1100);await fx(p);return}
+    await sleep(1500);S.card=null;renderAll();await fx(p);return}
   if(s.t==='free'){S.msg=`${p.name} berehat di Parkir Percuma.`;return}
   if(s.t==='jail'){S.msg=`${p.name} sekadar melawat Lokap.`;return}
   if(s.t==='go'){S.msg=`${p.name} mendarat tepat di MULA.`}
