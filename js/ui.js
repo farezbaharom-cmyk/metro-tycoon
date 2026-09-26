@@ -12,7 +12,7 @@ document.getElementById('turn').addEventListener('click',e=>{const a=e.target.cl
   if(a==='again'){if(NET){if(NET.host)restartOnline();return}openSetup();return}
   if(a==='trade'){openTrade();return}
   if(!isActor())return;
-  const fn=({roll:rollDice,buy,pass,end:endTurn,bail:payBail,card:useCard,bankrupt})[a];
+  const fn=({roll:rollDice,buy,pass,end:endTurn,bail:payBail,card:useCard,bankrupt,along:alongPinjam,alongpay:alongBayar})[a];
   if(fn){actedTurn=true;try{fn()}finally{actedTurn=null}}});
 document.getElementById('props').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled)return;const d=b.dataset;
   if(d.focus!==undefined){

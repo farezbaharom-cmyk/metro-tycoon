@@ -186,7 +186,7 @@ const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(M
 /* ---------- statistik permainan ----------
    Dikumpul sepanjang permainan dalam S.st (ikut indeks pemain) supaya ikut
    disimpan dan diselaraskan online. Permainan lama tanpa S.st dilayan. */
-const newStat=c=>({sewaIn:0,sewaOut:0,lokap:0,mula:0,beli:0,bina:0,ganda:0,kad:0,rosak:0,lelong:0,tawar:0,min:c});
+const newStat=c=>({sewaIn:0,sewaOut:0,lokap:0,mula:0,beli:0,bina:0,ganda:0,kad:0,rosak:0,lelong:0,tawar:0,along:0,min:c});
 function stt(pi){if(!S.st)S.st=[];if(!S.st[pi])S.st[pi]=newStat(S.players[pi]?S.players[pi].cash:0);return S.st[pi]}
 /* ---------- misi ----------
    Sembilan misi kecil setiap permainan, sama untuk semua pemain. Setiap misi

@@ -131,4 +131,6 @@ function botRaise(p){
       const sa=SQ[a].t==='prop'&&hasSet(pi,SQ[a].g)?1:0,sb=SQ[b].t==='prop'&&hasSet(pi,SQ[b].g)?1:0;
       return sa-sb||SQ[a].p-SQ[b].p});                 /* set penuh digadai paling akhir */
     mortgage(mo[0]);return}
+  /* Sudah tiada apa untuk dijual — bot terdesak pinjam daripada Along sekali. */
+  if(canBorrow()){alongPinjam();return}
   bankrupt()}

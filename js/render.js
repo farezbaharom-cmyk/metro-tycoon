@@ -310,6 +310,14 @@ function portfolioHTML(mine,renderRow){
     </li>`;
   }).join('');
 }
+/* Jalur Along dalam panel giliran: tawaran pinjaman bila pemain kesempitan,
+   atau peringatan hutang (dengan butang bayar awal) bila sudah meminjam. */
+function alongStrip(p){
+  if(!S||S.phase==='over'||p.bot||p.bankrupt||!isActor()||(NET&&afkSeat===S.turn))return '';
+  if(p.along){const ok=p.cash>=p.along&&!busy&&!tradePending();
+    return `<div class="along-strip owe"><span class="al-ic" aria-hidden="true">🦈</span><span class="al-tx">Hutang Along <b>${fmt(p.along)}</b> · ditagih bila lalu MULA</span><button class="mini" type="button" data-a="alongpay" ${ok?'':'disabled'} title="${ok?'Bayar sekarang':'Tunai tak cukup untuk bayar awal'}">Bayar</button></div>`}
+  if(!canBorrow())return '';
+  return `<div class="along-strip"><span class="al-ic" aria-hidden="true">🦈</span><span class="al-tx">Kesempitan? Along pinjamkan <b>${fmt(ALONG_PINJAM)}</b>, bayar <b>${fmt(ALONG_BAYAR)}</b> bila lalu MULA.</span><button class="mini" type="button" data-a="along">Pinjam</button></div>`}
 function renderSide(){
   const p=cur();const t=document.getElementById('turn');
   let acts='',note='';const neg=p.cash<0;
@@ -348,13 +356,13 @@ function renderSide(){
   const guide=document.getElementById('turnGuide');
   if(guide&&guide.textContent!==turnGuidance())guide.textContent=turnGuidance();
   const tutorial=turnTutorialHTML();
-  t.innerHTML=`<div class="turnhead"><span class="avatar" style="background:${p.color};color:${p.color}"><span class="tdot av" style="color:${p.color}">${trainSVG(S.turn)}</span></span><div class="who"><small>${S.phase==='over'?'Permainan tamat':NET&&p.uid===UID?'Giliran anda':p.bot?'Giliran bot':'Giliran sekarang'}</small><b>${S.phase==='over'?'':'<span aria-hidden="true">🚇</span> '}${esc(p.name)}</b></div><span class="money" style="color:${neg?'var(--bad)':'inherit'}">${fmt(p.cash)}</span></div>${S.phase==='over'?'':'<div class="turn-route" aria-hidden="true"><i></i><i></i><i></i><span></span></div>'}${note}${tutorial||turnStageHTML()}${tutorial?'':`<p class="turn-guide">${esc(turnGuidance())}</p>`}<div class="actions">${acts}</div><div class="afkbar" id="afkClock" hidden></div><div class="note">${p.laps<S.qual?`Kelayakan membeli: ${p.laps}/${S.qual} pusingan. `:''}${S.fast?`<span class="fastnote">⚡ Mod cepat · ronde ${Math.min(S.round||1,S.fastRounds)}/${S.fastRounds}</span>`:S.endLaps?`Tamat apabila semua pemain lengkap ${S.endLaps} pusingan.`:'Tamat apabila hanya seorang pemain tidak muflis.'}</div>`+pstripHTML();
+  t.innerHTML=`<div class="turnhead"><span class="avatar" style="background:${p.color};color:${p.color}"><span class="tdot av" style="color:${p.color}">${trainSVG(S.turn)}</span></span><div class="who"><small>${S.phase==='over'?'Permainan tamat':NET&&p.uid===UID?'Giliran anda':p.bot?'Giliran bot':'Giliran sekarang'}</small><b>${S.phase==='over'?'':'<span aria-hidden="true">🚇</span> '}${esc(p.name)}</b></div><span class="money" style="color:${neg?'var(--bad)':'inherit'}">${fmt(p.cash)}</span></div>${S.phase==='over'?'':'<div class="turn-route" aria-hidden="true"><i></i><i></i><i></i><span></span></div>'}${note}${tutorial||turnStageHTML()}${tutorial?'':`<p class="turn-guide">${esc(turnGuidance())}</p>`}${alongStrip(p)}<div class="actions">${acts}</div><div class="afkbar" id="afkClock" hidden></div><div class="note">${p.laps<S.qual?`Kelayakan membeli: ${p.laps}/${S.qual} pusingan. `:''}${S.fast?`<span class="fastnote">⚡ Mod cepat · ronde ${Math.min(S.round||1,S.fastRounds)}/${S.fastRounds}</span>`:S.endLaps?`Tamat apabila semua pemain lengkap ${S.endLaps} pusingan.`:'Tamat apabila hanya seorang pemain tidak muflis.'}</div>`+pstripHTML();
   turnArrival();
   afkPaint();
   document.getElementById('players').innerHTML=S.players.map((q,k)=>{
     const sw=S.owner.map((o,i)=>o===k?`<i style="background:${SQ[i].t==='prop'?GROUPS[SQ[i].g].c:'var(--muted)'}"></i>`:'').join('');
     return `<li class="pl ${k===S.turn&&S.phase!=='over'?'cur':''} ${q.bankrupt?'out':''}" style="--player-color:${q.color}">${trainMark(k,q.color)}<span class="nmx">${NET?`<span class="live ${isOnline(q.uid)?'':'off'}" title="${isOnline(q.uid)?'Dalam talian':'Luar talian'}"></span> `:''}${esc(q.name)}${NET&&q.uid===UID?' <span class="chip ok">Anda</span>':''}</span><span class="money" style="${q.cash<0?'color:var(--bad)':''}"><small class="cash-label">Tunai</small>${fmt(q.cash)}</span>
-    <span class="meta">${k===S.turn&&S.phase!=='over'?'<span class="playing-label">● Sedang bermain</span>':''}${q.bot?`<span class="chip">Bot ${BOT_LEVELS[q.bot]}</span>`:''}${lapBar(q)}${q.bankrupt?'<span class="chip bad">Muflis</span>':S.qual&&q.laps>=S.qual?'<span class="chip ok">Boleh beli</span>':''}${q.inJail?'<span class="chip bad">Lokap</span>':''}${q.cards?`<span class="chip">Kad bebas ×${q.cards}</span>`:''}<span class="chip worth-label">Kekayaan bersih ${fmt(netWorth(q))}</span><span class="swatches">${sw}</span></span></li>`}).join('');
+    <span class="meta">${k===S.turn&&S.phase!=='over'?'<span class="playing-label">● Sedang bermain</span>':''}${q.bot?`<span class="chip">Bot ${BOT_LEVELS[q.bot]}</span>`:''}${lapBar(q)}${q.bankrupt?'<span class="chip bad">Muflis</span>':S.qual&&q.laps>=S.qual?'<span class="chip ok">Boleh beli</span>':''}${q.inJail?'<span class="chip bad">Lokap</span>':''}${q.cards?`<span class="chip">Kad bebas ×${q.cards}</span>`:''}${q.along&&!q.bankrupt?`<span class="chip bad" title="Ditagih bila lalu MULA">🦈 Hutang Along ${fmt(q.along)}</span>`:''}<span class="chip worth-label">Kekayaan bersih ${fmt(netWorth(q))}</span><span class="swatches">${sw}</span></span></li>`}).join('');
   /* Dalam bilik online, tunjukkan hartanah SENDIRI semasa menunggu giliran
      orang lain — barulah pemain boleh merancang, bukan memandang senarai lawan.
      Butang dikunci kerana bukan giliran kita. */

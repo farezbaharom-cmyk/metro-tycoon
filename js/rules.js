@@ -35,7 +35,7 @@ function skipTurn(p){p.skip=(p.skip||0)+1;stt(S.players.indexOf(p)).rosak++;S.ag
   const t=`${p.name} akan terlepas giliran seterusnya.`;addLog(t);S.msg=t}
 function repairs(p,h,ht){if(lapOne(p)){freeLap(p,'tak perlu bayar apa-apa');return}let c=0;S.owner.forEach((o,i)=>{if(o===S.players.indexOf(p)){const n=S.houses[i];c+=n===5?ht:n*h}});
   if(c>0)pay(p,c);else{S.msg=`${p.name} tiada bangunan. Tiada bayaran.`;addLog(S.msg)}}
-function netWorth(p){const pi=S.players.indexOf(p);let w=p.cash;
+function netWorth(p){const pi=S.players.indexOf(p);let w=p.cash-(p.along||0);
   S.owner.forEach((o,i)=>{if(o!==pi)return;const s=SQ[i];w+=S.mort[i]?s.p/2:s.p;if(s.t==='prop')w+=S.houses[i]*GROUPS[s.g].h});return w}
 
 /* ---------- ownership ---------- */
@@ -114,7 +114,8 @@ async function walk(p,steps){
   for(let k=0;k<steps;k++){const from=p.pos;p.pos=(p.pos+1)%40;
     if(k===steps-1)sayArrive(p.pos);
     if(p.pos===0){const gb=goBonus();p.cash+=gb;p.laps++;stt(k0).mula++;addLog(`${p.name} lalu MULA, kutip ${fmt(gb)} (pusingan ${p.laps}).`);sfx.coin();fxMoney(0,true);
-      if(S.qual&&p.laps===S.qual){toastAll(`${p.name} lengkap ${S.qual} pusingan — kini boleh membeli hartanah!`);addLog(`${p.name} kini layak membeli hartanah.`)}}
+      if(S.qual&&p.laps===S.qual){toastAll(`${p.name} lengkap ${S.qual} pusingan — kini boleh membeli hartanah!`);addLog(`${p.name} kini layak membeli hartanah.`)}
+      alongTagih(p)}
     sfx.step();renderBoard();renderSide();hop(k0,from,p.pos,k===steps-1);sync();await sleep(STEP_MS)}
 }
 async function walkBack(p,steps){const k0=S.players.indexOf(p);
@@ -394,8 +395,30 @@ function bankrupt(){const p=cur(),pi=S.turn;if(p.cash>=0)return;
   const to=p.creditor;
   S.owner.forEach((o,i)=>{if(o!==pi)return;S.houses[i]=0;if(to!==null&&!S.players[to].bankrupt){S.owner[i]=to}else{S.owner[i]=null;S.mort[i]=false}});
   if(to!==null)S.players[to].cash+=p.cash;
+  if(p.along){addLog(`Along gagal menagih ${fmt(p.along)} daripada ${p.name}. Hutang lesap.`);p.along=0}
   p.bankrupt=true;p.cash=0;addLog(`${p.name} isytihar muflis!${to!==null?' Hartanah diserahkan kepada '+S.players[to].name+'.':''}`);sfx.jail();sayAll('muflis',p.name);
   S.phase='end';S.again=false;endTurn()}
+/* ---------- Along (pinjaman berisiko) ----------
+   Pemain yang kesempitan (tunai bawah RM300, atau negatif) boleh pinjam RM300.
+   Hutang RM400 ditagih secara automatik bila pemain lalu MULA — ditolak terus
+   daripada tunai, termasuk pada pusingan pertama. Satu pinjaman sahaja pada
+   satu masa. Hutang ditolak daripada kekayaan bersih, dan lesap jika muflis. */
+const ALONG_PINJAM=300,ALONG_BAYAR=400;
+function canBorrow(){const p=cur();
+  return !!p&&!p.bankrupt&&!p.along&&p.cash<ALONG_PINJAM&&!busy&&!tradePending()
+    &&(p.cash<0||S.phase==='roll'||S.phase==='end')}
+function alongPinjam(){if(!canBorrow())return;const p=cur();
+  p.cash+=ALONG_PINJAM;p.along=ALONG_BAYAR;stt(S.turn).along=(stt(S.turn).along||0)+1;
+  const t=`🦈 ${p.name} pinjam ${fmt(ALONG_PINJAM)} daripada Along. Kena bayar ${fmt(ALONG_BAYAR)} bila lalu MULA!`;
+  S.msg=t;addLog(t);toastAll(t);sfx.coin();renderAll()}
+function alongBayar(){const p=cur();if(!p||!p.along||p.cash<p.along||busy||tradePending())return;
+  const a=p.along;p.cash-=a;p.along=0;
+  const t=`${p.name} langsaikan hutang Along (${fmt(a)}) awal. Selamat!`;S.msg=t;addLog(t);sfx.pay();renderAll()}
+function alongTagih(p){if(!p.along)return;const a=p.along;p.cash-=a;p.along=0;
+  if(p.cash<0)p.creditor=null;
+  const t=p.cash<0?`🦈 Along tunggu di MULA! ${p.name} bayar ${fmt(a)} dan kini berhutang ${fmt(-p.cash)}.`
+    :`🦈 Along tunggu di MULA! ${p.name} bayar ${fmt(a)}.`;
+  S.msg=t;addLog(t,'sewa');toastAll(t);sfx.pay()}
 function finish(){S.phase='over';renderAll();showEnd()}
 /* Lencana: hanya untuk pemain yang benar-benar menonjol — nilai tertinggi,
    melepasi had minimum, dan lebih tinggi daripada sekurang-kurangnya seorang

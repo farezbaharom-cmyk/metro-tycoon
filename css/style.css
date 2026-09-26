@@ -1272,3 +1272,11 @@ body:has(.overlay:not([hidden])) .bar{z-index:40}
 .achpop .at small{font-size:9.5px}
 .achpop .at b{font-size:clamp(14px,4.3vw,17px);letter-spacing:0;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .achpop .ar{font-size:14px;flex:none}
+/* Jalur Along dalam panel giliran */
+.along-strip{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:10px;font-size:13px;line-height:1.35;
+  background:color-mix(in srgb,#E8B400 12%,var(--panel));border:1px dashed color-mix(in srgb,#B98A00 55%,var(--rule))}
+.along-strip.owe{background:color-mix(in srgb,var(--bad) 10%,var(--panel));border:1px solid color-mix(in srgb,var(--bad) 45%,var(--rule))}
+.along-strip .al-ic{font-size:20px;line-height:1;flex:none}
+.along-strip .al-tx{flex:1;min-width:0}
+.along-strip .mini{flex:none;min-height:34px;padding:6px 14px;font-weight:800}
+@media (max-width:700px){.along-strip{font-size:12px;padding:6px 9px}}
