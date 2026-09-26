@@ -4,6 +4,8 @@
    susunan dalam index.html. Fungsi boleh dipanggil merentas fail, tetapi
    kod yang BERJALAN semasa muat hanya boleh guna apa yang sudah dimuatkan. */
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* Telefon: menegak (≤700px lebar) atau mendatar (rendah dan ≤1000px lebar). */
+const PHONE_Q='(max-width:700px),(max-width:1000px) and (max-height:520px) and (orientation:landscape)';
 const GROUPS=[
  {n:'Monorel KL',c:'#84BD00',h:50},{n:'KTM Komuter',c:'#1F5FAD',h:50},
  {n:'LRT Sri Petaling',c:'#8C1D40',h:100},{n:'LRT Ampang',c:'#EE7A00',h:100},
@@ -222,7 +224,12 @@ function achHook(){
   log.forEach(a=>{if(!seenAch.has(a.id)){seenAch.add(a.id);achQ.push(a)}});
   if(!achBusy)achNext()}
 function achNext(){
-  const a=achQ.shift();if(!a){achBusy=false;return}achBusy=true;
+  if(!achQ.length){achBusy=false;return}achBusy=true;
+  /* Tunggu tetingkap (kad stesen, lelongan, tawaran…) ditutup dahulu supaya pop
+     tidak menutupnya. Selepas permainan tamat, pop yang tertangguh dibuang. */
+  if(S&&S.phase==='over'){achQ.length=0;achBusy=false;return}
+  if(document.querySelector('.overlay:not([hidden])')){setTimeout(achNext,600);return}
+  const a=achQ.shift();
   const m=MISI.find(x=>x.id===a.m),q=S.players[a.k];if(!m||!q){achNext();return}
   const el=document.createElement('div');el.className='achpop';el.setAttribute('role','status');
   el.innerHTML=`<span class="ae">${m.e}</span><span class="at"><small>Misi selesai · ${esc(q.name)}</small><b>${esc(m.t)}</b></span><span class="ar money">+${fmt(m.r)}</span>`;

@@ -79,7 +79,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   .barmenu .ghost{border:0;border-radius:10px;text-align:left;padding:12px 14px;font-size:15px}
   .barmenu #btnFinish{margin-top:4px;border-top:1px solid var(--rule);border-radius:0 0 10px 10px}
 }
-@media (max-width:700px){
+@media (max-width:700px),(max-width:1000px) and (max-height:520px) and (orientation:landscape){
   body{padding-inline:8px;padding-top:10px}
   .bar{margin-bottom:10px;gap:8px}
   .brand{font-size:21px;gap:7px;white-space:nowrap}
@@ -155,7 +155,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   .sq .pr{font-size:max(7px,1.3cqi)}
 }
 /* Papan telefon: nama sahaja (harga & sewa ada dalam kad bila petak diketik). */
-@media (max-width:700px){
+@media (max-width:700px),(max-width:1000px) and (max-height:520px) and (orientation:landscape){
   .sq .pr{display:none}
   .sq .scode{display:none}
   .csub{display:none}
@@ -479,7 +479,7 @@ input,select{background:var(--board);color:var(--ink);border:1px solid var(--rul
 /* ---------- pandangan 3D ---------- */
 .bdrop{display:none}
 #btnView{display:inline-flex}
-@media (max-width:700px){#btnView{display:none}}
+@media (max-width:700px),(max-width:1000px) and (max-height:520px) and (orientation:landscape){#btnView{display:none}}
 .boardview{transition:transform .6s cubic-bezier(.3,.7,.3,1)}
 /* Papan condong mengambil ruang tegak lebih kurang 1.2× lebarnya (latar
    langit + papan), jadi saiz maksimum dikira semula supaya muat satu skrin. */
@@ -658,7 +658,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:60;width:100%;heigh
 .pids.on .lbl,.pids.on .nm{opacity:1}
 .pids.on .nm{text-shadow:0 0 7px rgba(255,178,0,.5)}
 .pids.on .dots{opacity:1}
-@media (max-width:700px){.pids{height:28px;font-size:10.5px;gap:8px;padding:0 9px;margin-bottom:5px}}
+@media (max-width:700px),(max-width:1000px) and (max-height:520px) and (orientation:landscape){.pids{height:28px;font-size:10.5px;gap:8px;padding:0 9px;margin-bottom:5px}}
 /* Berita pusingan: label merah dan teks menatal, terang walaupun rehat. */
 .pids.news .lbl{opacity:1;color:#FF6B6B;text-shadow:0 0 7px rgba(255,107,107,.5)}
 .pids.news .nm{opacity:1;text-overflow:clip}
@@ -765,7 +765,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:60;width:100%;heigh
 }
 /* Telefon: notis ringkas di atas skrin (bukan gelembung besar di tengah),
    bertingkat jika lebih daripada satu, dan tidak menghalang sentuhan. */
-@media (max-width:700px){
+@media (max-width:700px),(max-width:1000px) and (max-height:520px) and (orientation:landscape){
   .toast{top:calc(max(64px + env(safe-area-inset-top,0px),var(--tt,0px)) + var(--ti,0) * 50px);bottom:auto;
     border-radius:12px;padding:8px 14px;font-size:13.5px;line-height:1.3;width:max-content;
     max-width:calc(100% - 24px);pointer-events:none;animation:dn .25s ease-out;opacity:.97}
@@ -970,7 +970,7 @@ body{
 }
 .zoomctl button:hover:not(:disabled){transform:translateY(-1px)}
 .card{border-radius:16px;box-shadow:0 22px 55px rgba(0,0,0,.24)}
-@media (max-width:700px){
+@media (max-width:700px),(max-width:1000px) and (max-height:520px) and (orientation:landscape){
   body{background-attachment:scroll}
   .bar{padding:6px 8px;border-radius:13px}
   .boardview{border-radius:11px;box-shadow:0 14px 34px var(--board-glow)}
@@ -990,12 +990,12 @@ body{
 .bar .menubtn,.bar .roomchip{flex:none}
 /* Tajuk penuh mesti muat hingga telefon 320px: saiz ikut lebar skrin,
    dan jalur warna serta jarak dikecilkan pada skrin sempit. */
-@media (max-width:700px){.bar .brand{font-size:clamp(13px,4.5vw,21px);letter-spacing:0}}
+@media (max-width:700px),(max-width:1000px) and (max-height:520px) and (orientation:landscape){.bar .brand{font-size:clamp(13px,4.5vw,21px);letter-spacing:0}}
 @media (max-width:340px){.tapnote{font-size:11px}}
 @media (max-width:400px){.bar .brand{gap:5px}.bar .brand .lines{gap:2px}.bar .brand .lines i{width:3px;height:15px}}
 @media not all{.barmenu .ghost{white-space:nowrap}.bar .brand{flex:none}}
 /* 2. Satu arahan sahaja di bawah papan: telefon guna .tapnote (ada "cubit untuk zum"). */
-@media (max-width:700px){.board-help{display:none}}
+@media (max-width:700px),(max-width:1000px) and (max-height:520px) and (orientation:landscape){.board-help{display:none}}
 /* 3. Satu bingkai sahaja pada butang utama giliran anda. */
 #turn.your-turn .actions .primary:not(:disabled){outline:none}
 /* 8. Pemilikan lebih jelas: warna lebih pekat, bingkai lebih tebal dan
@@ -1020,7 +1020,7 @@ body{
 .sq.active-square{outline:3px solid var(--active-color);outline-offset:-3px}
 .sq.active-square .tok.me{filter:drop-shadow(0 0 3px currentColor)}
 .board-help{margin:6px 0;font-size:13px;color:var(--muted);text-align:center}
-@media(max-width:700px){
+@media (max-width:700px),(max-width:1000px) and (max-height:520px) and (orientation:landscape){
   #turn .who small{font-size:12px}
   #turn .who b{font-size:17px}
   #turn .turnhead>.money{font-size:18px}
@@ -1043,7 +1043,7 @@ body{
 .turn-feedback{font-size:13px;font-weight:800;margin:0;color:var(--accent)}
 #turn.turn-arrival .turnhead{animation:turn-arrival .45s ease-out}
 @keyframes turn-arrival{from{opacity:.4;transform:translateY(5px)}to{opacity:1;transform:none}}
-@media(max-width:700px){
+@media (max-width:700px),(max-width:1000px) and (max-height:520px) and (orientation:landscape){
  #turn .who{min-width:0} #turn .who b{overflow-wrap:anywhere}
  #turn .actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr))}
  #turn .actions .btn{width:100%;min-width:0}
@@ -1100,7 +1100,7 @@ body.tapped .tapnote,body.tapped .board-help{display:none}
 @media (prefers-reduced-motion:reduce){#turn.your-turn .actions .primary:not(:disabled){animation:none}}
 /* Telefon: petak Peluang dan Tabung cukup dengan ikon (! dan ?) dalam warna
    kad masing-masing — tiada lagi nama dipecah "Pe-luang" / "Ta-bung". */
-@media (max-width:700px){
+@media (max-width:700px),(max-width:1000px) and (max-height:520px) and (orientation:landscape){
   .sq.t-peluang .nm,.sq.t-tabung .nm{display:none!important}
   .sq.t-peluang .ic,.sq.t-tabung .ic{display:grid;place-items:center;width:max(15px,4.4cqi);height:max(15px,4.4cqi);
     border-radius:50%;color:#fff;font-size:max(11px,3.1cqi);line-height:1}
@@ -1122,7 +1122,7 @@ body.tapped .tapnote,body.tapped .board-help{display:none}
 .turn-route span{position:absolute;left:0;width:24%;height:3px;border-radius:3px;background:currentColor;box-shadow:0 0 8px currentColor;animation:turn-route-travel 2.8s ease-in-out infinite}
 @keyframes turn-route-travel{0%{left:0;opacity:.3}50%{opacity:1}100%{left:76%;opacity:.3}}
 .pl.cur{border-color:var(--player-color);box-shadow:inset 3px 0 0 var(--player-color),0 0 12px color-mix(in srgb,var(--player-color) 18%,transparent)}
-@media(max-width:700px){#turn .who b{font-size:16px}.turn-route{height:8px;margin-top:-2px;margin-bottom:-2px}}
+@media (max-width:700px),(max-width:1000px) and (max-height:520px) and (orientation:landscape){#turn .who b{font-size:16px}.turn-route{height:8px;margin-top:-2px;margin-bottom:-2px}}
 @media(prefers-reduced-motion:reduce){.turn-route span{animation:none;left:38%}}
 
 /* Player passes and station tickets */
@@ -1147,7 +1147,7 @@ body.tapped .tapnote,body.tapped .board-help{display:none}
 #deedBox .deedtable td{padding:12px 22px;font-size:14px}
 #deedBox .deedtable tr:nth-child(even):not(.hl) td{background:color-mix(in srgb,var(--soft) 45%,var(--panel))}
 #deedNote{border-top:2px dashed var(--rule);line-height:1.6;padding:16px 22px 20px}
-@media(max-width:700px){
+@media (max-width:700px),(max-width:1000px) and (max-height:520px) and (orientation:landscape){
   #deedBox .deedwrap{border-radius:22px 22px 0 0;padding-bottom:env(safe-area-inset-bottom,0px)}
   #deedBox .deedhead{padding:20px 18px}
   #deedBox .deedtable td{padding:11px 18px}
@@ -1171,7 +1171,7 @@ body.tapped .tapnote,body.tapped .board-help{display:none}
 #props .portfolio-stations .t{min-width:110px}
 #props .portfolio-stations .t b{white-space:normal;overflow-wrap:anywhere;line-height:1.3}
 #props .portfolio-stations .t small{display:block;margin-top:3px;line-height:1.4}
-@media(max-width:700px){#props{max-height:none}.portfolio-heading h4{font-size:15px}}
+@media (max-width:700px),(max-width:1000px) and (max-height:520px) and (orientation:landscape){#props{max-height:none}.portfolio-heading h4{font-size:15px}}
 
 /* Link each portfolio station to its square on the board. */
 #props .asset-link{display:flex;align-items:center;justify-content:space-between;gap:8px;
@@ -1224,7 +1224,7 @@ body.tapped .tapnote,body.tapped .board-help{display:none}
 /* Motif bingkai cukup besar supaya tetap terbaca sebagai tenunan pada telefon. */
 :root[data-skin="songket"] .board{border:12px solid var(--songket-gold);border-image:var(--songket-frame) 10 round;border-radius:0;background:color-mix(in srgb,var(--songket-gold) 22%,var(--rule))}
 :root[data-skin="songket"] .boardview{border-radius:4px;box-shadow:0 0 0 1px rgba(217,169,62,.35),0 22px 55px var(--board-glow)}
-@media (max-width:700px){:root[data-skin="songket"] .board{border-width:10px}}
+@media (max-width:700px),(max-width:1000px) and (max-height:520px) and (orientation:landscape){:root[data-skin="songket"] .board{border-width:10px}}
 /* Tengah papan: kisi songket di belakang logo, langit di bawahnya. */
 :root[data-skin="songket"] .center{background:var(--songket-lattice),radial-gradient(circle at 50% 30%,#2C1219,var(--center) 70%);background-size:9cqi 9cqi,auto}
 :root[data-skin="songket"] .logo h1{color:var(--ink)}
@@ -1237,7 +1237,7 @@ body.tapped .tapnote,body.tapped .board-help{display:none}
 :root[data-skin="songket"] .panel{border-color:color-mix(in srgb,var(--songket-gold) 30%,var(--rule))}
 :root[data-skin="songket"] #turn{border-color:color-mix(in srgb,var(--songket-gold) 55%,transparent);padding-top:22px}
 :root[data-skin="songket"] #turn::before{content:"";position:absolute;left:0;right:0;top:0;bottom:auto;width:auto;height:8px;box-shadow:none;background:var(--songket-band) repeat-x;background-size:24px 8px;transform:scaleY(-1);pointer-events:none;z-index:1}
-@media (max-width:700px){:root[data-skin="songket"] #turn{padding-top:18px}}
+@media (max-width:700px),(max-width:1000px) and (max-height:520px) and (orientation:landscape){:root[data-skin="songket"] #turn{padding-top:18px}}
 /* Butang utama: emas bertenun, bukan merah jambu. */
 :root[data-skin="songket"] .btn.primary{background:linear-gradient(180deg,#F2C860,#D29B32);color:#241008;box-shadow:0 3px 0 #8A5F16}
 :root[data-skin="songket"] .btn.primary:active{box-shadow:0 1px 0 #8A5F16}
@@ -1279,4 +1279,36 @@ body:has(.overlay:not([hidden])) .bar{z-index:40}
 .along-strip .al-ic{font-size:20px;line-height:1;flex:none}
 .along-strip .al-tx{flex:1;min-width:0}
 .along-strip .mini{flex:none;min-height:34px;padding:6px 14px;font-weight:800}
-@media (max-width:700px){.along-strip{font-size:12px;padding:6px 9px}}
+@media (max-width:700px),(max-width:1000px) and (max-height:520px) and (orientation:landscape){.along-strip{font-size:12px;padding:6px 9px}}
+/* ===================== Telefon mendatar ===================== */
+/* Semua peraturan telefon (max-width:700px) juga terpakai pada telefon mendatar,
+   kerana papannya sama kecil. Blok ini hanya menyusun semula panel ke kanan. */
+/* Dahulu panel giliran di bawah menutup hampir seluruh papan (skrin cuma
+   ~390px tinggi). Kini: papan di kiri, panel giliran dan tab di lajur kanan. */
+@media (max-width:1000px) and (max-height:520px) and (orientation:landscape){
+  :root{--side-w:min(340px,42vw)}
+  body{padding-right:calc(var(--side-w) + max(10px,env(safe-area-inset-right,0px)));padding-bottom:12px;padding-top:8px}
+  html{scroll-padding-bottom:12px}
+  .bar{margin-bottom:6px;padding-block:4px}
+  .tapnote{display:none}
+  .pids{margin-bottom:4px}
+  .zoomctl{margin-top:4px}
+  .zoomctl button{min-height:32px}
+  /* Tiada had minimum 340px di sini: papan mesti muat sepenuhnya dalam tinggi skrin. */
+  .boardwrap{--chrome:150px;max-width:min(100%,calc(100vh - var(--chrome)))}
+  @supports (height:100dvh){.boardwrap{max-width:min(100%,calc(100dvh - var(--chrome)))}}
+  #turn{top:0;left:auto;right:0;bottom:var(--tabbar-h,0px);width:var(--side-w);max-height:none;
+    border-radius:16px 0 0 0;border-right:0;box-shadow:-5px 0 24px rgba(0,0,0,.14);
+    padding-right:max(12px,env(safe-area-inset-right,0px))}
+  .tabbar{left:auto;width:var(--side-w);border-radius:0;border-left:1px solid var(--rule);
+    padding-right:max(8px,env(safe-area-inset-right,0px))}
+  .tabbar button{min-height:42px;flex-direction:row;gap:6px}
+  .tabbar button[aria-selected="true"]::before{top:-4px}
+  .toast{bottom:12px;left:calc((100vw - var(--side-w))/2)}
+  .bar .brand{font-size:clamp(13px,2.6vw,19px)}
+  /* Skrin utama: langit KL dipendekkan supaya butang main kelihatan tanpa skrol. */
+  .homesky{height:64px}
+  #setupHome .btn.big{min-height:0;padding-block:9px}
+  /* Tutorial dalam lajur sempit: langkah 1·2·3 di atas, teks di bawah. */
+  #turn .turn-tutorial{grid-template-columns:minmax(0,1fr);gap:6px}
+}

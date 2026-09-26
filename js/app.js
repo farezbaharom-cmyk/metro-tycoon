@@ -146,6 +146,17 @@ document.getElementById('missionToggle')?.addEventListener('click',()=>{
   }
   const mo=new MutationObserver(sync);
   overlays.forEach(o=>mo.observe(o,{attributes:true,attributeFilter:['hidden']}));
+  /* Tab dan Shift+Tab berpusing di dalam tetingkap paling atas, tidak keluar
+     ke bar alamat pelayar. */
+  document.addEventListener('keydown',e=>{
+    if(e.key!=='Tab'||!stack.length)return;
+    const m=stack[stack.length-1].querySelector('.modal');if(!m)return;
+    const f=[...m.querySelectorAll('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])')]
+      .filter(el=>!el.disabled&&el.getClientRects().length&&!el.closest('[hidden],[inert]'));
+    if(!f.length)return;
+    const first=f[0],last=f[f.length-1],a=document.activeElement;
+    if(e.shiftKey&&(a===first||a===m||!m.contains(a))){e.preventDefault();last.focus()}
+    else if(!e.shiftKey&&(a===last||!m.contains(a))){e.preventDefault();first.focus()}});
   document.addEventListener('keydown',e=>{
     if(e.key!=='Escape'||!stack.length)return;
     const top=stack[stack.length-1],pick=ESC[top.id],b=pick&&pick();

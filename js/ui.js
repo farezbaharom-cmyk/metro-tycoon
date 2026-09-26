@@ -220,7 +220,7 @@ document.getElementById('btnTheme').onclick=()=>{
    ia ikut condong secara automatik). Zum dimatikan dalam 3D. */
 let view3d=false;
 function applyView(){
-  const on=view3d&&!matchMedia('(max-width:700px)').matches;
+  const on=view3d&&!matchMedia(PHONE_Q).matches;
   document.body.classList.toggle('v3d',on);
   const b=document.getElementById('btnView');if(b)b.textContent='Pandangan: '+(view3d?'3D':'2D');
   const bd=document.getElementById('bdrop');if(bd&&on&&!bd.firstChild)bd.innerHTML=skylineSVG('skyd');
@@ -228,7 +228,7 @@ function applyView(){
   if(typeof queueTurnDock==='function')queueTurnDock()}
 document.getElementById('btnView').onclick=()=>{view3d=!view3d;
   try{localStorage.setItem('mtkl-view',view3d?'3d':'2d')}catch(e){}applyView()};
-matchMedia('(max-width:700px)').addEventListener('change',applyView);
+matchMedia(PHONE_Q).addEventListener('change',applyView);
 function setHapticLabel(){const b=document.getElementById('btnHaptic');if(!b)return;
   b.hidden=!('vibrate'in navigator)||!matchMedia('(pointer:coarse)').matches;
   b.textContent='Getaran: '+(haptic?'Hidup':'Senyap')}

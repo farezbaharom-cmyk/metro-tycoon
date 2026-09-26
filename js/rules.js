@@ -107,7 +107,7 @@ function canUnmort(i){return S.owner[i]===S.turn&&S.mort[i]&&cur().cash>=unmortC
 const nextOf=(pos,arr)=>arr.find(j=>j>pos)??arr[0];
 /* Satu lompatan sedikit lebih pendek daripada jeda langkah, supaya token
    sudah mendarat sebelum render seterusnya membina semula petak. */
-const STEP_MS=155, HOP_MS=140, PHONE_BOARD=matchMedia('(max-width:700px)');
+const STEP_MS=155, HOP_MS=140, PHONE_BOARD=matchMedia(PHONE_Q);
 async function walk(p,steps){
   const k0=S.players.indexOf(p);
   if(steps>0)sayNext((p.pos+steps)%40);
