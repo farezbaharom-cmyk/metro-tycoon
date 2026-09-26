@@ -116,7 +116,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   min-width:42px;height:38px;padding:0 14px;font-weight:800;font-size:17px;line-height:1}
 .zoomctl button:hover:not(:disabled){background:var(--soft)}
 .zoomctl button:disabled{opacity:.4;cursor:not-allowed}
-.zoomctl button[data-z="reset"]{font-size:13px;font-weight:700}
+.zoomctl button[data-z="reset"]{min-width:0;padding:0 10px;font-size:12px;font-weight:700;white-space:nowrap}
 .zlvl{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--muted);
   min-width:52px;text-align:center;font-variant-numeric:tabular-nums}
 .board{position:relative;aspect-ratio:1;max-width:100%;display:grid;grid-template-columns:1.55fr repeat(9,1fr) 1.55fr;grid-template-rows:1.55fr repeat(9,1fr) 1.55fr;background:var(--rule);gap:1px;border:2px solid var(--ink);border-radius:6px;overflow:hidden;box-shadow:var(--shadow)}
@@ -1147,8 +1147,10 @@ body.tapped .tapnote,body.tapped .board-help{display:none}
 @media(max-width:700px){#props{max-height:none}.portfolio-heading h4{font-size:15px}}
 
 /* Link each portfolio station to its square on the board. */
-#props .asset-link{display:inline-block;padding:3px 0;border:0;background:none;color:var(--ink);
-  font:700 13px/1.35 var(--body);text-align:left;cursor:pointer;overflow-wrap:anywhere}
+#props .asset-link{display:flex;align-items:center;justify-content:space-between;gap:8px;
+  width:100%;min-height:44px;box-sizing:border-box;padding:8px 6px;border:0;border-radius:6px;
+  background:none;color:var(--ink);font:700 13px/1.35 var(--body);text-align:left;
+  cursor:pointer;overflow-wrap:anywhere;touch-action:manipulation}
 #props .asset-link:hover{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
 #props .asset-link:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:3px}
 #props .asset-link span{font-size:12px;color:var(--muted)}
