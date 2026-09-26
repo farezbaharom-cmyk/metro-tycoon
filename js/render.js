@@ -249,6 +249,26 @@ function turnArrival(){
   el.classList.remove('turn-arrival');void el.offsetWidth;el.classList.add('turn-arrival');
   clearTimeout(uxTurnTimer);uxTurnTimer=setTimeout(()=>el.classList.remove('turn-arrival'),500);
 }
+/* Group only owned assets; totals describe the stations on this game board. */
+function portfolioGroups(mine){
+  const groups=GROUPS.map((g,k)=>({name:g.n,color:g.c,unit:'stesen',
+    all:SQ.map((s,i)=>s.t==='prop'&&s.g===k?i:-1).filter(i=>i>=0)}));
+  groups.push({name:'Hab transit',color:'var(--muted)',unit:'hab',all:HUBS},
+    {name:'Utiliti',color:'var(--muted)',unit:'utiliti',all:UTILS});
+  const owned=new Set(mine);
+  return groups.map(g=>({...g,owned:g.all.filter(i=>owned.has(i))})).filter(g=>g.owned.length);
+}
+function portfolioHTML(mine,renderRow){
+  return portfolioGroups(mine).map(g=>{
+    const complete=g.owned.length===g.all.length;
+    return `<li class="portfolio-group" style="--route-color:${g.color}">
+      <div class="portfolio-heading"><h4>${esc(g.name)}</h4>${complete?'<span class="portfolio-complete">✓ Lengkap</span>':''}</div>
+      <p class="portfolio-count">${g.owned.length}/${g.all.length} ${g.unit} dimiliki</p>
+      <div class="portfolio-progress" aria-hidden="true">${g.all.map(i=>`<span class="${g.owned.includes(i)?'owned':''}"></span>`).join('')}</div>
+      <ul class="portfolio-stations">${g.owned.map(renderRow).join('')}</ul>
+    </li>`;
+  }).join('');
+}
 function renderSide(){
   const p=cur();const t=document.getElementById('turn');
   let acts='',note='';const neg=p.cash<0;
@@ -302,11 +322,11 @@ function renderSide(){
     who===S.turn?`Hartanah ${p.name}`:'Hartanah anda';
   const mine=S.owner.map((o,i)=>o===who?i:-1).filter(i=>i>=0);
   const lock=busy||S.phase==='moving'||S.phase==='over'||tradePending()||!isActor()||who!==S.turn;
-  document.getElementById('props').innerHTML=mine.length?mine.map(i=>{const s=SQ[i];const col=s.t==='prop'?GROUPS[s.g].c:'var(--muted)';
+  document.getElementById('props').innerHTML=mine.length?portfolioHTML(mine,i=>{const s=SQ[i];const col=s.t==='prop'?GROUPS[s.g].c:'var(--muted)';
     const h=S.houses[i];const st=S.mort[i]?'Digadai':h===5?'Hotel':h?`${h} rumah`:(s.t==='prop'&&hasSet(who,s.g)?'Set penuh':'');
     const b=s.t==='prop'?`<button class="mini" type="button" data-b="${i}" ${lock||!canBuild(i)?'disabled':''} title="${cur().laps<1&&!S.fast?'Boleh bina selepas pusingan pertama':S.houses[i]>=buildLimit(i)?(buildLimit(i)===5?'Sudah hotel':'Tanpa set penuh: maks. 2 rumah'):'Bina ('+fmt(houseCost(i))+')'}">+🏠</button><button class="mini" type="button" data-s="${i}" ${lock||!canSell(i)?'disabled':''} title="Jual bangunan">−</button>`:'';
     const m=S.mort[i]?`<button class="mini" type="button" data-u="${i}" ${lock||!canUnmort(i)?'disabled':''} title="Tebus ${fmt(unmortCost(i))}">Tebus</button>`:`<button class="mini" type="button" data-m="${i}" ${lock||!canMort(i)?'disabled':''} title="Gadai +${fmt(s.p/2)}">Gadai</button>`;
-    return `<li class="pp"><span class="c" style="background:${col}"></span><span class="t"><b>${esc(s.n)}</b><small>Sewa ${fmt(rentOf(i))}${st?' · '+st:''}</small></span>${b}${m}</li>`}).join(''):`<li class="empty">${who===S.turn?'Belum ada hartanah. Mendarat di stesen untuk membeli.':'Anda belum memiliki hartanah.'}</li>`;
+    return `<li class="pp"><span class="c" style="background:${col}"></span><span class="t"><b>${esc(s.n)}</b><small>Sewa ${fmt(rentOf(i))}${st?' · '+st:''}</small></span>${b}${m}</li>`}):`<li class="empty">${who===S.turn?'Belum ada hartanah. Mendarat di stesen untuk membeli.':'Anda belum memiliki hartanah.'}</li>`;
   document.getElementById('log').innerHTML=S.log.slice(0,40).map(l=>{const[ic,tx]=logParts(l);
     return `<li><span class="lic" aria-hidden="true">${ic}</span><span>${esc(tx)}</span></li>`}).join('');
 }
