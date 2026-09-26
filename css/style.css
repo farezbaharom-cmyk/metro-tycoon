@@ -432,8 +432,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .hometitle{font-size:clamp(26px,8.6vw,34px)!important;letter-spacing:.01em;text-wrap:balance}
 .hometitle span{color:var(--accent)}
 #setupHome p{margin:0 0 4px}
-.btn.big small{font-size:.72em;font-weight:600;opacity:.7;margin-left:4px}
-.btn.big{padding:16px 18px;font-size:17px;border-radius:12px;width:100%;min-width:0}
+.btn.big small{display:block;font-size:12px;font-weight:600;opacity:.7;margin-top:3px}
+.btn.big{display:block;padding:13px 18px 12px;font-size:17px;border-radius:12px;width:100%;min-width:0;line-height:1.2}
 #setupHome .ghost{align-self:center;margin-top:2px}
 .ghost.back{align-self:flex-start;margin-bottom:2px}
 .modal p{margin:0;color:var(--muted)}
@@ -546,24 +546,23 @@ body.v3d .tok{filter:drop-shadow(0 3px 2px rgba(0,0,0,.45))}
   border-radius:9px;background:var(--panel);color:var(--ink);font:700 12px/1.2 var(--body);cursor:pointer}
 .mission-toggle:hover{background:var(--soft)}
 .mission-toggle[aria-expanded="true"]{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 55%,var(--rule))}
-/* Tutorial ringkas yang mengikuti satu giliran pertama pemain. */
-.turn-tutorial{position:absolute;z-index:12;left:50%;top:58px;transform:translateX(-50%);width:min(430px,calc(100% - 34px));
-  box-sizing:border-box;padding:12px 42px 12px 14px;border:1px solid color-mix(in srgb,var(--accent) 55%,var(--rule));
-  border-radius:13px;background:color-mix(in srgb,var(--panel) 94%,transparent);box-shadow:0 10px 28px rgba(0,0,0,.24);backdrop-filter:blur(8px)}
-.turn-tutorial[hidden]{display:none}
-.tutorial-close{position:absolute;right:8px;top:8px;width:30px;height:30px;border:0;border-radius:50%;background:var(--soft);
-  color:var(--muted);font:800 20px/1 var(--body);cursor:pointer}
-.tutorial-kicker{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:7px}
-.tutorial-steps{display:flex;gap:5px;margin-bottom:8px}
-.tutorial-steps span{flex:1;padding:4px 5px;border-radius:999px;background:var(--soft);color:var(--muted);font-size:10px;font-weight:700;text-align:center;white-space:nowrap}
-.tutorial-steps span.active{background:var(--accent);color:var(--accent-ink)}
-.tutorial-steps span.done{color:var(--good)}
-.tutorial-title{display:block;font-size:15px;margin-bottom:3px}
-.turn-tutorial p{margin:0;color:var(--muted);font-size:12.5px;line-height:1.35}
-@media (max-width:700px){
-  .turn-tutorial{top:67px;width:calc(100% - 20px);padding:10px 38px 10px 11px;border-radius:11px}
-  .tutorial-kicker{margin-bottom:5px}.tutorial-steps{margin-bottom:6px}.tutorial-steps span{font-size:9px;padding-inline:3px}
-  .tutorial-title{font-size:13.5px}.turn-tutorial p{font-size:11.5px}
+/* Tutorial padat duduk bersama tindakan, jadi tidak menutup mana-mana stesen. */
+.turn-tutorial{position:relative;display:grid;grid-template-columns:104px minmax(0,1fr);align-items:center;gap:10px;
+  box-sizing:border-box;padding:9px 34px 9px 10px;border:1px solid color-mix(in srgb,var(--accent) 50%,var(--rule));
+  border-radius:11px;background:color-mix(in srgb,var(--accent) 7%,var(--panel))}
+.tutorial-close{position:absolute;right:5px;top:5px;width:26px;height:26px;border:0;border-radius:50%;background:var(--soft);
+  color:var(--muted);font:800 18px/1 var(--body);cursor:pointer}
+.tutorial-steps{display:flex;align-items:flex-start;justify-content:center;gap:4px}
+.tutorial-steps span{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--muted);font-size:9px;font-weight:700;white-space:nowrap}
+.tutorial-steps span i{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--soft);font:800 10px/1 var(--mono);font-style:normal}
+.tutorial-steps span.active{color:var(--ink)}.tutorial-steps span.active i{background:var(--accent);color:var(--accent-ink)}
+.tutorial-steps span.done{color:var(--good)}.tutorial-steps span.done i{background:color-mix(in srgb,var(--good) 15%,var(--panel))}
+.tutorial-copy{min-width:0}.tutorial-title{display:block;font-size:13px;margin-bottom:2px}
+.turn-tutorial p{margin:0;color:var(--muted);font-size:11.5px;line-height:1.3}
+@media (max-width:430px){
+  .turn-tutorial{grid-template-columns:72px minmax(0,1fr);gap:7px;padding:8px 30px 8px 8px}
+  .tutorial-steps span small{display:none}.tutorial-steps span i{width:20px;height:20px}
+  .tutorial-title{font-size:12px}.turn-tutorial p{font-size:10.5px}
 }
 /* Popup misi selesai */
 .achpop{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:75;

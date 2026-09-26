@@ -241,12 +241,12 @@ function turnStageHTML(){
     '<span'+(i===active?' class="active" aria-current="step"':'')+'>'+label+'</span>').join('')+'</div>';
 }
 let tutorialGid=null,tutorialClosed=false;
-function renderTurnTutorial(){
-  const el=document.getElementById('turnTutorial');if(!el||!S)return;
+function turnTutorialHTML(){
+  if(!S)return '';
   if(tutorialGid!==S.gid){tutorialGid=S.gid;tutorialClosed=false}
   const seat=NET?mySeat():0,p=seat>=0?S.players[seat]:null;
   const active=!!(S.started&&p&&!p.bot&&!p.bankrupt&&S.turn===seat&&p.laps===0&&S.phase!=='over'&&!tutorialClosed);
-  if(!active){el.hidden=true;return}
+  if(!active)return '';
   const sq=SQ[p.pos],phase=S.phase;
   let step=phase==='roll'?0:phase==='moving'?1:2,title='',text='';
   if(phase==='roll'){
@@ -268,11 +268,13 @@ function renderTurnTutorial(){
     title=`Anda berada di ${sq.n}`;
     text=turnGuidance();
   }
-  const labels=['1 Baling','2 Bergerak','3 Tindakan'];
-  document.getElementById('tutorialSteps').innerHTML=labels.map((x,i)=>`<span class="${i===step?'active':i<step?'done':''}"${i===step?' aria-current="step"':''}>${i<step?'✓ ':''}${x}</span>`).join('');
-  document.getElementById('tutorialTitle').textContent=title;
-  document.getElementById('tutorialText').textContent=text;
-  el.hidden=false;
+  const labels=['Baling','Bergerak','Tindakan'];
+  const steps=labels.map((x,i)=>`<span class="${i===step?'active':i<step?'done':''}"${i===step?' aria-current="step"':''}><i>${i<step?'✓':i+1}</i><small>${x}</small></span>`).join('');
+  return `<aside class="turn-tutorial" id="turnTutorial" role="status" aria-live="polite">
+    <button class="tutorial-close" id="tutorialClose" type="button" aria-label="Tutup tutorial">×</button>
+    <div class="tutorial-steps" aria-label="Kemajuan tutorial">${steps}</div>
+    <div class="tutorial-copy"><b class="tutorial-title">${esc(title)}</b><p>${esc(text)}</p></div>
+  </aside>`;
 }
 let uxTurnKey=null,uxTurnTimer=0;
 function turnArrival(){
@@ -340,7 +342,8 @@ function renderSide(){
   t.classList.toggle('your-turn',S.phase!=='over'&&!p.bot&&isActor()&&!(NET&&afkSeat===S.turn));
   const guide=document.getElementById('turnGuide');
   if(guide&&guide.textContent!==turnGuidance())guide.textContent=turnGuidance();
-  t.innerHTML=`<div class="turnhead"><span class="avatar" style="background:${p.color};color:${p.color}"><span class="tdot av" style="color:${p.color}">${trainSVG(S.turn)}</span></span><div class="who"><small>${S.phase==='over'?'Permainan tamat':NET&&p.uid===UID?'Giliran anda':p.bot?'Giliran bot':'Giliran sekarang'}</small><b>${S.phase==='over'?'':'<span aria-hidden="true">🚇</span> '}${esc(p.name)}</b></div><span class="money" style="color:${neg?'var(--bad)':'inherit'}">${fmt(p.cash)}</span></div>${S.phase==='over'?'':'<div class="turn-route" aria-hidden="true"><i></i><i></i><i></i><span></span></div>'}${note}${turnStageHTML()}<p class="turn-guide">${esc(turnGuidance())}</p><div class="actions">${acts}</div><div class="afkbar" id="afkClock" hidden></div><div class="note">${p.laps<S.qual?`Kelayakan membeli: ${p.laps}/${S.qual} pusingan. `:''}${S.fast?`<span class="fastnote">⚡ Mod cepat · ronde ${Math.min(S.round||1,S.fastRounds)}/${S.fastRounds}</span>`:S.endLaps?`Tamat apabila semua pemain lengkap ${S.endLaps} pusingan.`:'Tamat apabila hanya seorang pemain tidak muflis.'}</div>`+pstripHTML();
+  const tutorial=turnTutorialHTML();
+  t.innerHTML=`<div class="turnhead"><span class="avatar" style="background:${p.color};color:${p.color}"><span class="tdot av" style="color:${p.color}">${trainSVG(S.turn)}</span></span><div class="who"><small>${S.phase==='over'?'Permainan tamat':NET&&p.uid===UID?'Giliran anda':p.bot?'Giliran bot':'Giliran sekarang'}</small><b>${S.phase==='over'?'':'<span aria-hidden="true">🚇</span> '}${esc(p.name)}</b></div><span class="money" style="color:${neg?'var(--bad)':'inherit'}">${fmt(p.cash)}</span></div>${S.phase==='over'?'':'<div class="turn-route" aria-hidden="true"><i></i><i></i><i></i><span></span></div>'}${note}${tutorial||turnStageHTML()}<p class="turn-guide">${esc(turnGuidance())}</p><div class="actions">${acts}</div><div class="afkbar" id="afkClock" hidden></div><div class="note">${p.laps<S.qual?`Kelayakan membeli: ${p.laps}/${S.qual} pusingan. `:''}${S.fast?`<span class="fastnote">⚡ Mod cepat · ronde ${Math.min(S.round||1,S.fastRounds)}/${S.fastRounds}</span>`:S.endLaps?`Tamat apabila semua pemain lengkap ${S.endLaps} pusingan.`:'Tamat apabila hanya seorang pemain tidak muflis.'}</div>`+pstripHTML();
   turnArrival();
   afkPaint();
   document.getElementById('players').innerHTML=S.players.map((q,k)=>{
@@ -605,7 +608,7 @@ async function keepAwake(){
       wakeLock.addEventListener('release',()=>{wakeLock=null})}
     else if(!want&&wakeLock){wakeLock.release();wakeLock=null}}catch(e){wakeLock=null}}
 document.addEventListener('visibilitychange',keepAwake);
-function renderAll(){trackMin();renderBoard();renderDice();renderSide();renderMissions();renderTurnTutorial();renderAuction();newsHook();achHook();moneyHook();ownHook();keepAwake();
+function renderAll(){trackMin();renderBoard();renderDice();renderSide();renderMissions();renderAuction();newsHook();achHook();moneyHook();ownHook();keepAwake();
   const t=S&&(S.trade||draft);
   /* Dalam bilik online, hanya dua pihak yang terlibat melihat tetingkap ini. */
   const forMe=t&&(!NET||t.stage==='build'||mySeat()===t.from||mySeat()===t.to);

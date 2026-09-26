@@ -26,8 +26,9 @@ window.addEventListener('resize',queueTurnDock);
 queueTurnDock();
 
 /* Bantuan giliran pertama dan senarai misi padat. */
-document.getElementById('tutorialClose')?.addEventListener('click',()=>{
-  tutorialClosed=true;document.getElementById('turnTutorial').hidden=true});
+turnDock.addEventListener('click',e=>{
+  if(!e.target.closest('#tutorialClose'))return;
+  tutorialClosed=true;renderSide()});
 document.getElementById('missionToggle')?.addEventListener('click',()=>{
   missionsExpanded=!missionsExpanded;renderMissions()});
 
