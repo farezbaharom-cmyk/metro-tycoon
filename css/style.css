@@ -1080,3 +1080,20 @@ body.tapped .tapnote,body.tapped .board-help{display:none}
   .sq.t-peluang .ic{background:#EE7A00}
   .sq.t-tabung .ic{background:#1F5FAD}
 }
+
+/* Active player's illuminated station panel. */
+#turn.turn-active{
+  border-color:var(--turn-color);
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--turn-color) 28%,transparent),
+    0 0 24px color-mix(in srgb,var(--turn-color) 22%,transparent),0 12px 28px rgba(20,32,42,.12);
+}
+#turn.turn-active::before{background:var(--turn-color);box-shadow:0 0 14px var(--turn-color)}
+#turn .who b{white-space:normal;overflow-wrap:anywhere;line-height:1.2}
+.turn-route{position:relative;display:flex;justify-content:space-between;align-items:center;height:10px;margin:0 3px;color:var(--turn-color);flex-shrink:0}
+.turn-route::before{content:"";position:absolute;left:0;right:0;height:3px;background:currentColor;opacity:.3}
+.turn-route i{width:8px;height:8px;border:2px solid currentColor;border-radius:50%;background:var(--panel);z-index:1}
+.turn-route span{position:absolute;left:0;width:24%;height:3px;border-radius:3px;background:currentColor;box-shadow:0 0 8px currentColor;animation:turn-route-travel 2.8s ease-in-out infinite}
+@keyframes turn-route-travel{0%{left:0;opacity:.3}50%{opacity:1}100%{left:76%;opacity:.3}}
+.pl.cur{border-color:var(--player-color);box-shadow:inset 3px 0 0 var(--player-color),0 0 12px color-mix(in srgb,var(--player-color) 18%,transparent)}
+@media(max-width:700px){#turn .who b{font-size:16px}.turn-route{height:8px;margin-top:-2px;margin-bottom:-2px}}
+@media(prefers-reduced-motion:reduce){.turn-route span{animation:none;left:38%}}
