@@ -140,9 +140,11 @@ document.getElementById('btnRules').onclick=()=>document.getElementById('rulesBo
 document.getElementById('btnRulesClose').onclick=()=>document.getElementById('rulesBox').hidden=true;
 /* Tema: Auto mengikut tetapan peranti, atau paksa Terang/Gelap. CSS sudah
    menyokong [data-theme] sejak awal — ini cuma memberinya suis. */
-const THEMES=['auto','light','dark'],THEME_LABEL={auto:'Auto',light:'Terang',dark:'Gelap'};
+/* Songket ialah tema gelap berhias: ia memakai data-theme="dark" (semua gaya
+   gelap terpakai) dan data-skin="songket" untuk warna emas-merah hati. */
+const THEMES=['auto','light','dark','songket'],THEME_LABEL={auto:'Auto',light:'Terang',dark:'Gelap',songket:'Songket'};
 let theme='auto';
-const darkNow=()=>theme==='dark'||(theme==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);
+const darkNow=()=>theme==='dark'||theme==='songket'||(theme==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);
 /* Langit ikut jam tempatan: subuh, siang, senja, malam. Setiap fasa ada
    palet cerah dan gelap, supaya teks di tengah papan kekal mudah dibaca
    dalam kedua-dua tema. Hanya pemboleh ubah langit ditukar. */
@@ -156,25 +158,32 @@ const SKY={
   dawn:['#3B2F4B','#8C5B6C','#FFB36B','rgba(255,160,90,.25)','#302B42','#27233B','#1D1A2E','#352F4A','#FFD27A',.5,.35,'#2B2640',26],
   day:['#1F3A55','#2F6B93','#FFD27A','rgba(255,196,90,.22)','#2A4258','#233A50','#1A2E40','#2D4861','#9FC3DD',.25,0,'#2E4A62',0],
   dusk:['#4A2F3F','#B35A40','#FF8A4C','rgba(255,120,60,.28)','#36263B','#2B1F31','#1F1625','#3B2B42','#FFD27A',.8,.3,'#33243A',30],
-  night:['#1A2C44','#07111D','#F4F1DE','rgba(244,241,222,.18)','#1C2C3D','#16283A','#0F1C28','#243A50','#FFD27A',.85,.9,'#2E4254',0]}};
+  night:['#1A2C44','#07111D','#F4F1DE','rgba(244,241,222,.18)','#1C2C3D','#16283A','#0F1C28','#243A50','#FFD27A',.85,.9,'#2E4254',0]},
+ /* Songket: langit merah hati dan bangunan gelap dengan tingkap emas. */
+ songket:{
+  dawn:['#4A1A2A','#9A4A3A','#F2C35B','rgba(242,195,91,.28)','#3A1522','#2E101B','#220B14','#44192A','#F2C35B',.6,.3,'#3A1522',26],
+  day:['#5C1E31','#A0523C','#F2C35B','rgba(242,195,91,.3)','#43182A','#361322','#290E1A','#4E1C30','#F2C35B',.45,0,'#43182A',0],
+  dusk:['#5A1A2C','#C0623A','#FF9A4C','rgba(255,150,70,.3)','#3F1626','#32111E','#250C16','#48192C','#F2C35B',.8,.3,'#3F1626',30],
+  night:['#3A0F1E','#12050A','#F4E3B0','rgba(244,227,176,.2)','#2E0E1A','#240B15','#1A0710','#3A1424','#F2C35B',.9,.9,'#2E0E1A',0]}};
 const SKY_VARS=['--sky-a','--sky-b','--orb','--orb-glow','--bld-back','--bld-mid','--bld-front','--landmark','--win','--win-op','--star-op','--track'];
 function skyPhase(d){const m=d.getHours()*60+d.getMinutes();
   /* Matahari KL terbit ±7:10 dan terbenam ±19:20 sepanjang tahun. */
   return m>=375&&m<465?'dawn':m>=465&&m<1125?'day':m>=1125&&m<1200?'dusk':'night'}
 function applySky(){
-  const r=document.documentElement,ph=skyPhase(new Date()),pal=SKY[darkNow()?'dark':'light'][ph];
+  const r=document.documentElement,ph=skyPhase(new Date()),pal=SKY[theme==='songket'?'songket':darkNow()?'dark':'light'][ph];
   SKY_VARS.forEach((v,k)=>r.style.setProperty(v,String(pal[k])));
   r.style.setProperty('--orb-y',pal[12]+'px');r.dataset.sky=ph}
 setInterval(applySky,60000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')applySky()});
 function applyTheme(){
   const r=document.documentElement;
-  theme==='auto'?r.removeAttribute('data-theme'):r.setAttribute('data-theme',theme);
+  theme==='auto'?r.removeAttribute('data-theme'):r.setAttribute('data-theme',theme==='songket'?'dark':theme);
+  theme==='songket'?r.setAttribute('data-skin','songket'):r.removeAttribute('data-skin');
   const btn=document.getElementById('btnTheme');
   if(btn)btn.textContent='Tema: '+THEME_LABEL[theme];
   /* Warna bar pelayar pada telefon mesti ikut tema yang dipaksa, bukan tetapan sistem. */
   const m=document.getElementById('metaTheme');
-  if(m)m.setAttribute('content',darkNow()?'#0A1016':'#E3E9EC');
+  if(m)m.setAttribute('content',theme==='songket'?'#14060B':darkNow()?'#0A1016':'#E3E9EC');
   applySky();
 }
 function setSoundLabel(){const b=document.getElementById('btnSound');

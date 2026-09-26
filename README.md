@@ -42,6 +42,7 @@ Peraturan penuh ada dalam permainan, di **⚙️ Menu → Peraturan**.
 - 🤖 **Bot dua tahap**, Mudah dan Sederhana.
 - ⏱️ **Had masa giliran** dalam bilik online (30, 60 atau 90 saat, atau tiada had). Jika pemain tidak bertindak atau terputus talian, bot mengambil alih giliran itu secara automatik.
 - 👀 **Mod penonton**: kawan yang masuk selepas permainan bermula, atau bila bilik penuh, boleh menonton secara langsung.
+- 🧵 **Tema Songket:** selain Auto, Terang dan Gelap, pilih **⚙️ Menu → Tema: Songket** untuk papan berbingkai tenunan emas atas merah hati.
 - 🌃 **Langit KL** di tengah papan (Menara Berkembar, KL Tower, Merdeka 118). Ia ikut jam tempatan: subuh, siang, senja dan malam, dengan palet berbeza untuk tema cerah dan gelap.
 - 🏛️ **Petak sudut bertema KL:** Stesen Kuala Lumpur (Mula), Penjara Pudu (Lokap), Dataran Merdeka (Parkir Percuma) dan sekatan jalan raya (Pergi ke Lokap).
 - 📲 **Boleh dipasang macam app** di skrin utama telefon, dan mod satu peranti boleh dimain tanpa internet.

@@ -1164,3 +1164,61 @@ body.tapped .tapnote,body.tapped .board-help{display:none}
   animation:asset-ping .8s ease-out 2}
 @keyframes asset-ping{0%,100%{filter:brightness(1)}50%{filter:brightness(1.45)}}
 @media(prefers-reduced-motion:reduce){.sq.asset-focus{animation:none}}
+
+/* ===================== Tema Songket ===================== */
+/* Tema gelap berhias: tenunan emas atas merah hati. Corak hanya pada bingkai
+   papan, bar atas dan panel giliran; petak stesen kekal polos supaya nama
+   stesen dan warna laluan mudah dibaca. Tiada fail imej: semua corak ialah
+   SVG kecil dalam data URI. */
+:root[data-theme][data-skin="songket"]{
+  --ground:#14060B; --board:#231118; --center:#1B0A10; --panel:#211017;
+  --ink:#F6EAD3; --muted:#C4A585; --rule:#4C2A30; --soft:#301A21;
+  --accent:#E3B04B; --accent-ink:#1B0A0F; --good:#5CCB8C; --bad:#FF7A6B;
+  --shadow:0 1px 0 rgba(0,0,0,.35),0 10px 30px rgba(0,0,0,.5);
+  --panel-glow:rgba(243,210,122,.06); --board-glow:rgba(0,0,0,.55);
+  --songket-gold:#D9A93E; --songket-hi:#F4D27A; --songket-bg:#4A0C1E;
+  /* Jalur tenunan: pucuk rebung (segi tiga) dengan bunga wajik di tengah. */
+  --songket-band:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='8'%3E%3Crect width='24' height='8' fill='%234A0C1E'/%3E%3Cpath d='M0 8 6 1l6 7zM12 8l6-7 6 7z' fill='%23D9A93E'/%3E%3Cpath d='M3 8l3-3.5L9 8zM15 8l3-3.5L21 8z' fill='%234A0C1E'/%3E%3Cpath d='M12 1.2l1.6 2.3L12 5.8l-1.6-2.3z' fill='%23F4D27A'/%3E%3C/svg%3E");
+  /* Bingkai papan: rantai wajik emas dengan garis tepi, bunga di setiap sudut. */
+  --songket-frame:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30'%3E%3Crect width='30' height='30' fill='%234A0C1E'/%3E%3Cpath d='M.75.75h28.5v28.5H.75zM9.25 9.25h11.5v11.5H9.25z' fill='none' stroke='%23D9A93E' stroke-width='1.5'/%3E%3Cpath d='M15 1.8 18.2 5 15 8.2 11.8 5zM15 21.8l3.2 3.2-3.2 3.2-3.2-3.2zM5 11.8 8.2 15 5 18.2 1.8 15zM25 11.8l3.2 3.2-3.2 3.2-3.2-3.2z' fill='%23D9A93E'/%3E%3Cpath d='M15 3.6 16.4 5 15 6.4 13.6 5zM15 23.6l1.4 1.4-1.4 1.4-1.4-1.4zM5 13.6 6.4 15 5 16.4 3.6 15zM25 13.6l1.4 1.4-1.4 1.4-1.4-1.4z' fill='%234A0C1E'/%3E%3Cg fill='%23F4D27A'%3E%3Cpath d='M5 2 8 5 5 8 2 5zM25 2l3 3-3 3-3-3zM5 22l3 3-3 3-3-3zM25 22l3 3-3 3-3-3z'/%3E%3C/g%3E%3C/svg%3E");
+  /* Latar: kisi wajik emas yang sangat pudar, macam tenunan tabur. */
+  --songket-lattice:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36'%3E%3Cpath d='M18 2 34 18 18 34 2 18z' fill='none' stroke='%23D9A93E' stroke-opacity='.10' stroke-width='1'/%3E%3Cpath d='M18 14.5l3.5 3.5-3.5 3.5-3.5-3.5z' fill='%23D9A93E' fill-opacity='.14'/%3E%3Ccircle cx='0' cy='0' r='1.4' fill='%23D9A93E' fill-opacity='.16'/%3E%3Ccircle cx='36' cy='0' r='1.4' fill='%23D9A93E' fill-opacity='.16'/%3E%3Ccircle cx='0' cy='36' r='1.4' fill='%23D9A93E' fill-opacity='.16'/%3E%3Ccircle cx='36' cy='36' r='1.4' fill='%23D9A93E' fill-opacity='.16'/%3E%3C/svg%3E");
+  color-scheme:dark;
+}
+:root[data-skin="songket"] body{
+  background:
+    radial-gradient(circle at 15% 6%,rgba(217,169,62,.14),transparent 28rem),
+    radial-gradient(circle at 85% 20%,rgba(160,30,60,.28),transparent 32rem),
+    var(--songket-lattice),
+    linear-gradient(180deg,#1E0911,var(--ground));
+  background-attachment:fixed;
+}
+/* Bar atas: jalur pucuk rebung di bawahnya. */
+:root[data-skin="songket"] .bar{border-color:color-mix(in srgb,var(--songket-gold) 45%,transparent);padding-bottom:14px}
+:root[data-skin="songket"] .bar::after{content:"";position:absolute;left:1px;right:1px;bottom:1px;height:8px;border-radius:0 0 14px 14px;background:var(--songket-band) repeat-x;background-size:24px 8px;pointer-events:none}
+:root[data-skin="songket"] .bar .barmenu{z-index:60}
+:root[data-skin="songket"] .brand{color:var(--songket-hi);text-shadow:0 1px 0 #000,0 0 18px rgba(217,169,62,.25)}
+/* Bingkai papan tenunan. Sudut bulat tidak sepadan dengan border-image. */
+:root[data-skin="songket"] .board{border:8px solid var(--songket-gold);border-image:var(--songket-frame) 10 round;border-radius:0;background:color-mix(in srgb,var(--songket-gold) 22%,var(--rule))}
+:root[data-skin="songket"] .boardview{border-radius:4px;box-shadow:0 0 0 1px rgba(217,169,62,.35),0 22px 55px var(--board-glow)}
+@media (max-width:700px){:root[data-skin="songket"] .board{border-width:6px}}
+/* Tengah papan: kisi songket di belakang logo, langit di bawahnya. */
+:root[data-skin="songket"] .center{background:var(--songket-lattice),radial-gradient(circle at 50% 30%,#2C1219,var(--center) 70%);background-size:9cqi 9cqi,auto}
+:root[data-skin="songket"] .logo h1{color:var(--ink)}
+:root[data-skin="songket"] .logo h1 span{color:var(--songket-hi)}
+:root[data-skin="songket"] .logo p{color:var(--songket-gold)}
+:root[data-skin="songket"] .sky .tbody{fill:#C8912E}:root[data-skin="songket"] .sky .tnose{fill:#9A6A1C}
+/* Petak stesen polos; sudut petak (Mula, Lokap, Parkir) diberi sentuhan emas. */
+:root[data-skin="songket"] .sq.corner{background:linear-gradient(160deg,#2E151D,var(--board))}
+/* Panel giliran: jalur tenunan di atas dan bingkai emas nipis. */
+:root[data-skin="songket"] .panel{border-color:color-mix(in srgb,var(--songket-gold) 30%,var(--rule))}
+:root[data-skin="songket"] #turn{border-color:color-mix(in srgb,var(--songket-gold) 55%,transparent);padding-top:22px}
+:root[data-skin="songket"] #turn::before{content:"";position:absolute;left:0;right:0;top:0;bottom:auto;width:auto;height:8px;box-shadow:none;background:var(--songket-band) repeat-x;background-size:24px 8px;transform:scaleY(-1);pointer-events:none;z-index:1}
+@media (max-width:700px){:root[data-skin="songket"] #turn{padding-top:18px}}
+/* Butang utama: emas bertenun, bukan merah jambu. */
+:root[data-skin="songket"] .btn.primary{background:linear-gradient(180deg,#F2C860,#D29B32);color:#241008;box-shadow:0 3px 0 #8A5F16}
+:root[data-skin="songket"] .btn.primary:active{box-shadow:0 1px 0 #8A5F16}
+:root[data-skin="songket"] .pids{border-color:rgba(217,169,62,.35)}
+/* Jalur warna laluan: garis emas nipis supaya warna gelap (LRT Sri Petaling,
+   ERL) tidak tenggelam dalam latar merah hati. */
+:root[data-skin="songket"] .stripe{box-shadow:inset 0 0 0 1px rgba(244,210,122,.6);filter:brightness(1.18) saturate(1.1)}
