@@ -85,7 +85,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   .brand{font-size:21px;gap:7px;white-space:nowrap}
   .brand .lines i{width:4px;height:19px}
   .roomchip{padding:8px 10px}
-  .tapnote{display:block;text-align:center;font-size:12px;color:var(--muted);margin-top:6px}
+  /* Di atas papan, bukan di bawah — panel giliran di bawah skrin menutupnya. */
+  .tapnote{display:block;text-align:center;font-size:12px;line-height:1.35;color:var(--muted);margin:0 0 6px}
 }
 /* Telefon kecil (≤380px): kecilkan jenama supaya butang Menu tidak terkeluar. */
 @media (max-width:380px){
@@ -965,7 +966,11 @@ body{
 /* 1. Butang ⚙️ Menu kekal di dalam bar: jenama boleh mengecil, butang tidak. */
 .bar .brand{min-width:0;flex:1 1 auto;white-space:nowrap;overflow:hidden}
 .bar .menubtn,.bar .roomchip{flex:none}
-@media (max-width:700px){.bar .brand{font-size:clamp(16px,5.1vw,21px)}}
+/* Tajuk penuh mesti muat hingga telefon 320px: saiz ikut lebar skrin,
+   dan jalur warna serta jarak dikecilkan pada skrin sempit. */
+@media (max-width:700px){.bar .brand{font-size:clamp(13px,4.5vw,21px);letter-spacing:0}}
+@media (max-width:340px){.tapnote{font-size:11px}}
+@media (max-width:400px){.bar .brand{gap:5px}.bar .brand .lines{gap:2px}.bar .brand .lines i{width:3px;height:15px}}
 @media not all{.barmenu .ghost{white-space:nowrap}.bar .brand{flex:none}}
 /* 2. Satu arahan sahaja di bawah papan: telefon guna .tapnote (ada "cubit untuk zum"). */
 @media (max-width:700px){.board-help{display:none}}

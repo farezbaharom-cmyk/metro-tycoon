@@ -295,6 +295,8 @@ function loadSave(){
   try{
     const s=JSON.parse(localStorage.getItem('mtkl-save')||'null');
     if(!validState(s)||s.phase==='over')return null;
+    /* Simpanan lama mungkin ada tunai separuh ringgit (sewa hab dahulu tidak dibundarkan). */
+    s.players.forEach(p=>{p.cash=Math.round(p.cash)});
     /* Fail lama tidak menyimpan destinasi/baki langkah. Jangan ulang land()
        atau kesan kad: wang atau ganjaran mungkin telah diterima. */
     if(s.phase==='moving'){

@@ -84,7 +84,7 @@ function rentOf(i,opts={}){
   const s=SQ[i],o=S.owner[i];if(o===null||S.mort[i])return 0;
   const e=ev();
   if(s.t==='prop'){const h=S.houses[i];return Math.round((h?s.r[h]:s.r[0]*(hasSet(o,s.g)?2:1))*evMul(s.g))}
-  if(s.t==='hub'){const n=HUBS.filter(j=>S.owner[j]===o).length;return 25*2**(n-1)*(opts.mult||1)*(e&&e.hub||1)}
+  if(s.t==='hub'){const n=HUBS.filter(j=>S.owner[j]===o).length;return Math.round(25*2**(n-1)*(opts.mult||1)*(e&&e.hub||1))}
   if(s.t==='util'){const d=opts.roll||(S.dice[0]+S.dice[1]);const n=UTILS.filter(j=>S.owner[j]===o).length;return d*(opts.util10?10:(n===2?10:4))*(e&&e.util||1)}
   return 0}
 /* Boleh bina di mana-mana stesen sendiri — set penuh tidak diperlukan. */
