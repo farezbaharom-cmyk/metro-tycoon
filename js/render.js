@@ -157,11 +157,16 @@ function renderBoard(){
   else if(!S.card&&cs.dataset.k&&!cs.dataset.deed){cs.innerHTML='';delete cs.dataset.k}
 }
 function closeDeed(){document.getElementById('deedBox').hidden=true}
+/* Warna laluan cerah (Monorel, MRT Putrajaya, LRT Ampang) perlukan tulisan
+   gelap; tulisan putih di atasnya susah dibaca. */
+function lightBg(hex){const n=parseInt(hex.slice(1),16),c=[n>>16,n>>8&255,n&255].map(v=>{v/=255;return v<=.03928?v/12.92:((v+.055)/1.055)**2.4});
+  return .2126*c[0]+.7152*c[1]+.0722*c[2]>.28}
 function showDeed(i){
   const s=SQ[i],o=S.owner[i],own=buyable(i);
   const head=s.t==='prop'?GROUPS[s.g].c:s.t==='hub'?'#2B3A47':s.t==='util'?'#3C6E71':'#2B3A47';
   const sub=s.t==='prop'?GROUPS[s.g].n:s.t==='hub'?'Hab pertukaran':s.t==='util'?'Utiliti':'Petak khas';
   document.getElementById('deedHead').style.background=head;
+  document.getElementById('deedHead').classList.toggle('on-light',lightBg(head));
   document.getElementById('deedName').textContent=s.n;
   document.getElementById('deedSub').textContent=sub+(s.p?' · '+fmt(s.p):'');
   const dc=document.getElementById('deedCode');dc.hidden=!CODE[i];dc.textContent=CODE[i]||'';
@@ -343,7 +348,7 @@ function renderSide(){
   const guide=document.getElementById('turnGuide');
   if(guide&&guide.textContent!==turnGuidance())guide.textContent=turnGuidance();
   const tutorial=turnTutorialHTML();
-  t.innerHTML=`<div class="turnhead"><span class="avatar" style="background:${p.color};color:${p.color}"><span class="tdot av" style="color:${p.color}">${trainSVG(S.turn)}</span></span><div class="who"><small>${S.phase==='over'?'Permainan tamat':NET&&p.uid===UID?'Giliran anda':p.bot?'Giliran bot':'Giliran sekarang'}</small><b>${S.phase==='over'?'':'<span aria-hidden="true">🚇</span> '}${esc(p.name)}</b></div><span class="money" style="color:${neg?'var(--bad)':'inherit'}">${fmt(p.cash)}</span></div>${S.phase==='over'?'':'<div class="turn-route" aria-hidden="true"><i></i><i></i><i></i><span></span></div>'}${note}${tutorial||turnStageHTML()}<p class="turn-guide">${esc(turnGuidance())}</p><div class="actions">${acts}</div><div class="afkbar" id="afkClock" hidden></div><div class="note">${p.laps<S.qual?`Kelayakan membeli: ${p.laps}/${S.qual} pusingan. `:''}${S.fast?`<span class="fastnote">⚡ Mod cepat · ronde ${Math.min(S.round||1,S.fastRounds)}/${S.fastRounds}</span>`:S.endLaps?`Tamat apabila semua pemain lengkap ${S.endLaps} pusingan.`:'Tamat apabila hanya seorang pemain tidak muflis.'}</div>`+pstripHTML();
+  t.innerHTML=`<div class="turnhead"><span class="avatar" style="background:${p.color};color:${p.color}"><span class="tdot av" style="color:${p.color}">${trainSVG(S.turn)}</span></span><div class="who"><small>${S.phase==='over'?'Permainan tamat':NET&&p.uid===UID?'Giliran anda':p.bot?'Giliran bot':'Giliran sekarang'}</small><b>${S.phase==='over'?'':'<span aria-hidden="true">🚇</span> '}${esc(p.name)}</b></div><span class="money" style="color:${neg?'var(--bad)':'inherit'}">${fmt(p.cash)}</span></div>${S.phase==='over'?'':'<div class="turn-route" aria-hidden="true"><i></i><i></i><i></i><span></span></div>'}${note}${tutorial||turnStageHTML()}${tutorial?'':`<p class="turn-guide">${esc(turnGuidance())}</p>`}<div class="actions">${acts}</div><div class="afkbar" id="afkClock" hidden></div><div class="note">${p.laps<S.qual?`Kelayakan membeli: ${p.laps}/${S.qual} pusingan. `:''}${S.fast?`<span class="fastnote">⚡ Mod cepat · ronde ${Math.min(S.round||1,S.fastRounds)}/${S.fastRounds}</span>`:S.endLaps?`Tamat apabila semua pemain lengkap ${S.endLaps} pusingan.`:'Tamat apabila hanya seorang pemain tidak muflis.'}</div>`+pstripHTML();
   turnArrival();
   afkPaint();
   document.getElementById('players').innerHTML=S.players.map((q,k)=>{
