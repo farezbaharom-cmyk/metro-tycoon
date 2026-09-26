@@ -326,7 +326,7 @@ function renderSide(){
     const h=S.houses[i];const st=S.mort[i]?'Digadai':h===5?'Hotel':h?`${h} rumah`:(s.t==='prop'&&hasSet(who,s.g)?'Set penuh':'');
     const b=s.t==='prop'?`<button class="mini" type="button" data-b="${i}" ${lock||!canBuild(i)?'disabled':''} title="${cur().laps<1&&!S.fast?'Boleh bina selepas pusingan pertama':S.houses[i]>=buildLimit(i)?(buildLimit(i)===5?'Sudah hotel':'Tanpa set penuh: maks. 2 rumah'):'Bina ('+fmt(houseCost(i))+')'}">+🏠</button><button class="mini" type="button" data-s="${i}" ${lock||!canSell(i)?'disabled':''} title="Jual bangunan">−</button>`:'';
     const m=S.mort[i]?`<button class="mini" type="button" data-u="${i}" ${lock||!canUnmort(i)?'disabled':''} title="Tebus ${fmt(unmortCost(i))}">Tebus</button>`:`<button class="mini" type="button" data-m="${i}" ${lock||!canMort(i)?'disabled':''} title="Gadai +${fmt(s.p/2)}">Gadai</button>`;
-    return `<li class="pp"><span class="c" style="background:${col}"></span><span class="t"><b>${esc(s.n)}</b><small>Sewa ${fmt(rentOf(i))}${st?' · '+st:''}</small></span>${b}${m}</li>`}):`<li class="empty">${who===S.turn?'Belum ada hartanah. Mendarat di stesen untuk membeli.':'Anda belum memiliki hartanah.'}</li>`;
+    return `<li class="pp"><span class="c" style="background:${col}"></span><span class="t"><button class="asset-link" type="button" data-focus="${i}" aria-label="Cari ${esc(s.n)} di papan" title="Cari di papan">${esc(s.n)} <span aria-hidden="true">↗</span></button><small>Sewa ${fmt(rentOf(i))}${st?' · '+st:''}</small></span>${b}${m}</li>`}):`<li class="empty">${who===S.turn?'Belum ada hartanah. Mendarat di stesen untuk membeli.':'Anda belum memiliki hartanah.'}</li>`;
   document.getElementById('log').innerHTML=S.log.slice(0,40).map(l=>{const[ic,tx]=logParts(l);
     return `<li><span class="lic" aria-hidden="true">${ic}</span><span>${esc(tx)}</span></li>`}).join('');
 }
@@ -612,6 +612,20 @@ function centerOn(bx,by,nz){
   const v=$bv();zoom.z=Math.min(ZMAX,Math.max(ZMIN,nz));
   zoom.x=v.clientWidth/2-bx*zoom.z;zoom.y=v.clientHeight/2-by*zoom.z;applyZoom()}
 /* Zum pertama pergi ke petak pemain semasa, bukan ke logo di tengah. */
+let assetFocusTimer=0;
+function focusAsset(i){
+  if(!Number.isInteger(i)||i<0||i>=SQ.length)return;
+  const el=document.getElementById('sq'+i),v=$bv();
+  if(!el||!v)return;
+  clearTimeout(assetFocusTimer);
+  document.querySelectorAll('.sq.asset-focus').forEach(s=>s.classList.remove('asset-focus'));
+  el.style.setProperty('--focus-color',SQ[i].t==='prop'?GROUPS[SQ[i].g].c:'var(--accent)');
+  el.classList.add('asset-focus');
+  if(!document.body.classList.contains('v3d'))
+    centerOn(el.offsetLeft+el.offsetWidth/2,el.offsetTop+el.offsetHeight/2,2.3);
+  v.scrollIntoView({block:'start',behavior:RM?'instant':'smooth'});
+  assetFocusTimer=setTimeout(()=>el.classList.remove('asset-focus'),2600);
+}
 function zoomToMe(nz){
   const el=S&&S.players[S.turn]?document.getElementById('sq'+S.players[S.turn].pos):null;
   if(!el)return false;

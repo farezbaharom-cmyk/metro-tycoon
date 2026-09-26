@@ -14,7 +14,13 @@ document.getElementById('turn').addEventListener('click',e=>{const a=e.target.cl
   if(!isActor())return;
   const fn=({roll:rollDice,buy,pass,end:endTurn,bail:payBail,card:useCard,bankrupt})[a];
   if(fn){actedTurn=true;try{fn()}finally{actedTurn=null}}});
-document.getElementById('props').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled||!isActor())return;const d=b.dataset;
+document.getElementById('props').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled)return;const d=b.dataset;
+  if(d.focus!==undefined){
+    if(matchMedia('(max-width:1000px)').matches)document.getElementById('tabPapan').click();
+    requestAnimationFrame(()=>focusAsset(Number(d.focus)));
+    return;
+  }
+  if(!isActor())return;
   actedTurn=true;try{if(d.b)build(+d.b);else if(d.s)sell(+d.s);else if(d.m)mortgage(+d.m);else if(d.u)unmortgage(+d.u)}finally{actedTurn=null}});
 /* --- lelongan --- */
 document.getElementById('aucActs').addEventListener('click',e=>{
