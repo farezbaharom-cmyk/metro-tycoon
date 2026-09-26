@@ -231,16 +231,24 @@ function achNext(){
   setTimeout(()=>{el.classList.add('out');setTimeout(()=>{el.remove();achNext()},320)},2300)}
 function missWho(){const seat=NET?mySeat():-1;
   return (seat>=0&&S.players[seat]&&!S.players[seat].bankrupt)?seat:S.turn}
+let missionsExpanded=false;
+function missionRow(m,k,done){const ok=!!done[m.id];let [c,t]=m.p(k);c=Math.min(c,t);
+  const pct=ok?100:Math.round(c/t*100);
+  const prog=!ok?`<small>${m.id==='sewa300'?fmt(c)+' / '+fmt(t):c+' / '+t}</small>`:'';
+  return `<li class="ms ${ok?'ok':''}"><span class="me">${ok?'✅':m.e}</span><span class="mt"><b>${esc(m.t)}</b><small>${esc(m.d)}</small>${prog}
+    <span class="mbar"><i style="width:${pct}%"></i></span></span><span class="mr">+${fmt(m.r)}</span></li>`}
 function renderMissions(){
-  const box=document.getElementById('missions'),ttl=document.getElementById('missTitle');if(!box||!S)return;
+  const box=document.getElementById('missions'),ttl=document.getElementById('missTitle'),toggle=document.getElementById('missionToggle');if(!box||!S)return;
   const k=missWho(),q=S.players[k],done=missDone(k);
   const n=MISI.filter(m=>done[m.id]).length;
   ttl.innerHTML=`Misi ${NET&&k===mySeat()?'anda':esc(q.name)} <span class="mcount">${n}/${MISI.length}</span>`;
-  box.innerHTML=MISI.map(m=>{const ok=!!done[m.id];let [c,t]=m.p(k);c=Math.min(c,t);
-    const pct=ok?100:Math.round(c/t*100);
-    const prog=!ok?`<small>${m.id==='sewa300'?fmt(c)+' / '+fmt(t):c+' / '+t}</small>`:'';
-    return `<li class="ms ${ok?'ok':''}"><span class="me">${ok?'✅':m.e}</span><span class="mt"><b>${esc(m.t)}</b><small>${esc(m.d)}</small>${prog}
-      <span class="mbar"><i style="width:${pct}%"></i></span></span><span class="mr">+${fmt(m.r)}</span></li>`}).join('')}
+  const ranked=MISI.map((m,i)=>{let[c,t]=m.p(k);return{m,i,pct:done[m.id]?1:Math.min(c,t)/t}})
+    .filter(x=>!done[x.m.id]).sort((a,b)=>b.pct-a.pct||a.i-b.i);
+  const chosen=ranked.length?ranked.slice(0,2).map(x=>x.m):MISI.slice(-2);
+  const shown=missionsExpanded?MISI:chosen;
+  box.innerHTML=shown.map(m=>missionRow(m,k,done)).join('');
+  if(toggle){toggle.hidden=MISI.length<=2;toggle.setAttribute('aria-expanded',missionsExpanded?'true':'false');
+    toggle.textContent=missionsExpanded?'Ringkaskan misi':`Lihat semua ${MISI.length} misi`}}
 /* ---------- mod cepat ----------
    Untuk main ±20 minit: setiap pemain terus diberi beberapa stesen secara
    rawak, tiada perlindungan pusingan pertama (sewa dikutip dari awal, boleh
@@ -267,7 +275,7 @@ function newGame(names,qual,endLaps,cash,bots,useAuc,fast){
    turn:0,phase:'roll',doubles:0,again:false,dice:[3,4],qual,endLaps,msg:`${names[0]}, baling dadu untuk mula.`,
    useAuc:useAuc!==false,auc:null,trade:null,
    card:null,log:[],decks:{peluang:shuffle([...PELUANG.keys()]),tabung:shuffle([...TABUNG.keys()])},
-   fast:!!fast,fastRounds:fastRounds(names.length),round:1,st:names.map(()=>newStat(cash))};
+   fast:!!fast,fastRounds:fastRounds(names.length),round:1,st:names.map(()=>newStat(cash)),gid:Date.now().toString(36)};
   addLog(qual?`Permainan bermula. Setiap pemain perlu lengkapkan ${qual} pusingan sebelum boleh membeli hartanah.`:'Permainan bermula. Semoga berjaya!');
   if(S.fast)dealFast();
   const bl=S.players.filter(p=>p.bot);

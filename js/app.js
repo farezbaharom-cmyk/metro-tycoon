@@ -25,6 +25,12 @@ dockObserver.observe(turnDock,{childList:true,subtree:true});
 window.addEventListener('resize',queueTurnDock);
 queueTurnDock();
 
+/* Bantuan giliran pertama dan senarai misi padat. */
+document.getElementById('tutorialClose')?.addEventListener('click',()=>{
+  tutorialClosed=true;document.getElementById('turnTutorial').hidden=true});
+document.getElementById('missionToggle')?.addEventListener('click',()=>{
+  missionsExpanded=!missionsExpanded;renderMissions()});
+
 /* ---------- tab bawah: Papan · Aset · Log ----------
    Pilihan tab disimpan pada <body data-tab>, dan CSS yang menyorok/menunjuk
    bahagian. Pada skrin lebar CSS mengabaikannya, jadi tiada kesan di komputer.

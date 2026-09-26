@@ -100,7 +100,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 /* Papan dihadkan oleh lebar DAN tinggi skrin. --chrome = bar atas, jalur LED,
    kawalan zum dan jarak — semua yang perlu muat bersama papan dalam satu skrin. */
 .boardwrap{--chrome:176px;container-type:inline-size;width:100%;
-  max-width:min(100%,max(340px,calc(100vh - var(--chrome))));min-width:0;margin-inline:auto}
+  max-width:min(100%,max(340px,calc(100vh - var(--chrome))));min-width:0;margin-inline:auto;position:relative}
 @supports (height:100dvh){.boardwrap{max-width:min(100%,max(340px,calc(100dvh - var(--chrome))))}}
 @media (max-width:1000px){.boardwrap{--chrome:150px}}
 
@@ -542,6 +542,29 @@ body.v3d .tok{filter:drop-shadow(0 3px 2px rgba(0,0,0,.45))}
 .ms .mr{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--good)}
 .ms.ok{background:color-mix(in srgb,var(--good) 12%,var(--panel))}
 .ms.ok .mbar i{background:var(--good)}.ms.ok .mt b{text-decoration:none}
+.mission-toggle{display:block;width:calc(100% - 24px);margin:0 12px 12px;padding:8px 10px;border:1px solid var(--rule);
+  border-radius:9px;background:var(--panel);color:var(--ink);font:700 12px/1.2 var(--body);cursor:pointer}
+.mission-toggle:hover{background:var(--soft)}
+.mission-toggle[aria-expanded="true"]{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 55%,var(--rule))}
+/* Tutorial ringkas yang mengikuti satu giliran pertama pemain. */
+.turn-tutorial{position:absolute;z-index:12;left:50%;top:58px;transform:translateX(-50%);width:min(430px,calc(100% - 34px));
+  box-sizing:border-box;padding:12px 42px 12px 14px;border:1px solid color-mix(in srgb,var(--accent) 55%,var(--rule));
+  border-radius:13px;background:color-mix(in srgb,var(--panel) 94%,transparent);box-shadow:0 10px 28px rgba(0,0,0,.24);backdrop-filter:blur(8px)}
+.turn-tutorial[hidden]{display:none}
+.tutorial-close{position:absolute;right:8px;top:8px;width:30px;height:30px;border:0;border-radius:50%;background:var(--soft);
+  color:var(--muted);font:800 20px/1 var(--body);cursor:pointer}
+.tutorial-kicker{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:7px}
+.tutorial-steps{display:flex;gap:5px;margin-bottom:8px}
+.tutorial-steps span{flex:1;padding:4px 5px;border-radius:999px;background:var(--soft);color:var(--muted);font-size:10px;font-weight:700;text-align:center;white-space:nowrap}
+.tutorial-steps span.active{background:var(--accent);color:var(--accent-ink)}
+.tutorial-steps span.done{color:var(--good)}
+.tutorial-title{display:block;font-size:15px;margin-bottom:3px}
+.turn-tutorial p{margin:0;color:var(--muted);font-size:12.5px;line-height:1.35}
+@media (max-width:700px){
+  .turn-tutorial{top:67px;width:calc(100% - 20px);padding:10px 38px 10px 11px;border-radius:11px}
+  .tutorial-kicker{margin-bottom:5px}.tutorial-steps{margin-bottom:6px}.tutorial-steps span{font-size:9px;padding-inline:3px}
+  .tutorial-title{font-size:13.5px}.turn-tutorial p{font-size:11.5px}
+}
 /* Popup misi selesai */
 .achpop{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:75;
   display:flex;align-items:center;gap:12px;padding:10px 16px 10px 12px;border-radius:14px;min-width:min(320px,calc(100vw - 32px));

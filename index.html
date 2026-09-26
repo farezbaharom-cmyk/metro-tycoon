@@ -57,6 +57,13 @@
   <div class="boardwrap">
     <div class="pids" id="pids" aria-live="polite"><span class="lbl">Stesen seterusnya</span><span class="nm"></span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
     <p class="tapnote">Ketik petak untuk harga &amp; sewa · cubit untuk zum</p>
+    <aside class="turn-tutorial" id="turnTutorial" role="status" aria-live="polite" hidden>
+      <button class="tutorial-close" id="tutorialClose" type="button" aria-label="Tutup tutorial">×</button>
+      <div class="tutorial-kicker" id="tutorialKicker">Tutorial giliran pertama</div>
+      <div class="tutorial-steps" id="tutorialSteps" aria-label="Kemajuan tutorial"></div>
+      <b class="tutorial-title" id="tutorialTitle"></b>
+      <p id="tutorialText"></p>
+    </aside>
     <div class="boardview" id="boardview"><div class="bdrop" id="bdrop" aria-hidden="true"></div><div class="board" id="board"></div></div>
     <div class="zoomctl" id="zoomctl">
       <button type="button" data-z="out" aria-label="Zum keluar">−</button>
@@ -70,7 +77,7 @@
     <section class="panel turn" id="turn" aria-label="Giliran dan tindakan"></section>
     <section class="panel sect sect-aset"><h3>Pemain</h3><ul class="plist" id="players"></ul></section>
     <section class="panel sect sect-aset"><h3 id="propsTitle">Hartanah anda</h3><ul class="props" id="props"></ul></section>
-    <section class="panel sect sect-aset"><h3 id="missTitle">Misi</h3><ul class="missions" id="missions"></ul></section>
+    <section class="panel sect sect-aset mission-panel"><h3 id="missTitle">Misi</h3><ul class="missions" id="missions"></ul><button class="mission-toggle" id="missionToggle" type="button" aria-expanded="false">Lihat semua misi</button></section>
     <section class="panel sect sect-log"><h3>Catatan permainan</h3><ul class="log" id="log"></ul></section>
   </aside>
 </div>
@@ -308,4 +315,3 @@
 
 </body>
 </html>
-

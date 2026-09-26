@@ -240,6 +240,40 @@ function turnStageHTML(){
   return '<div class="turn-stage" aria-label="Kemajuan giliran">'+labels.map((label,i)=>
     '<span'+(i===active?' class="active" aria-current="step"':'')+'>'+label+'</span>').join('')+'</div>';
 }
+let tutorialGid=null,tutorialClosed=false;
+function renderTurnTutorial(){
+  const el=document.getElementById('turnTutorial');if(!el||!S)return;
+  if(tutorialGid!==S.gid){tutorialGid=S.gid;tutorialClosed=false}
+  const seat=NET?mySeat():0,p=seat>=0?S.players[seat]:null;
+  const active=!!(S.started&&p&&!p.bot&&!p.bankrupt&&S.turn===seat&&p.laps===0&&S.phase!=='over'&&!tutorialClosed);
+  if(!active){el.hidden=true;return}
+  const sq=SQ[p.pos],phase=S.phase;
+  let step=phase==='roll'?0:phase==='moving'?1:2,title='',text='';
+  if(phase==='roll'){
+    title=`Anda berada di ${sq.n}`;
+    text=p.inJail?'Pilih salah satu cara keluar yang tersedia dalam panel giliran.':'Tekan Baling dadu. Jumlah dadu menentukan berapa petak token bergerak.';
+  }else if(phase==='moving'){
+    title='Token sedang bergerak';
+    text='Ikuti token di papan. Destinasi dan tindakan seterusnya akan diterangkan apabila ia berhenti.';
+  }else if(phase==='buy'){
+    title=`Anda tiba di ${sq.n}`;
+    text=`Beli menjadikan stesen ini milik anda. Lepaskan membiarkan stesen tersedia untuk tindakan seterusnya.`;
+  }else if(phase==='end'){
+    title=`Selesai di ${sq.n}`;
+    text='Semak hasil giliran, kemudian tekan Tamat giliran untuk memberi laluan kepada pemain seterusnya.';
+  }else if(phase==='auction'){
+    title=`Pilihan untuk ${sq.n}`;
+    text='Ikuti arahan yang dipaparkan dalam panel tindakan sehingga proses ini selesai.';
+  }else{
+    title=`Anda berada di ${sq.n}`;
+    text=turnGuidance();
+  }
+  const labels=['1 Baling','2 Bergerak','3 Tindakan'];
+  document.getElementById('tutorialSteps').innerHTML=labels.map((x,i)=>`<span class="${i===step?'active':i<step?'done':''}"${i===step?' aria-current="step"':''}>${i<step?'✓ ':''}${x}</span>`).join('');
+  document.getElementById('tutorialTitle').textContent=title;
+  document.getElementById('tutorialText').textContent=text;
+  el.hidden=false;
+}
 let uxTurnKey=null,uxTurnTimer=0;
 function turnArrival(){
   const key=String(S.gid)+':'+S.turn;
@@ -571,7 +605,7 @@ async function keepAwake(){
       wakeLock.addEventListener('release',()=>{wakeLock=null})}
     else if(!want&&wakeLock){wakeLock.release();wakeLock=null}}catch(e){wakeLock=null}}
 document.addEventListener('visibilitychange',keepAwake);
-function renderAll(){trackMin();renderBoard();renderDice();renderSide();renderMissions();renderAuction();newsHook();achHook();moneyHook();ownHook();keepAwake();
+function renderAll(){trackMin();renderBoard();renderDice();renderSide();renderMissions();renderTurnTutorial();renderAuction();newsHook();achHook();moneyHook();ownHook();keepAwake();
   const t=S&&(S.trade||draft);
   /* Dalam bilik online, hanya dua pihak yang terlibat melihat tetingkap ini. */
   const forMe=t&&(!NET||t.stage==='build'||mySeat()===t.from||mySeat()===t.to);
