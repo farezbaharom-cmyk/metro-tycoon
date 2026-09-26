@@ -855,7 +855,9 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:60;width:100%;heigh
   }
 }
 body{
-  min-height:100vh;
+  /* Tolak margin lalai badan (8px atas + bawah), jika tidak laman sentiasa
+     boleh diskrol 16px walaupun kandungan muat dalam skrin. */
+  min-height:calc(100vh - 16px);
   background:
     radial-gradient(circle at 12% 8%,color-mix(in srgb,var(--accent) 10%,transparent),transparent 30rem),
     radial-gradient(circle at 88% 18%,color-mix(in srgb,#38BDF8 10%,transparent),transparent 32rem),
@@ -1311,6 +1313,20 @@ body:has(.overlay:not([hidden])) .bar{z-index:40}
   #setupHome .btn.big{min-height:0;padding-block:9px}
   /* Tutorial dalam lajur sempit: langkah 1·2·3 di atas, teks di bawah. */
   #turn .turn-tutorial{grid-template-columns:minmax(0,1fr);gap:6px}
+  /* Papan perlu setiap piksel tinggi skrin: papan tanda "Stesen seterusnya"
+     disembunyikan (panel giliran di sebelah sudah menunjukkannya) dan kawalan
+     zum dipindah ke lajur kecil di sebelah kanan papan. Tanpa ini papan hanya
+     ±225px dan nama stesen bertindih. */
+  .pids{display:none}
+  .boardwrap{--chrome:92px;position:relative}
+  .zoomctl{position:absolute;top:0;left:100%;margin:0 0 0 6px;flex-direction:column;gap:5px;width:36px}
+  .zoomctl button{min-height:34px;width:34px;min-width:0;padding:0}
+  .zoomctl .zlvl{font-size:10px}
+  .zoomctl button[data-z="reset"]{font-size:0;padding:0}
+  .zoomctl button[data-z="reset"]::before{content:"⤢";font-size:17px;line-height:1}
+  /* Tab Papan: lajur sisi kosong (panel giliran tetap di kanan) — buang jaraknya
+     supaya laman tidak boleh diskrol beberapa piksel. */
+  body[data-tab="papan"] .app{gap:0}
 }
 
 /* ===================== Skrin tamat ===================== */

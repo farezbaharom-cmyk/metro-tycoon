@@ -446,7 +446,7 @@ function badges(){
     const sets=GROUPS.map((g,gi)=>hasSet(k,gi)?g.n:null).filter(Boolean);
     if(sets.length===1)out[k].push({e:'🛤️',t:'Raja '+sets[0],d:'miliki laluan penuh',r:3});
     else if(sets.length>1)out[k].push({e:'🛤️',t:`Raja ${sets.length} Laluan`,d:sets.join(', '),r:3});
-    if(!q.bankrupt&&stt(k).min<50)out[k].push({e:'🔥',t:'Bangkit Semula',d:`pernah tinggal ${fmt(stt(k).min)}`,r:4});
+    if(!q.bankrupt&&stt(k).min<50&&netWorth(q)>=stt(k).min+500)out[k].push({e:'🔥',t:'Bangkit Semula',d:`pernah tinggal ${fmt(stt(k).min)}`,r:4});
     if(stt(k).rosak)out[k].push({e:'🚧',t:'Mangsa Tren Rosak',d:`terlepas ${stt(k).rosak} giliran`,r:10})});
   out.forEach(l=>l.sort((a,b)=>a.r-b.r));
   return out}
