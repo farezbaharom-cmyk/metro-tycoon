@@ -17,7 +17,28 @@ function updateTurnDock(){
   const tbh=tb&&turnDockMedia.matches&&!covered?Math.ceil(tb.getBoundingClientRect().height):0;
   document.documentElement.style.setProperty('--tabbar-h',tbh+'px');
 }
-function queueTurnDock(){if(!dockFrame)dockFrame=requestAnimationFrame(updateTurnDock)}
+function queueTurnDock(){if(!dockFrame)dockFrame=requestAnimationFrame(()=>{updateTurnDock();fitBoard()})}
+/* Telefon rendah (cth. iPhone SE): papan dan panel giliran tidak muat serentak,
+   jadi baris bawah papan tersorok di belakang panel. Header di atas papan
+   boleh diskrol keluar, maka apabila giliran bertukar, dadu dibaling atau
+   panel berubah tinggi, laman diskrol secukupnya supaya seluruh papan berada
+   di atas panel. Tidak dipanggil semasa pemain sendiri menatal tanpa sebab. */
+let fitKey='';
+function fitBoard(){
+  if(!turnDockMedia.matches||!S||document.body.dataset.tab!=='papan')return;
+  if(document.querySelector('.overlay:not([hidden])'))return;
+  const key=[S.gid,S.turn,S.rollId||0,S.phase==='over',Math.round(turnDock.getBoundingClientRect().height)].join('|');
+  if(key===fitKey)return;fitKey=key;
+  const b=document.getElementById('boardview');if(!b)return;
+  const br=b.getBoundingClientRect(),dr=turnDock.getBoundingClientRect();
+  /* Panel di sisi (telefon mendatar) tidak menutup papan. */
+  if(dr.left>=br.right-1||dr.right<=br.left+1)return;
+  const room=dr.top-6;if(br.height>room)return;       /* tetap tidak muat: biar pemain skrol */
+  let dy=0;
+  if(br.bottom>room)dy=br.bottom-room;                 /* baris bawah tersorok */
+  else if(br.top<0)dy=br.top-6;                        /* baris atas terskrol keluar */
+  if(Math.abs(dy)<2)return;
+  window.scrollBy({top:dy,behavior:RM?'auto':'smooth'})}
 if(window.ResizeObserver)new ResizeObserver(queueTurnDock).observe(turnDock);
 const dockObserver=new MutationObserver(queueTurnDock);
 document.querySelectorAll('.overlay').forEach(el=>dockObserver.observe(el,{attributes:true,attributeFilter:['hidden']}));
@@ -56,7 +77,7 @@ document.getElementById('missionToggle')?.addEventListener('click',()=>{
     if(t==='log')seenLog=null;
     if(t==='aset')seenAset=asetKey();
     badges();
-    if(changed&&scroll&&turnDockMedia.matches)window.scrollTo({top:0,behavior:'instant'});
+    if(changed&&scroll&&turnDockMedia.matches){window.scrollTo({top:0,behavior:'instant'});fitKey='';queueTurnDock()}
   }
   function badges(){
     /* Log: kira catatan di atas yang terakhir dilihat */

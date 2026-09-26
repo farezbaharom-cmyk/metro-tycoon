@@ -34,7 +34,9 @@ function fitNames(){
     const own=sq.classList.contains('owned'),side=sq.classList.contains('left')||sq.classList.contains('right');
     const st=sq.querySelector('.stripe');
     const avail=sq.clientWidth-(side&&st?st.offsetWidth:0)-(own?5:3);
-    const availH=sq.clientHeight-(!side&&st?st.offsetHeight:0)-(own?5:3);
+    /* Ikon (ϟ, ⇄, RM…) dan kod stesen berkongsi tinggi petak dengan nama. */
+    const other=[...e.parentElement.children].reduce((a,c)=>a+(c!==e&&!c.classList.contains('nm')&&c.offsetParent&&getComputedStyle(c).position!=='absolute'?c.offsetHeight:0),0);
+    const availH=sq.clientHeight-(!side&&st?st.offsetHeight:0)-other-(own?5:3);
     const key=avail+'|'+availH+'|'+own;if(e._fk===key)return;e._fk=key;
     e.style.fontSize='';e.textContent=nm;
     const cs=getComputedStyle(e),sz=parseFloat(cs.fontSize),lh=(parseFloat(cs.lineHeight)||sz*1.05)/sz;
@@ -46,7 +48,7 @@ function fitNames(){
     e.textContent=best;
     e.style.fontSize=Math.max(FIT_MIN,Math.floor(bs*10)/10)+'px'});
 }
-const SHORT_SYL={1:'Titi\u00ADwang\u00ADsa',2:'Ta\u00ADbung',4:'Cukai',5:'KL Sen\u00ADtral',6:'Batu Caves',7:'Pe\u00ADluang',9:'Ke\u00ADpong',11:'Bkt Jalil',
+const SHORT_SYL={1:'Titi\u00ADwang\u00ADsa',2:'Ta\u00ADbung',4:'Cukai',5:'KL Sentral',6:'Batu Caves',7:'Pe\u00ADluang',9:'Ke\u00ADpong',11:'Bkt Jalil',
   12:'Elek\u00ADtrik',13:'Sri Pe\u00ADtaling',15:'M.Jamek',16:'Am\u00ADpang',17:'Ta\u00ADbung',18:'Pandan Indah',
   20:'Parkir',21:'Su\u00ADbang Jaya',22:'Pe\u00ADluang',23:'Kelana Jaya',24:'Bang\u00ADsar',25:'Pasar Seni',26:'Salak Tinggi',
   27:'Putra\u00ADjaya',28:'Air',30:'Ke Lokap',31:"Mu\u00ADtiara D'sara",32:'Seman\u00ADtan',
@@ -380,7 +382,7 @@ function renderSide(){
   const lock=busy||S.phase==='moving'||S.phase==='over'||tradePending()||!isActor()||who!==S.turn;
   document.getElementById('props').innerHTML=mine.length?portfolioHTML(mine,i=>{const s=SQ[i];const col=s.t==='prop'?GROUPS[s.g].c:'var(--muted)';
     const h=S.houses[i];const st=S.mort[i]?'Digadai':h===5?'Hotel':h?`${h} rumah`:(s.t==='prop'&&hasSet(who,s.g)?'Set penuh':'');
-    const b=s.t==='prop'?`<button class="mini" type="button" data-b="${i}" ${lock||!canBuild(i)?'disabled':''} title="${cur().laps<1&&!S.fast?'Boleh bina selepas pusingan pertama':S.houses[i]>=buildLimit(i)?(buildLimit(i)===5?'Sudah hotel':'Tanpa set penuh: maks. 2 rumah'):'Bina ('+fmt(houseCost(i))+')'}">+🏠</button><button class="mini" type="button" data-s="${i}" ${lock||!canSell(i)?'disabled':''} title="Jual bangunan">−</button>`:'';
+    const b=s.t==='prop'?`<button class="mini" type="button" data-b="${i}" ${lock||!canBuild(i)?'disabled':''} title="${cur().laps<1&&!S.fast?'Boleh bina selepas pusingan pertama':S.houses[i]>=buildLimit(i)?(buildLimit(i)===5?'Sudah hotel':'Tanpa set penuh: maks. 2 rumah'):'Bina ('+fmt(houseCost(i))+')'}">+🏠</button><button class="mini" type="button" data-s="${i}" ${lock||!canSell(i)?'disabled':''} title="Jual bangunan${S.houses[i]?' (+'+fmt(sellValue(i))+')':''}">−</button>`:'';
     const m=S.mort[i]?`<button class="mini" type="button" data-u="${i}" ${lock||!canUnmort(i)?'disabled':''} title="Tebus ${fmt(unmortCost(i))}">Tebus</button>`:`<button class="mini" type="button" data-m="${i}" ${lock||!canMort(i)?'disabled':''} title="Gadai +${fmt(s.p/2)}">Gadai</button>`;
     return `<li class="pp"><span class="c" style="background:${col}"></span><span class="t"><button class="asset-link" type="button" data-focus="${i}" aria-label="Cari ${esc(s.n)} di papan" title="Cari di papan">${esc(s.n)} <span aria-hidden="true">↗</span></button><small>Sewa ${fmt(rentOf(i))}${st?' · '+st:''}</small></span>${b}${m}</li>`}):`<li class="empty">${who===S.turn?'Belum ada hartanah. Mendarat di stesen untuk membeli.':'Anda belum memiliki hartanah.'}</li>`;
   document.getElementById('log').innerHTML=S.log.slice(0,40).map(l=>{const[ic,tx]=logParts(l);

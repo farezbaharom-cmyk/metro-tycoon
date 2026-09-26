@@ -91,8 +91,11 @@ function rentOf(i,opts={}){
 /* Tanpa set penuh: maks. 2 rumah, harga dua kali ganda, tiada hotel.
    Semua pembinaan hanya selepas pemain lengkap pusingan pertama. */
 const NOSET_MAX=2;
-function houseCost(i){const s=SQ[i],o=S.owner[i],e=ev();
+function houseCost(i,noEvent){const s=SQ[i],o=S.owner[i],e=noEvent?null:ev();
   return Math.round(GROUPS[s.g].h*(o!==null&&hasSet(o,s.g)?1:2)*(e&&e.build||1))}
+/* Jualan bangunan: separuh harga biasa. Berita "separuh harga" hanya untuk
+   membina — ia tidak mengurangkan nilai rumah yang sudah dibina. */
+const sellValue=i=>Math.floor(houseCost(i,true)/2);
 function buildLimit(i){const o=S.owner[i];return o!==null&&hasSet(o,SQ[i].g)?5:NOSET_MAX}
 function canBuild(i){const s=SQ[i],pi=S.turn,p=cur();if(s.t!=='prop'||S.owner[i]!==pi||S.mort[i])return false;
   if(p.laps<1&&!S.fast)return false;
@@ -193,7 +196,9 @@ async function land(p,opts={}){
     /* Permainan lama: masukkan kad baharu yang belum ada dalam dek. */
     if(deck.length<all.length){const have=new Set(deck);deck.push(...shuffle([...all.keys()].filter(k=>!have.has(k))))}
     const idx=deck.shift();deck.push(idx);stt(pi).kad++;
-    const [text,fx]=(key==='peluang'?PELUANG:TABUNG)[idx];
+    const [raw,fx]=(key==='peluang'?PELUANG:TABUNG)[idx];
+    /* "Kutip RM200" ikut bonus MULA semasa (cth. RM300 ketika Promosi tambang). */
+    const text=raw.replace(/(kutip) RM200/gi,(m,k)=>`${k} ${fmt(goBonus())}`);
     S.card={deck:key,text,id:Date.now()+Math.random()};S.msg=`${p.name} cabut kad ${s.n}.`;addLog(`${s.n}: ${text}`);sfx.card();renderAll();
     await sleep(1500);S.card=null;renderAll();await fx(p);return}
   if(s.t==='free'){S.msg=`${p.name} berehat di Parkir Percuma.`;return}
@@ -393,7 +398,7 @@ function useCard(){const p=cur();if(!p.inJail||!p.cards)return;p.cards--;p.inJai
 function build(i){if(!canBuild(i))return;const s=SQ[i],c=houseCost(i);cur().cash-=c;S.houses[i]++;stt(S.turn).bina++;
   addLog(`${cur().name} bina ${S.houses[i]===5?'hotel':'rumah'} di ${s.n} (${fmt(c)}).`,'bina');sfx.build();
   if(S.houses[i]===5)sayAll('hotel',cur().name,s.n);renderAll()}
-function sell(i){if(!canSell(i))return;const s=SQ[i],c=Math.floor(houseCost(i)/2);S.houses[i]--;cur().cash+=c;addLog(`${cur().name} jual bangunan di ${s.n} (+${fmt(c)}).`,'bina');sfx.coin();renderAll()}
+function sell(i){if(!canSell(i))return;const s=SQ[i],c=sellValue(i);S.houses[i]--;cur().cash+=c;addLog(`${cur().name} jual bangunan di ${s.n} (+${fmt(c)}).`,'bina');sfx.coin();renderAll()}
 function mortgage(i){if(!canMort(i))return;S.mort[i]=true;cur().cash+=SQ[i].p/2;addLog(`${cur().name} gadai ${SQ[i].n} (+${fmt(SQ[i].p/2)}).`);sfx.coin();renderAll()}
 function unmortgage(i){if(!canUnmort(i))return;S.mort[i]=false;cur().cash-=unmortCost(i);addLog(`${cur().name} tebus ${SQ[i].n} (${fmt(unmortCost(i))}).`);sfx.pay();renderAll()}
 function bankrupt(){const p=cur(),pi=S.turn;if(p.cash>=0)return;
