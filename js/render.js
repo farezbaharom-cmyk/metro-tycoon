@@ -12,33 +12,39 @@ function side(i){if(i%10===0)return'corner bottom';return i<10?'bottom':i<20?'le
 /* Nama pendek untuk papan telefon. \u00AD = sempang lembut: perkataan hanya
    dipecah di situ jika tidak muat, jadi tiada huruf yang terpotong. */
 /* Nama pendek stesen (telefon). SHORT = bentuk bersih (pecah hanya di ruang
-   atau sempadan semula jadi, cth. Titi-wangsa). Jika perkataan tak muat,
-   fon dikecilkan sedikit (hingga 7.5px). Hanya jika masih tak muat — petak
-   sempit baris atas/bawah — nama dipecah ikut suku kata (SHORT_SYL). */
+   atau sempadan semula jadi, cth. Titi-wangsa). SHORT_SYL = dipecah ikut suku
+   kata, digunakan bila ia memberi tulisan lebih besar (lihat fitNames). */
 const fitCtx=document.createElement('canvas').getContext('2d');
-/* 6.5px: nama penuh yang kecil lebih mudah dibaca daripada nama yang dipecah
-   dengan sempang. Pecahan suku kata hanya untuk skrin paling sempit (≤340px). */
-const FIT_MIN=6.5;
+/* Nama penuh diutamakan selagi tulisannya ≥ FIT_OK. Jika lebih kecil, versi
+   dipecah ikut suku kata (dua baris) dicuba — ia guna ruang menegak petak yang
+   selalunya kosong — dan dipilih jika tulisannya lebih besar. FIT_MIN ialah
+   had bawah mutlak. */
+const FIT_MIN=6.5,FIT_OK=8;
 function fitNeed(txt,cs,sz){
   if(cs.textTransform==='uppercase')txt=txt.toUpperCase();
   fitCtx.font=`${cs.fontWeight} ${sz}px ${cs.fontFamily}`;const ls=parseFloat(cs.letterSpacing)||0;
   const parts=txt.split(/\s+/).flatMap(w=>{const p=w.split('\u00AD');return p.map((x,i)=>i<p.length-1?x+'-':x)});
   return Math.max(...parts.map(x=>fitCtx.measureText(x).width+ls*x.length))}
+/* Bilangan baris jika setiap perkataan/suku kata di baris sendiri. */
+const fitLines=txt=>txt.split(/\s+/).reduce((a,w)=>a+w.split('\u00AD').length,0);
 function fitNames(){
   document.querySelectorAll('#board .sq .nm-s').forEach(e=>{
     if(!e.offsetParent)return;
     const sq=e.closest('.sq'),i=+sq.dataset.i,nm=SHORT[i]||SQ[i].n,syl=SHORT_SYL[i];
     const own=sq.classList.contains('owned'),side=sq.classList.contains('left')||sq.classList.contains('right');
-    const st=side&&sq.querySelector('.stripe');
-    const avail=sq.clientWidth-(st?st.offsetWidth:0)-(own?5:3);
-    const key=avail+'|'+own;if(e._fk===key)return;e._fk=key;
+    const st=sq.querySelector('.stripe');
+    const avail=sq.clientWidth-(side&&st?st.offsetWidth:0)-(own?5:3);
+    const availH=sq.clientHeight-(!side&&st?st.offsetHeight:0)-(own?5:3);
+    const key=avail+'|'+availH+'|'+own;if(e._fk===key)return;e._fk=key;
     e.style.fontSize='';e.textContent=nm;
-    const cs=getComputedStyle(e),sz=parseFloat(cs.fontSize);
-    let need=fitNeed(nm,cs,sz);if(need<=avail)return;
-    let k=avail/need;
-    if(sz*k<FIT_MIN&&syl&&syl!==nm){
-      e.textContent=syl;need=fitNeed(syl,cs,sz);if(need<=avail)return;k=avail/need}
-    e.style.fontSize=Math.max(FIT_MIN,Math.floor(sz*k*10)/10)+'px'});
+    const cs=getComputedStyle(e),sz=parseFloat(cs.fontSize),lh=(parseFloat(cs.lineHeight)||sz*1.05)/sz;
+    const size=t=>Math.min(sz,sz*avail/fitNeed(t,cs,sz),availH/(fitLines(t)*lh));
+    const whole=size(nm);
+    if(whole>=sz-.05)return;
+    let best=nm,bs=whole;
+    if(whole<FIT_OK&&syl&&syl!==nm){const ss=size(syl);if(ss>whole+.4){best=syl;bs=ss}}
+    e.textContent=best;
+    e.style.fontSize=Math.max(FIT_MIN,Math.floor(bs*10)/10)+'px'});
 }
 const SHORT_SYL={1:'Titi\u00ADwang\u00ADsa',2:'Ta\u00ADbung',4:'Cukai',5:'KL Sen\u00ADtral',6:'Batu Caves',7:'Pe\u00ADluang',9:'Ke\u00ADpong',11:'Bkt Jalil',
   12:'Elek\u00ADtrik',13:'Sri Pe\u00ADtaling',15:'M.Jamek',16:'Am\u00ADpang',17:'Ta\u00ADbung',18:'Pandan Indah',
