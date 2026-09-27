@@ -339,14 +339,14 @@ function portfolioHTML(mine,renderRow){
 function alongStrip(p){
   if(!S||S.phase==='over'||p.bot||p.bankrupt||!isActor()||(NET&&afkSeat===S.turn))return '';
   if(p.along){const ok=p.cash>=p.along&&!busy&&!tradePending();
-    return `<div class="along-strip owe"><span class="al-ic" aria-hidden="true">🦈</span><span class="al-tx">Hutang Along <b>${fmt(p.along)}</b> · ditagih bila lalu MULA</span><button class="mini" type="button" data-a="alongpay" ${ok?'':'disabled'} title="${ok?'Bayar sekarang':'Tunai tak cukup untuk bayar awal'}">Bayar</button></div>`}
+    return `<div class="along-strip owe"><span class="al-ic" aria-hidden="true">🦈</span><span class="al-tx">Hutang Ah Long <b>${fmt(p.along)}</b> · ditagih bila lalu MULA</span><button class="mini" type="button" data-a="alongpay" ${ok?'':'disabled'} title="${ok?'Bayar sekarang':'Tunai tak cukup untuk bayar awal'}">Bayar</button></div>`}
   if(!canBorrow())return '';
-  return `<div class="along-strip"><span class="al-ic" aria-hidden="true">🦈</span><span class="al-tx">Kesempitan? Along pinjamkan <b>${fmt(ALONG_PINJAM)}</b>, bayar <b>${fmt(ALONG_BAYAR)}</b> bila lalu MULA.</span><button class="mini" type="button" data-a="along">Pinjam</button></div>`}
+  return `<div class="along-strip"><span class="al-ic" aria-hidden="true">🦈</span><span class="al-tx">Kesempitan? Ah Long pinjamkan <b>${fmt(ALONG_PINJAM)}</b>, bayar <b>${fmt(ALONG_BAYAR)}</b> bila lalu MULA.</span><button class="mini" type="button" data-a="along">Pinjam</button></div>`}
 function renderSide(){
   const p=cur();const t=document.getElementById('turn');
   let acts='',note='';const neg=p.cash<0;
   if(S.phase==='over'){acts=`<button class="btn primary" type="button" data-a="again">Main semula</button>`}
-  else if(neg){note=`<div class="note warn">Baki negatif (${fmt(p.cash)}). Jual rumah atau gadai hartanah di bawah${canBorrow()?', pinjam daripada Along':''}, atau isytihar muflis.</div>`;
+  else if(neg){note=`<div class="note warn">Baki negatif (${fmt(p.cash)}). Jual rumah atau gadai hartanah di bawah${canBorrow()?', pinjam daripada Ah Long':''}, atau isytihar muflis.</div>`;
     acts=`<button class="btn danger" type="button" data-a="bankrupt">Isytihar muflis</button>`}
   else if(S.phase==='roll'){
     if(p.inJail){acts=`<button class="btn primary" type="button" data-a="roll">Cuba dadu ganda</button><button class="btn" type="button" data-a="bail" ${p.cash<50?'disabled':''}>Bayar RM50</button>${p.cards?`<button class="btn" type="button" data-a="card">Guna Kad Bebas (${p.cards})</button>`:''}`;note=`<div class="note keep">Di Lokap · cubaan ${p.jailTurns}/3 · bayar RM50 untuk terus keluar</div>`}
@@ -386,7 +386,7 @@ function renderSide(){
   document.getElementById('players').innerHTML=S.players.map((q,k)=>{
     const sw=S.owner.map((o,i)=>o===k?`<i style="background:${SQ[i].t==='prop'?GROUPS[SQ[i].g].c:'var(--muted)'}"></i>`:'').join('');
     return `<li data-player="${k}" class="pl ${k===S.turn&&S.phase!=='over'?'cur':''} ${q.bankrupt?'out':''}" style="--player-color:${q.color}">${trainMark(k,q.color)}<span class="nmx">${NET?`<span class="live ${isOnline(q.uid)?'':'off'}" title="${isOnline(q.uid)?'Dalam talian':'Luar talian'}"></span> `:''}${esc(q.name)}${NET&&q.uid===UID?' <span class="chip ok">Anda</span>':''}</span><span class="money" style="${q.cash<0?'color:var(--bad)':''}"><small class="cash-label">Tunai</small>${fmt(q.cash)}</span>
-    <span class="meta">${k===S.turn&&S.phase!=='over'?'<span class="playing-label">● Sedang bermain</span>':''}${q.bot?`<span class="chip">Bot ${BOT_LEVELS[q.bot]}</span>`:''}${lapBar(q)}${q.bankrupt?'<span class="chip bad">Muflis</span>':S.qual&&q.laps>=S.qual?'<span class="chip ok">Boleh beli</span>':''}${q.inJail?'<span class="chip bad">Lokap</span>':''}${q.cards?`<span class="chip">Kad bebas ×${q.cards}</span>`:''}${q.along&&!q.bankrupt?`<span class="chip bad" title="Ditagih bila lalu MULA">🦈 Hutang Along ${fmt(q.along)}</span>`:''}<span class="chip worth-label">Kekayaan bersih ${fmt(netWorth(q))}</span><span class="swatches">${sw}</span></span></li>`}).join('');
+    <span class="meta">${k===S.turn&&S.phase!=='over'?'<span class="playing-label">● Sedang bermain</span>':''}${q.bot?`<span class="chip">Bot ${BOT_LEVELS[q.bot]}</span>`:''}${lapBar(q)}${q.bankrupt?'<span class="chip bad">Muflis</span>':S.qual&&q.laps>=S.qual?'<span class="chip ok">Boleh beli</span>':''}${q.inJail?'<span class="chip bad">Lokap</span>':''}${q.cards?`<span class="chip">Kad bebas ×${q.cards}</span>`:''}${q.along&&!q.bankrupt?`<span class="chip bad" title="Ditagih bila lalu MULA">🦈 Hutang Ah Long ${fmt(q.along)}</span>`:''}<span class="chip worth-label">Kekayaan bersih ${fmt(netWorth(q))}</span><span class="swatches">${sw}</span></span></li>`}).join('');
   /* Dalam bilik online, tunjukkan hartanah SENDIRI semasa menunggu giliran
      orang lain — barulah pemain boleh merancang, bukan memandang senarai lawan.
      Butang dikunci kerana bukan giliran kita. */

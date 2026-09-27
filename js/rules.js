@@ -405,7 +405,7 @@ function bankrupt(){const p=cur(),pi=S.turn;if(p.cash>=0)return;
   const to=p.creditor;
   S.owner.forEach((o,i)=>{if(o!==pi)return;S.houses[i]=0;if(to!==null&&!S.players[to].bankrupt){S.owner[i]=to}else{S.owner[i]=null;S.mort[i]=false}});
   if(to!==null)S.players[to].cash+=p.cash;
-  if(p.along){addLog(`Along gagal menagih ${fmt(p.along)} daripada ${p.name}. Hutang lesap.`);p.along=0}
+  if(p.along){addLog(`Ah Long gagal menagih ${fmt(p.along)} daripada ${p.name}. Hutang lesap.`);p.along=0}
   p.bankrupt=true;p.cash=0;addLog(`${p.name} isytihar muflis!${to!==null?' Hartanah diserahkan kepada '+S.players[to].name+'.':''}`);sfx.jail();sayAll('muflis',p.name);
   S.phase='end';S.again=false;endTurn()}
 /* ---------- Along (pinjaman berisiko) ----------
@@ -419,15 +419,15 @@ function canBorrow(){const p=cur();
     &&(p.cash<0||S.phase==='roll'||S.phase==='end')}
 function alongPinjam(){if(!canBorrow())return;const p=cur();
   p.cash+=ALONG_PINJAM;p.along=ALONG_BAYAR;if(!p.bot)track('along','Pinjam Along');stt(S.turn).along=(stt(S.turn).along||0)+1;
-  const t=`🦈 ${p.name} pinjam ${fmt(ALONG_PINJAM)} daripada Along. Kena bayar ${fmt(ALONG_BAYAR)} bila lalu MULA!`;
+  const t=`🦈 ${p.name} pinjam ${fmt(ALONG_PINJAM)} daripada Ah Long. Kena bayar ${fmt(ALONG_BAYAR)} bila lalu MULA!`;
   S.msg=t;addLog(t);sfx.coin();renderAll()}
 function alongBayar(){const p=cur();if(!p||!p.along||p.cash<p.along||busy||tradePending())return;
   const a=p.along;p.cash-=a;p.along=0;
-  const t=`${p.name} langsaikan hutang Along (${fmt(a)}) awal. Selamat!`;S.msg=t;addLog(t);sfx.pay();renderAll()}
+  const t=`${p.name} langsaikan hutang Ah Long (${fmt(a)}) awal. Selamat!`;S.msg=t;addLog(t);sfx.pay();renderAll()}
 function alongTagih(p){if(!p.along)return;const a=p.along;p.cash-=a;p.along=0;
   if(p.cash<0)p.creditor=null;
-  const t=p.cash<0?`🦈 Along tunggu di MULA! ${p.name} bayar ${fmt(a)} dan kini berhutang ${fmt(-p.cash)}.`
-    :`🦈 Along tunggu di MULA! ${p.name} bayar ${fmt(a)}.`;
+  const t=p.cash<0?`🦈 Ah Long tunggu di MULA! ${p.name} bayar ${fmt(a)} dan kini berhutang ${fmt(-p.cash)}.`
+    :`🦈 Ah Long tunggu di MULA! ${p.name} bayar ${fmt(a)}.`;
   S.msg=t;addLog(t,'sewa');sfx.pay()}
 function finish(){S.phase='over';renderAll();showEnd()}
 /* Lencana: hanya untuk pemain yang benar-benar menonjol — nilai tertinggi,
@@ -489,7 +489,7 @@ function showEnd(){
     /* Statistik sebagai cip ikon; yang kosong disembunyikan kecuali hartanah dan misi. */
     const st=[['💸',`+${fmt(t.sewaIn)}`,'Sewa dikutip',t.sewaIn],['🧾',`−${fmt(t.sewaOut)}`,'Sewa dibayar',t.sewaOut],
       ['🏠',owned,'Hartanah dimiliki',1],['🏗️',t.bina,'Kali membina',t.bina],['🔒',t.lokap,'Kali masuk Lokap',t.lokap],
-      ['🦈',t.along||0,'Pinjaman Along',t.along||0],['🏆',`${misi}/${MISI.length}`,'Misi selesai',1]]
+      ['🦈',t.along||0,'Pinjaman Ah Long',t.along||0],['🏆',`${misi}/${MISI.length}`,'Misi selesai',1]]
       .filter(x=>x[3]).map(x=>`<span class="stat" title="${x[2]}"><span aria-hidden="true">${x[0]}</span><span class="sr-only">${x[2]}:</span> ${x[1]}</span>`).join('');
     const win=r.pos===1&&!r.p.bankrupt;
     /* Lencana sekali sahaja, dengan penerangan pendek terus pada cip. */
