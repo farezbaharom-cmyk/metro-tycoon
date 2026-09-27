@@ -17,6 +17,9 @@ function freeLap(p,what){const t=`Pusingan pertama: ${p.name} ${what}.`;S.msg=t;
 function pay(p,a,to=null){
   if(lapOne(p)){freeLap(p,`tak perlu bayar ${fmt(a)}`);return}
   p.cash-=a; if(to!==null){S.players[to].cash+=a}
+  /* Bayaran kepada bank (cukai, denda, kad, ikat jamin) terkumpul dalam Tabung
+     Parkir. Pemain yang mendarat tepat di Parkir Percuma mengutip semuanya. */
+  else S.pot=(S.pot||0)+a;
   if(p.cash<0)p.creditor=to;
   const t=`${p.name} bayar ${fmt(a)}${to!==null?' kepada '+S.players[to].name:''}.`;addLog(t,'sewa');S.msg=t;sfx.pay();
 }
@@ -201,10 +204,21 @@ async function land(p,opts={}){
     const text=raw.replace(/(kutip) RM200/gi,(m,k)=>`${k} ${fmt(goBonus())}`);
     S.card={deck:key,text,id:Date.now()+Math.random()};S.msg=`${p.name} cabut kad ${s.n}.`;addLog(`${s.n}: ${text}`);sfx.card();renderAll();
     await sleep(1500);S.card=null;renderAll();await fx(p);return}
-  if(s.t==='free'){S.msg=`${p.name} berehat di Parkir Percuma.`;return}
+  if(s.t==='free'){const j=S.pot||0;
+    if(j<=0){S.msg=`${p.name} berehat di ${s.n}. Tabung Parkir kosong buat masa ini.`;return}
+    S.pot=0;p.cash+=j;stt(pi).jp=(stt(pi).jp||0)+j;
+    const t=`🎰 JACKPOT! ${p.name} kutip Tabung Parkir ${fmt(j)}!`;S.msg=t;addLog(t);
+    /* Direkod dalam keadaan supaya sambutan dimainkan pada setiap peranti. */
+    S.jp={pi,a:j,id:Date.now().toString(36)+Math.random().toString(36).slice(2,6)};
+    sayAll('jackpot',p.name,fmt(j));return}
   if(s.t==='jail'){S.msg=`${p.name} sekadar melawat Lokap.`;return}
-  if(s.t==='go'){S.msg=`${p.name} mendarat tepat di MULA.`}
+  if(s.t==='go'){
+    /* Mendarat TEPAT di MULA dengan dadu: bonus tambahan (bukan melalui kad). */
+    if(opts.dice){const b=TEPAT_BONUS;p.cash+=b;const t=`🎯 Tepat di MULA! ${p.name} dapat bonus ${fmt(b)}.`;
+      S.msg=t;addLog(t);toastAll(t);sfx.coin();fxMoney(0,true);return}
+    S.msg=`${p.name} mendarat tepat di MULA.`}
 }
+const TEPAT_BONUS=100;
 function flash(i){const el=document.getElementById('sq'+i);if(!el)return;el.classList.add('hl');setTimeout(()=>el.classList.remove('hl'),900)}
 
 /* ---------- turn flow ---------- */
@@ -218,14 +232,14 @@ async function rollDice(){
   rollDiceAnim();await sleep(800);
   addLog(`${p.name} baling ${a} + ${b}${dbl?' (ganda!)':''}.`,'dadu');
   if(p.inJail){
-    if(dbl){p.inJail=false;S.again=false;S.msg=`Dadu ganda! ${p.name} bebas dari Lokap.`;addLog(S.msg,'lokap');renderAll();await sleep(500);await walk(p,a+b);await land(p)}
+    if(dbl){p.inJail=false;S.again=false;S.msg=`Dadu ganda! ${p.name} bebas dari Lokap.`;addLog(S.msg,'lokap');renderAll();await sleep(500);await walk(p,a+b);await land(p,{dice:true})}
     else{p.jailTurns++;
-      if(p.jailTurns>=3){pay(p,50);p.inJail=false;S.again=false;addLog(`${p.name} bayar denda RM50 selepas 3 giliran.`,'lokap');renderAll();await sleep(500);await walk(p,a+b);await land(p)}
+      if(p.jailTurns>=3){pay(p,50);p.inJail=false;S.again=false;addLog(`${p.name} bayar denda RM50 selepas 3 giliran.`,'lokap');renderAll();await sleep(500);await walk(p,a+b);await land(p,{dice:true})}
       else{S.msg=`Bukan ganda. ${p.name} kekal di Lokap (${p.jailTurns}/3).`;S.again=false}}
   }else{
     if(dbl){S.doubles++;stt(S.turn).ganda++;if(S.doubles===3){addLog('Tiga kali ganda berturut-turut!','dadu');
       if(goJail(p)!==false){S.msg=`3 kali dadu ganda berturut-turut — ${p.name} masuk Lokap!`;settle();busy=false;renderAll();flushRemote();return}}}
-    S.again=dbl&&S.doubles>0;await walk(p,a+b);await land(p);
+    S.again=dbl&&S.doubles>0;await walk(p,a+b);await land(p,{dice:true});
   }
   if(S.phase!=='buy')settle();busy=false;renderAll();flushRemote();
 }
@@ -444,6 +458,7 @@ function badges(){
   top(owned,1,'👑','Tuan Tanah',x=>`miliki ${x} hartanah`,2);
   top(k=>stt(k).lokap,2,'🔒','Banduan Tetap',x=>`masuk Lokap ${x} kali`,5);
   top(k=>stt(k).ganda,3,'🎲','Tangan Panas',x=>`${x} kali dadu ganda`,6);
+  top(k=>stt(k).jp||0,1,'🎰','Raja Jackpot',x=>`kutip ${fmt(x)} Tabung Parkir`,4);
   top(k=>stt(k).bina,1,'🏗️','Kontraktor',x=>`bina ${x} kali`,7);
   top(k=>stt(k).kad,4,'🃏','Kaki Kad',x=>`cabut ${x} kad`,8);
   top(k=>stt(k).sewaOut,1,'🩸','Penderma Tegar',x=>`bayar ${fmt(x)} sewa`,9);

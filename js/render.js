@@ -110,16 +110,17 @@ function buildBoard(){
   h+=`<div class="center" id="center"><svg class="map ed-${curEd}" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${emap?emap():lines}</svg>${skylineSVG()}
     <div class="logo"><h1>${EDITIONS[curEd].logo}</h1><p>${EDITIONS[curEd].sub}</p></div>
     <div class="dice">${dieHTML(0)}${dieHTML(1)}</div>
+    <button class="potled" id="potled" type="button" hidden aria-label="Tabung Parkir"><span class="pl">🅿️ Tabung Parkir</span><b class="pv" id="potval">RM0</b></button>
     <div class="msg" id="msg" aria-live="polite"></div><div id="cardSlot"></div></div>`;
   h+=`<div class="flyer" id="flyer" aria-hidden="true"></div>`;
-  b.innerHTML=h;
+  b.innerHTML=h;potShown=null;
   requestAnimationFrame(fitNames);
   if(window.ResizeObserver&&!b._fitRO){b._fitRO=new ResizeObserver(()=>requestAnimationFrame(fitNames));b._fitRO.observe(b)}
   if(document.fonts&&!b._fitFonts){b._fitFonts=1;document.fonts.ready.then(()=>requestAnimationFrame(fitNames))}
   if(!document.getElementById('boardHelp')){const help=document.createElement('p');help.id='boardHelp';help.className='board-help';help.textContent='Sentuh mana-mana stesen untuk lihat nama penuh, harga dan sewa.';b.parentElement.insertAdjacentElement('afterend',help)}
   /* Papan dilukis semula bila edisi bertukar: pasang pendengar sekali sahaja. */
   if(b._bound)return;b._bound=1;
-  b.addEventListener('click',e=>{const sq=e.target.closest('.sq');
+  b.addEventListener('click',e=>{if(e.target.closest('.potled')){showDeed(20);return}const sq=e.target.closest('.sq');
     if(sq&&zPan.moved<7)showDeed(+sq.dataset.i)});   /* seretan bukan ketukan */
   b.addEventListener('keydown',e=>{const sq=e.target.closest('.sq');if(sq&&(e.key==='Enter'||e.key===' ')){e.preventDefault();showDeed(+sq.dataset.i)}});
 }
@@ -168,6 +169,7 @@ function renderBoard(){
     const toks=S.players.map((p,k)=>(!p.bankrupt&&p.pos===i)
       ?`<span class="tok ${k===S.turn&&S.phase!=='over'&&S.phase!=='moving'?'me':''} ${i<=19?'flip':''}${lolK.has(k)?' lol':''}" data-k="${k}" style="color:${p.color}" title="${esc(p.name)} · ${tokName(tokOf(k))}">${trainSVG(k)}</span>`:'').join('');
     el.querySelector('.tokens').innerHTML=toks});
+  renderPot();
   document.getElementById('msg').textContent=S.msg;
   const cs=document.getElementById('cardSlot');
   if(S.card&&cs.dataset.k!==String(S.card.id)&&!cs.dataset.deed&&closedCard!==S.card.id){const pel=S.card.deck==='peluang';
@@ -175,6 +177,18 @@ function renderBoard(){
     cs.innerHTML=`<div class="card ed-${curEd}"><header style="background:${cd.c}"><span><span class="cic" aria-hidden="true">${cd.ic}</span> ${pel?'Peluang':'Tabung Komuniti'}</span><button class="x" type="button" aria-label="Tutup">×</button></header><div class="ct">${esc(S.card.text)}</div></div>`;
     cs.dataset.k=String(S.card.id);cs.querySelector('.x').onclick=()=>{closedCard=S.card&&S.card.id;cs.innerHTML='';delete cs.dataset.k}}
   else if(!S.card&&cs.dataset.k&&!cs.dataset.deed){cs.innerHTML='';delete cs.dataset.k}
+}
+/* Tabung Parkir: jumlah dipaparkan di tengah papan (boleh diketik untuk penerangan).
+   Nombor "bergolek" naik bila tabung bertambah supaya pemain perasan. */
+var potShown=null;
+function renderPot(){
+  const v=Math.max(0,Math.round(S.pot||0)),led=document.getElementById('potled'),pv=document.getElementById('potval');
+  if(led){led.hidden=v<=0||S.phase==='over';
+    if(pv&&potShown!==v){const from=potShown==null?v:potShown;potShown=v;
+      if(RM||from>=v||led.hidden)pv.textContent=fmt(v);
+      else{const t0=performance.now(),d=650;led.classList.remove('bump');void led.offsetWidth;led.classList.add('bump');
+        const step=t=>{const k=Math.min(1,(t-t0)/d),e=1-(1-k)**3;pv.textContent=fmt(from+(v-from)*e);if(k<1&&potShown===v)requestAnimationFrame(step)};
+        requestAnimationFrame(step)}}}
 }
 function closeDeed(){document.getElementById('deedBox').hidden=true}
 /* Warna laluan cerah (Monorel, MRT Putrajaya, LRT Ampang) perlukan tulisan
@@ -235,7 +249,7 @@ function showDeed(i){
     const info={go:'Kutip RM200 setiap kali melepasi petak ini. Setiap lintasan dikira satu pusingan.',
       jail:'Sekadar melawat jika anda mendarat di sini. Pemain yang ditahan mesti bayar RM50, guna Kad Bebas Lokap, atau baling dadu ganda.',
       gojail:'Terus ke Lokap tanpa mengutip RM200.',
-      free:'Rehat. Tiada apa-apa berlaku di sini.',
+      free:`<b>Tabung Parkir:</b> semua cukai, denda, ikat jamin dan bayaran kad kepada bank terkumpul di sini. Mendarat tepat di petak ini untuk kutip semuanya. Tabung sekarang: <b>${fmt(S&&S.pot||0)}</b>.`,
       tax:`Bayar ${fmt(s.a||0)} kepada bank.`,
       peluang:'Cabut satu kad Peluang.',
       tabung:'Cabut satu kad Tabung Komuniti.'}[s.t]||'';
@@ -508,13 +522,14 @@ function renderTrade(){
 /* Berita dan sambutan set penuh dimainkan apabila keadaan berubah — sama ada
    perubahan itu dibuat di peranti ini atau tiba dari bilik online. Permainan
    yang baru dibuka/disertai hanya direkod, tidak dimainkan semula. */
-let seenGid, seenEvent, seenFan, seenLol, seenSay=new Set();
+let seenGid, seenEvent, seenFan, seenLol, seenJp, seenSay=new Set();
 function newsHook(){
   if(!S)return;
-  const ek=S.event?S.event.id:null, fk=S.fan?S.fan.id:null, lk=S.lol?S.lol.id:null;
+  const ek=S.event?S.event.id:null, fk=S.fan?S.fan.id:null, lk=S.lol?S.lol.id:null, jk=S.jp?S.jp.id:null;
   const sq=Array.isArray(S.say)?S.say:[];
-  if(seenGid!==S.gid||seenEvent===undefined){seenGid=S.gid;seenEvent=ek;seenFan=fk;seenLol=lk;seenSay=new Set(sq.map(x=>x.id));pidsIdle();return}
+  if(seenGid!==S.gid||seenEvent===undefined){seenGid=S.gid;seenEvent=ek;seenFan=fk;seenLol=lk;seenJp=jk;seenSay=new Set(sq.map(x=>x.id));pidsIdle();return}
   sq.forEach(x=>{if(!x||seenSay.has(x.id))return;seenSay.add(x.id);if(GAYA.pakcik[x.k])speak(line(x.k,...(x.a||[])),false)});
+  if(ek!==seenEvent&&S.phase==='over')seenEvent=ek;   /* jangan tutup skrin tamat dengan berita */
   if(ek!==seenEvent){seenEvent=ek;
     if(S.event){const e=EVENTS[S.event.k];toast('📰 '+e.t);
       if(!busy){pidsShow('Berita terkini',e.t);pidsHide(3200)}
@@ -522,8 +537,23 @@ function newsHook(){
     else{toast('📰 Semua perkhidmatan kembali seperti biasa.')}}
   if(fk!==seenFan){seenFan=fk;if(S.fan)playFanfare(S.fan)}
   if(lk!==seenLol){seenLol=lk;if(S.lol)playLaugh(S.lol)}
+  if(jk!==seenJp){seenJp=jk;if(S.jp)playJackpot(S.jp)}
   pidsIdle();
 }
+/* Jackpot Tabung Parkir: syiling berhamburan di petak Parkir dan papan
+   ucapan di tengah papan, pada setiap peranti. */
+function playJackpot(j){
+  const who=S.players[j.pi];if(!who)return;
+  const c=document.getElementById('center');
+  if(c){c.querySelectorAll('.jppop').forEach(x=>x.remove());
+    const d=document.createElement('div');d.className='jppop';d.setAttribute('aria-hidden','true');
+    d.innerHTML=`<span class="jpt">JACKPOT!</span><span class="jpa money">+${fmt(j.a)}</span><span class="jpn" style="color:${who.color}"><span class="av">${trainSVG(j.pi)}</span>${esc(who.name)}</span><small>kutip Tabung Parkir</small>`;
+    c.appendChild(d);setTimeout(()=>{d.classList.add('out');setTimeout(()=>d.remove(),400)},2600)}
+  const el=document.getElementById('sq20');
+  if(el){el.style.setProperty('--gc','#E8B400');el.classList.remove('won');void el.offsetWidth;el.classList.add('won');setTimeout(()=>el.classList.remove('won'),2600)}
+  fxMoney(20,true);setTimeout(()=>fxMoney(20,true),380);
+  sfx.win();vib([60,50,60,50,160]);
+  pidsShow('Jackpot',`${who.name} · ${fmt(j.a)}`);pidsHide(3200)}
 function playFanfare(f){
   const g=GROUPS[f.g],who=S.players[f.pi];if(!g||!who)return;
   const idx=groupIdx(f.g);

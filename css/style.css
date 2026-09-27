@@ -1488,3 +1488,30 @@ body.v3d .center svg.map.ed-borneo{opacity:.4}
   .edcard{padding:7px 10px;gap:3px}.edcard small{display:none}.edcard b{font-size:13px}.edcard .edtick{top:6px;width:16px;height:16px}}
 .edcard b{padding-right:18px}
 body:has(#endBox:not([hidden])) :is(.mfloat,.stamp){display:none}
+/* ---------- Tabung Parkir (jackpot) ----------
+   Papan LED kecil di tengah papan, gaya sama seperti jalur PIDS. */
+.potled{position:relative;display:inline-flex;align-items:center;gap:1.2cqi;padding:.7cqi 1.6cqi;margin:0;
+  border:0;border-radius:999px;cursor:pointer;font:inherit;
+  background:#0E1620;color:#FFD93D;box-shadow:0 0 0 1px rgba(255,217,61,.25),0 4px 12px rgba(0,0,0,.25)}
+.potled[hidden]{display:none}
+.potled .pl{font-size:max(9px,1.45cqi);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#7FD4FF}
+.potled .pv{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:max(11px,2cqi);font-weight:700;
+  text-shadow:0 0 6px rgba(255,217,61,.55)}
+.potled:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.potled.bump{animation:potbump .6s cubic-bezier(.3,1.6,.5,1)}
+@keyframes potbump{30%{transform:scale(1.14);box-shadow:0 0 0 2px #FFD93D,0 0 18px 4px rgba(255,217,61,.55)}}
+/* Sambutan jackpot di tengah papan. */
+.jppop{position:absolute;left:50%;top:50%;z-index:8;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:.6cqi;
+  padding:2.2cqi 4cqi 2.4cqi;border-radius:18px;max-width:88%;text-align:center;
+  background:radial-gradient(circle at 50% 0%,#3A2A00,#0E1620 70%);color:#fff;
+  box-shadow:0 12px 34px rgba(0,0,0,.4),0 0 0 2px #FFD93D,0 0 30px 6px rgba(255,217,61,.35);
+  transform:translate(-50%,-50%) scale(.6);opacity:0;animation:lol-in .34s cubic-bezier(.3,1.6,.5,1) forwards}
+.jppop.out{animation:lol-out .35s ease-in forwards}
+.jppop .jpt{font-family:var(--display);font-weight:900;font-size:max(20px,6cqi);line-height:.9;letter-spacing:.04em;color:#FFD93D;
+  text-shadow:0 0 14px rgba(255,217,61,.6);animation:lol-bub .45s ease-in-out infinite alternate}
+.jppop .jpa{font-size:max(16px,4cqi);color:#9CF5B5}
+.jppop .jpn{display:flex;align-items:center;gap:.8cqi;font-weight:800;font-size:max(12px,2.2cqi)}
+.jppop .jpn .av{width:max(22px,4.4cqi);height:max(22px,4.4cqi);display:inline-block}
+.jppop .jpn .av svg{width:100%;height:100%;display:block}
+.jppop small{color:#B7C4D0;font-size:max(10px,1.5cqi)}
+@media(prefers-reduced-motion:reduce){.jppop{opacity:1;transform:translate(-50%,-50%)}.jppop .jpt,.potled.bump{animation:none}}
