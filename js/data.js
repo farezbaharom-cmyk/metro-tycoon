@@ -134,11 +134,16 @@ let TRAINS=[
    kerana siluetnya berbeza ikut kerusi. Warna sentiasa ikut kerusi pemain.
    Tiada pilihan = kucing ikut kerusi (tingkah laku asal). */
 const TOKS=['tren','c0','c1','c2','c3','c4'];
-const isTok=t=>TOKS.includes(t);
+/* Watak tambahan ikut edisi (cth. Orang Utan, Kenyalang), diisi oleh borneo-toks.js:
+   id → {n: nama, svg}. Sentiasa boleh dilukis, tetapi hanya ditawarkan dalam
+   pemilih watak edisinya (EDITIONS[..].toks). Seperti kucing: seorang satu. */
+const TOK_EXTRA={};
+const isTok=t=>TOKS.includes(t)||!!TOK_EXTRA[t];
+const pickToks=()=>TOKS.concat(typeof tokEd==='function'&&EDITIONS[tokEd()].toks||[]);
 const defTok=k=>'c'+(k%5);
-const tokName=t=>t==='tren'?(typeof tokEd==='function'&&tokEd()==='borneo'?'Kenderaan':'Tren'):(MetroCats.names[+String(t).slice(1)]||'Kucing');
+const tokName=t=>t==='tren'?(typeof tokEd==='function'&&tokEd()==='borneo'?'Kenderaan':'Tren'):TOK_EXTRA[t]?TOK_EXTRA[t].n:(MetroCats.names[+String(t).slice(1)]||'Kucing');
 function tokSVG(t,k){const T=typeof tokEd==='function'?EDITIONS[tokEd()].trains:TRAINS;
-  return t==='tren'?`<svg class="train" viewBox="0 0 28 20" aria-hidden="true">${T[k%T.length]}</svg>`:MetroCats.svg(+t.slice(1))}
+  return t==='tren'?`<svg class="train" viewBox="0 0 28 20" aria-hidden="true">${T[k%T.length]}</svg>`:TOK_EXTRA[t]?TOK_EXTRA[t].svg:MetroCats.svg(+t.slice(1))}
 function tokOf(k){const p=S&&S.players&&S.players[k];return p&&isTok(p.tok)?p.tok:defTok(k)}
 const trainSVG=k=>tokSVG(tokOf(k),k);
 const trainMark=(k,color,cls,t)=>{t=isTok(t)?t:tokOf(k);
@@ -155,7 +160,7 @@ function savePrefTok(t){try{localStorage.setItem('mtkl-tok',t)}catch(e){}}
 /* Pemilih watak dengan pratonton besar bagi pilihan semasa. */
 function tokPicker(sel,k,color,taken,big){
   return `${big?`<div class="tokprev" style="color:${color}"><span class="tpbig">${tokSVG(sel,k)}</span><span><small>Watak anda</small><b>${tokName(sel)}</b></span></div>`:''}
-  <div class="tokpick" role="radiogroup" aria-label="Pilih watak">${TOKS.map(t=>{const dis=t!=='tren'&&t!==sel&&taken.has(t);
+  <div class="tokpick" role="radiogroup" aria-label="Pilih watak">${pickToks().map(t=>{const dis=t!=='tren'&&t!==sel&&taken.has(t);
     return `<button type="button" class="tp${t===sel?' on':''}" role="radio" aria-checked="${t===sel}" data-tok="${t}"${dis?' disabled':''} title="${tokName(t)}${dis?' — sudah dipilih':''}"><span class="tpv" style="color:${color}">${tokSVG(t,k)}</span><small>${tokName(t)}</small></button>`}).join('')}</div>`}
 const DEFAULT_NAMES=['Zaiq','Farez','Fifah','Laila','Pemain 5'];
 const buyable=i=>['prop','hub','util'].includes(SQ[i].t);

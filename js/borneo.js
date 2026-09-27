@@ -193,7 +193,7 @@ const ED_BORNEO={id:'borneo',label:'Edisi Borneo',emoji:'🌴',blurb:'Sabah & Sa
   home:'Metro <span>Tycoon</span> Borneo',tag:'Permainan hartanah laluan rel impian Sabah dan Sarawak.',
   sq:B_SQ,groups:B_GROUPS,code:B_CODE,corner:B_CORNER,short:B_SHORT,syl:B_SYL,events:B_EVENTS,
   pel:B_PEL,tab:B_TAB,sky:borneoSkyline,map:borneoMap,
-  card:{peluang:{c:'#D9480F',ic:'🌴'},tabung:{c:'#1B7F8C',ic:'🛶'}},say:B_SAY,trains:B_TRAINS,
+  card:{peluang:{c:'#D9480F',ic:'🌴'},tabung:{c:'#1B7F8C',ic:'🛶'}},say:B_SAY,trains:B_TRAINS,toks:['b0','b1'],
   /* Laluan Sabah: 0 Keretapi Sabah, 2 Pantai Timur, 5 Pantai Utara, 7 Kinabalu; selebihnya Sarawak. */
   misi:[{id:'jelajahBorneo',e:'🌴',t:'Penjelajah Borneo',d:'Miliki stesen di Sabah dan Sarawak',r:60,
     p:k=>{const g=linesOwned(k);return[([0,2,5,7].some(x=>g.has(x))?1:0)+([1,3,4,6].some(x=>g.has(x))?1:0),2]}}],

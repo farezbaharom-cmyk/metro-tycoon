@@ -244,7 +244,10 @@ addEventListener('keydown',afkPing);
 function omsg(t){$('onlineMsg').textContent=t||''}
 /* Kerusi baharu membawa watak pilihan tersimpan, jika kucing itu belum diambil. */
 function seatVal(name,seats){const v={name,t:Date.now()},t=prefTok();
-  if(t&&(t==='tren'||!Object.values(seats||{}).some(s=>s&&s.tok===t)))v.tok=t;return v}
+  /* Watak edisi (b0, b1) tidak dihantar semasa cipta/sertai bilik: jika peraturan
+     Firebase belum dikemas kini, seluruh tulisan kerusi akan ditolak. Ia boleh
+     dipilih di lobi selepas masuk. */
+  if(t&&!/^b/.test(t)&&(t==='tren'||!Object.values(seats||{}).some(s=>s&&s.tok===t)))v.tok=t;return v}
 function pickTokOnline(t){
   if(!NET||!NET.room||NET.watch||NET.room.meta.started)return;
   const seats=NET.room.seats||{};if(!seats[UID]||!isTok(t))return;
