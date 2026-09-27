@@ -235,6 +235,6 @@ if('serviceWorker'in navigator&&(location.protocol==='https:'||location.hostname
     document.body.classList.add('tapped');try{localStorage.setItem('mtkl-tapped','1')}catch(e){}},{once:false})})();
 
 /* Sekali sahaja selepas kemas kini: beritahu ciri baharu. */
-(()=>{const K='mtkl-baharu',V='v35';let seen='';try{seen=localStorage.getItem(K)||''}catch(e){}
+(()=>{const K='mtkl-baharu',V='v36';let seen='';try{seen=localStorage.getItem(K)||''}catch(e){}
   if(seen===V)return;try{localStorage.setItem(K,V)}catch(e){}
-  setTimeout(()=>toast('✨ Baharu: 🅿️ Jackpot Tabung Parkir · 💬 Celoteh watak · 😂 Reaksi dalam bilik online · 🎯 Bonus tepat di MULA'),1800)})();
+  setTimeout(()=>toast('✨ Baharu: 😂 Reaksi dalam bilik online — ketik butang 😄 di bawah papan untuk bersorak bersama kawan!'),1800)})();
