@@ -7,10 +7,6 @@
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function gridPos(i){if(i<=10)return[11,11-i];if(i<=20)return[11-(i-10),1];if(i<=30)return[1,1+(i-20)];return[1+(i-30),11]}
 function side(i){if(i%10===0)return'corner bottom';return i<10?'bottom':i<20?'left':i<30?'top':'right'}
-/* Nama pendek untuk papan telefon. \u00AD = sempang lembut: perkataan panjang
-   dipecah di situ (dengan sempang) hanya jika ia tidak muat sebaris. */
-/* Nama pendek untuk papan telefon. \u00AD = sempang lembut: perkataan hanya
-   dipecah di situ jika tidak muat, jadi tiada huruf yang terpotong. */
 /* Nama pendek stesen (telefon). SHORT = bentuk bersih (pecah hanya di ruang
    atau sempadan semula jadi, cth. Titi-wangsa). SHORT_SYL = dipecah ikut suku
    kata, digunakan bila ia memberi tulisan lebih besar (lihat fitNames). */
@@ -93,7 +89,7 @@ function buildBoard(){
     const label=s.p?`<span class="pr">${fmt(s.p)}</span>`:s.a?`<span class="pr">${fmt(s.a)}</span>`:'';
     const icon=CORNER[i]?cornerSVG(i):s.t!=='prop'?`<span class="ic" aria-hidden="true">${s.ic}</span>`:'';
     const csub=CORNER[i]?`<span class="csub" aria-hidden="true">${CORNER[i].sub}</span>`:'';
-    const code=CODE[i]?`<span class="scode" style="--lc:${GROUPS[s.g].c};--lt:${s.g===0||s.g===7?'#1B2530':'#fff'}" aria-hidden="true">${CODE[i]}</span>`:'';
+    const code=CODE[i]?`<span class="scode" style="--lc:${GROUPS[s.g].c};--lt:${lightBg(GROUPS[s.g].c)?'#1B2530':'#fff'}" aria-hidden="true">${CODE[i]}</span>`:'';
     /* Perkataan terpanjang yang menentukan sama ada nama muat dalam satu baris. */
     const lw=Math.max(...s.n.split(/\s+/).map(w=>w.length));
     const fit=lw>=11?' tighter':lw>=9?' tight':'';

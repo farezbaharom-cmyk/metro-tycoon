@@ -32,10 +32,14 @@ const B_GROUPS=[
  {n:'Laluan Pantai Timur',c:'#8B3A62',h:100},{n:'Laluan Sungai Rajang',c:'#E07A1F',h:100},
  {n:'Laluan Pan Borneo',c:'#C62828',h:150},{n:'Laluan Pantai Utara',c:'#3F51B5',h:150},
  {n:'ART Kuching',c:'#2E7D32',h:200},{n:'Laluan Kinabalu',c:'#F2C200',h:200}];
-const B_NAMES={1:'Tenom',3:'Beaufort',5:'Hab Lapangan Terbang KK',6:'Kapit',8:'Belaga',9:'Mukah',
+const B_NAMES={1:'Tenom',3:'Beaufort',5:'Hab Airport KK',6:'Kapit',8:'Belaga',9:'Mukah',
   11:'Tawau',13:'Semporna',14:'Lahad Datu',15:'Hab Sibu Sentral',16:'Sri Aman',18:'Sarikei',19:'Sibu',
   21:'Bintulu',23:'Miri',24:'Limbang',25:'Hab Jeti Labuan',26:'Kudat',27:'Kota Belud',29:'Sandakan',
-  31:'Santubong',32:'Satok',34:'Waterfront Kuching',35:'Hab Lapangan Terbang Kuching',37:'Kundasang',39:'Kota Kinabalu'};
+  31:'Santubong',32:'Satok',34:'Waterfront Kuching',35:'Hab Airport Kuching',37:'Kundasang',39:'Kota Kinabalu'};
+/* Kod stesen rekaan (dua huruf laluan + nombor), seperti papan tanda KL. */
+const B_CODE={1:'KS08',3:'KS05',6:'HR02',8:'HR05',9:'HR09',11:'PT01',13:'PT04',14:'PT07',
+  16:'SR02',18:'SR06',19:'SR09',21:'PB12',23:'PB18',24:'PB21',26:'PU01',27:'PU05',29:'PU11',
+  31:'AK01',32:'AK07',34:'AK10',37:'KN04',39:'KN01'};
 const B_SQ=ED_KL.sq.map((s,i)=>B_NAMES[i]?{...s,n:B_NAMES[i]}:{...s});
 const B_SHORT={1:'Tenom',2:'Tabung',3:'Beau­fort',4:'Cukai',5:'Airport KK',6:'Kapit',7:'Peluang',8:'Belaga',9:'Mukah',
   11:'Tawau',12:'Elektrik',13:'Sem­porna',14:'Lahad Datu',15:'Sibu Sentral',16:'Sri Aman',17:'Tabung',18:'Sarikei',19:'Sibu',
@@ -81,7 +85,7 @@ const B_EVENTS=[
  {t:'Pendaki serbu Gunung Kinabalu! Sewa Laluan Kinabalu naik 2×.',gm:{7:2}}];
 /* Teks kad sahaja; kesannya dikongsi dengan KL ikut indeks (lihat data.js).
    Destinasi: 39 Kota Kinabalu, 24 Limbang, 29 Sandakan, 34 Waterfront Kuching,
-   5 Hab Lapangan Terbang KK. */
+   5 Hab Airport KK. */
 const B_PEL=[
  'Maju ke MULA. Kutip RM200.',
  'Tiket kapal terbang promosi! Terbang terus ke Kota Kinabalu.',
@@ -136,7 +140,8 @@ function borneoSkyline(gid){gid=gid||'skyg';
   /* Bukit di belakang dan Gunung Kinabalu yang bergerigi di kanan. */
   const hills=`<path class="b0" d="M0 200V150q40-22 90-8t80 2q40-14 70 0V200z"/>`;
   const kinabalu=`<path class="lm" d="M226 200L256 148l14-8l10-22l8-4l6-18l6 8l5-16l5 12l6-14l4 10l6-6l8 22l12 10l16 30l22 20l6 8V200z"/>
-    <path class="b1" opacity=".35" d="M299 76l5 12l6-14l4 10l6-6l8 22l12 10l16 30l22 20l6 8V200H300z"/>`;
+    <path class="b1" opacity=".35" d="M299 76l5 12l6-14l4 10l6-6l8 22l12 10l16 30l22 20l6 8V200H300z"/>
+    <path fill="#fff" opacity=".42" d="M280 70l8 8l8-16l8 12l8-8l6 16l-7-3l-6 5l-6-6l-7 7l-6-8l-7 6l-4-4z"/>`;
   /* Menara Tun Mustapha: silinder kaca tinggi. */
   const tower=`<rect class="lm" x="196" y="64" width="16" height="136" rx="3"/><rect class="lm" x="200" y="52" width="8" height="14" rx="2"/><rect class="lm" x="203.3" y="36" width="1.4" height="18"/><circle class="beacon" cx="204" cy="36" r="1.4"/>`;
   /* Bangunan DUN Sarawak: bumbung payung emas. */
@@ -147,7 +152,7 @@ function borneoSkyline(gid){gid=gid||'skyg';
     ${[14,26,38,50,62,74,86,97].map(x=>`<rect class="lm" x="${x}" y="174" width="2" height="12"/>`).join('')}`;
   const palm=(x,h)=>`<path class="lmS" stroke-width="2.4" stroke-linecap="round" d="M${x} 200q-2-${h/2} 4-${h}"/>
     <g class="lm" transform="translate(${x+4} ${200-h})"><path d="M0 0q-9-4-15 2q7-2 15-2z"/><path d="M0 0q-3-9-11-10q8 4 11 10z"/><path d="M0 0q7-8 15-5q-9 0-15 5z"/><path d="M0 0q10 0 14 8q-6-6-14-8z"/></g>`;
-  const front=[[112,20,30],[178,16,26],[240,26,36],[268,22,28],[330,26,40],[358,22,30]];
+  const front=[[112,20,30],[178,16,26],[222,18,30],[240,26,36],[268,22,28],[292,18,34],[312,18,26],[330,26,40],[358,22,30]];
   const pillars=[20,70,120,170,220,270,320,370].map(x=>`<rect class="trk" x="${x}" y="186" width="4" height="14"/>`).join('');
   const train=`<g class="train"><rect class="tbody" x="0" y="173" width="84" height="11" rx="3"/><path class="tnose" d="M84 173h4q6 0 8 11h-12z"/>${[6,20,34,48,62,74].map(x=>`<rect class="twin" x="${x}" y="176" width="8" height="4" rx="1"/>`).join('')}</g>`;
   return `<svg class="sky" viewBox="0 0 400 200" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
@@ -161,7 +166,7 @@ function borneoSkyline(gid){gid=gid||'skyg';
 const ED_BORNEO={id:'borneo',label:'Edisi Borneo',emoji:'🌴',title:'Metro Tycoon Borneo',
   logo:'Metro<br><span>Tycoon</span> Borneo',sub:'Edisi Sabah & Sarawak',
   home:'Metro <span>Tycoon</span> Borneo',tag:'Permainan hartanah laluan rel impian Sabah dan Sarawak.',
-  sq:B_SQ,groups:B_GROUPS,code:{},corner:B_CORNER,short:B_SHORT,syl:B_SYL,events:B_EVENTS,
+  sq:B_SQ,groups:B_GROUPS,code:B_CODE,corner:B_CORNER,short:B_SHORT,syl:B_SYL,events:B_EVENTS,
   pel:B_PEL,tab:B_TAB,sky:borneoSkyline};
 const EDITIONS={kl:ED_KL,borneo:ED_BORNEO};
 
