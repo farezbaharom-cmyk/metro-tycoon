@@ -1398,3 +1398,28 @@ body:has(.overlay:not([hidden])) .bar{z-index:40}
 
 /* Edisi Borneo: nama lebih panjang — buang "Metro" di bar atas telefon sempit. */
 @media (max-width:420px){.bar .brand .bmetro{display:none}}
+
+/* Station tickets, landmark illustrations and ownership at a glance. */
+.ticket-label{display:block;font:700 10px var(--body);letter-spacing:.16em;margin-bottom:12px;opacity:.85}
+.station-ticket{margin:18px 20px 0;border:1px solid var(--rule);border-left:5px solid var(--ticket-route);border-radius:12px;background:var(--panel);overflow:hidden}
+.ticket-facts{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px}
+.ticket-facts>div+div{border-left:1px dashed var(--rule);padding-left:16px}
+.ticket-facts small{display:block;font-size:11px;color:var(--muted);margin-bottom:7px}
+.ticket-facts strong{font:700 21px var(--mono);font-variant-numeric:tabular-nums}
+.ticket-owner{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-top:2px dashed var(--rule);font-size:12px;overflow-wrap:anywhere}
+.ticket-serial{flex:none;font:700 11px var(--mono);letter-spacing:.1em;color:var(--muted)}
+.station-landmark{width:4cqi;height:3.5cqi;min-height:16px;flex:none;color:var(--muted);opacity:.8}
+.sq:has(.station-landmark) .ic{display:none}
+.sq.owned .own{display:flex;align-items:center;justify-content:center;z-index:7;border:1px solid var(--board);font-weight:900;box-shadow:0 1px 3px #0005}
+.sq.owned::after{border-radius:0;opacity:.8}
+#players .money,.pstrip .money,.turnhead>.money{position:relative}
+.balance-delta{position:absolute;right:0;bottom:100%;z-index:20;white-space:nowrap;padding:4px 7px;border-radius:7px;background:var(--panel);border:1px solid currentColor;box-shadow:0 3px 10px #0002;font:800 12px var(--mono);pointer-events:none;animation:balance-rise 1.8s ease-out both}
+.balance-delta.gain{color:#137342}.balance-delta.loss{color:var(--bad)}
+@keyframes balance-rise{0%{opacity:0;transform:translateY(6px)}15%,70%{opacity:1;transform:translateY(-4px)}100%{opacity:0;transform:translateY(-14px)}}
+@media(max-width:700px){
+ .station-landmark{position:absolute;width:18px;height:16px;right:1px;bottom:1px;min-height:0;opacity:.22;pointer-events:none}
+ .sq.owned:not(.corner) .own{display:flex;width:12px;height:12px;min-width:0;min-height:0;font-size:8px;right:0;left:auto;top:0;bottom:auto;border-radius:0 0 0 4px}
+ .ticket-facts strong{font-size:18px}
+ .balance-delta{font-size:10px;padding:3px 5px}
+}
+@media(prefers-reduced-motion:reduce){.balance-delta{animation:none}}
