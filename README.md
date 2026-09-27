@@ -31,7 +31,6 @@ Pilih edisi di skrin utama, atau buka terus [Edisi Borneo](https://farezbaharom-
 - Mendarat di stesen orang lain: **bayar sewa**. Kalau pemilik ada **laluan penuh**, sewa asas jadi dua kali ganda.
 - **Bina rumah dan hotel** untuk naikkan sewa.
 - **Tawar-menawar** hartanah dan tunai dengan pemain lain pada bila-bila masa dalam giliran anda.
-- Cukai dan denda masuk **Tabung Parkir**; mendarat di **Parkir Percuma** untuk sapu jackpot.
 - Wang tak cukup? Jual bangunan, gadai hartanah, pinjam daripada **🦈 Along**, atau isytihar muflis.
 - **Pemenang** ialah pemain yang ada kekayaan bersih tertinggi.
 
@@ -51,8 +50,6 @@ Peraturan penuh ada dalam permainan, di **⚙️ Menu → Peraturan**.
 - 😂 **Reaksi langsung** dalam bilik online: ketik butang 😄 di bawah papan untuk hantar emoji atau ayat pendek (Padan muka!, Cepatlah!, GG!…) yang terbang di atas papan pada skrin semua pemain dan penonton.
 - ⏱️ **Had masa giliran** dalam bilik online (30, 60 atau 90 saat, atau tiada had). Jika pemain tidak bertindak atau terputus talian, bot mengambil alih giliran itu secara automatik.
 - 👀 **Mod penonton**: kawan yang masuk selepas permainan bermula, atau bila bilik penuh, boleh menonton secara langsung.
-- 🅿️ **Tabung Parkir (jackpot):** cukai, denda dan bayaran kad kepada bank terkumpul di tengah papan. Mendarat tepat di Parkir Percuma untuk sapu semuanya, dengan sambutan JACKPOT di semua peranti.
-- 🎯 **Tepat di MULA:** mendarat tepat di MULA dengan dadu dapat bonus RM100 tambahan.
 - 🦈 **Along:** pemain yang kesempitan boleh pinjam RM300, tapi Along menagih RM400 bila mereka lalu MULA, cukup atau tidak wang mereka.
 - 🧵 **Tema Songket:** selain Auto, Terang dan Gelap, pilih **⚙️ Menu → Tema: Songket** untuk papan berbingkai tenunan emas atas merah hati.
 - 🌃 **Langit KL** di tengah papan (Menara Berkembar, KL Tower, Merdeka 118). Ia ikut jam tempatan: subuh, siang, senja dan malam, dengan palet berbeza untuk tema cerah dan gelap.
