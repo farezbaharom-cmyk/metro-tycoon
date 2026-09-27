@@ -373,7 +373,7 @@ function renderEdLobby(r,started){
   box.hidden=started||!ed;if(box.hidden)return;
   box.innerHTML=NET.host
     ?`<div class="seg" role="radiogroup" aria-label="Edisi papan bilik">${Object.values(EDITIONS).map(E=>
-      `<button type="button" role="radio" data-ed="${E.id}" aria-checked="${E.id===ed}" class="${E.id===ed?'on':''}">${E.emoji} ${E.label}</button>`).join('')}</div>`
+      `<button type="button" role="radio" data-ed="${E.id}" aria-checked="${E.id===ed}" tabindex="${E.id===ed?0:-1}" class="${E.id===ed?'on':''}">${E.emoji} ${E.label}</button>`).join('')}</div>`
     :`<p class="note">Edisi papan: <b>${EDITIONS[edId(ed)].emoji} ${EDITIONS[edId(ed)].label}</b></p>`;
   /* Papan contoh di belakang lobi ikut edisi bilik. */
   if(S&&!S.started&&S.ed!==edId(ed)){S.ed=edId(ed);renderAll()}}

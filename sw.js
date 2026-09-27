@@ -7,12 +7,12 @@
    Pangkalan data Firebase dan log masuk TIDAK disentuh — ia mesti sentiasa
    bercakap terus dengan pelayan.
    Tukar VERSI jika senarai fail teras berubah (contohnya fail js/ baharu). */
-const VERSI = 'mtkl-v29-kemas-edisi';
+const VERSI = 'mtkl-v30-borneo-js';
 const TERAS = [
   './', 'index.html', 'manifest.webmanifest', 'icon-180.png', 'icon-192.png', 'icon-512.png',
   'css/style.css',
   'js/cats.js', 'js/config.js', 'js/data.js', 'js/audio.js', 'js/rules.js',
-  'js/bot.js', 'js/render.js', 'js/editions.js', 'js/ui.js', 'js/online.js', 'js/app.js'
+  'js/bot.js', 'js/render.js', 'js/editions.js', 'js/borneo.js', 'js/ui.js', 'js/online.js', 'js/app.js'
 ];
 
 self.addEventListener('install', e => {

@@ -187,7 +187,7 @@ document.getElementById('missionToggle')?.addEventListener('click',()=>{
 
 /* ---------- boot ---------- */
 async function start(){
-  loadPrefs();buildBoard();bindZoom();
+  initEditions();loadPrefs();buildBoard();bindZoom();
   refreshHome();
   applyView();
   try{$('myName').value=localStorage.getItem('mtkl-name')||''}catch(e){}

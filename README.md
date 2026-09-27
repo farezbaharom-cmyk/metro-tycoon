@@ -8,6 +8,12 @@
 
 Tiada muat turun atau pendaftaran diperlukan. Buka di pelayar telefon atau komputer, dan terus main.
 
+### 🏙️ Edisi KL dan 🌴 Edisi Borneo
+
+![Papan Edisi KL (kiri) dan Edisi Borneo (kanan)](screenshot-edisi.jpg)
+
+Pilih edisi di skrin utama, atau buka terus [Edisi Borneo](https://farezbaharom-cmyk.github.io/metro-tycoon/borneo/).
+
 ---
 
 ## Cara main
@@ -72,6 +78,9 @@ Peraturan penuh ada dalam permainan, di **⚙️ Menu → Peraturan**.
 | `js/rules.js` | Peraturan: wang, sewa, pemilikan, berita, pergerakan, giliran, lelongan, tawaran, skrin tamat. |
 | `js/bot.js` | Pemain bot Mudah dan Sederhana. |
 | `js/render.js` | Melukis papan dan panel sisi, animasi Lokap, zum dan geser papan. |
+| `js/editions.js` | Enjin edisi: salinan data KL, senarai `EDITIONS`, pilihan edisi dan menukar papan ikut `S.ed`. |
+| `js/borneo.js` | Data Edisi Borneo: laluan, stesen, kad, berita, pemandangan, peta, suara, kenderaan dan misi. Salin fail ini untuk edisi baharu. |
+| `borneo/index.html` | Pautan kongsi Edisi Borneo dengan gambar pratonton sendiri (`og-borneo.png`). |
 | `js/ui.js` | Butang, papan kekunci, borang persediaan, pandangan 3D dan enjin partikel. |
 | `js/online.js` | Bilik online Firebase, penonton, had masa giliran, pembersihan bilik terbiar. |
 | `js/app.js` | Panel giliran telefon, tab bawah, tetingkap boleh diakses, boot dan PWA. |
