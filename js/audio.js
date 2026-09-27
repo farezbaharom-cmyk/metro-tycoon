@@ -137,7 +137,7 @@ function pidsIdle(){
   else{
     /* Tiada berita: tunjuk giliran siapa dan di stesen mana. */
     const p=typeof S!=='undefined'&&S&&S.players?S.players[S.turn]:null;
-    const t=p&&SQ[p.pos]?`${p.name} · ${SQ[p.pos].n}`:'Selamat datang ke Metro Tycoon KL';
+    const t=p&&SQ[p.pos]?`${p.name} · ${SQ[p.pos].n}`:'Selamat datang ke '+edTitle();
     if(el.classList.contains('news')||N.dataset.t!=='i:'+t){
       el.classList.remove('news');el.classList.add('idle');L.textContent='Giliran';N.textContent=t;N.dataset.t='i:'+t}
     return}

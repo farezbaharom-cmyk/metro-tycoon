@@ -46,7 +46,7 @@ const hasSet=(pi,g)=>groupIdx(g).every(i=>S.owner[i]===pi);
    pusingan baharu, satu berita mungkin berlaku dan kekal sepanjang pusingan
    itu. Hanya nombor indeks (S.event.k) disimpan, jadi keadaan kekal kecil.
    gm = pengganda sewa ikut laluan (indeks GROUPS); 0 = laluan ditutup. */
-const EVENTS=[
+let EVENTS=[
  {t:'Waktu puncak! Sewa semua stesen MRT naik 50%.',gm:{6:1.5,7:1.5}},
  {t:'Laluan Kelana Jaya ditutup untuk penyelenggaraan. Tiada sewa di laluan itu.',gm:{4:0}},
  {t:'Promosi tambang! Lalu MULA dapat RM300.',go:300},
@@ -458,7 +458,7 @@ function badges(){
 function endSummary(rk,bd){
   const url=location.origin+location.pathname;
   const seri=rk.filter(r=>r.pos===1&&!r.p.bankrupt).length>1;
-  return `🚆 Metro Tycoon KL${S.fast?' ⚡ Mod cepat':''}${seri?' · Keputusan seri!':''}\n`+
+  return `${curEd==='borneo'?'🌴':'🚆'} ${edTitle()}${S.fast?' ⚡ Mod cepat':''}${seri?' · Keputusan seri!':''}\n`+
     rk.map((r,i)=>{const k=S.players.indexOf(r.p);const b=bd[k].slice(0,3).map(x=>x.e+' '+x.t).join(', ');
       return `${['🥇','🥈','🥉'][r.pos-1]||r.pos+'.'} ${r.p.name} — ${fmt(r.w)}${r.p.bankrupt?' (muflis)':''}${b?'\n    '+b:''}`}).join('\n')+
     `\n\nMain di sini: ${url}`}

@@ -76,7 +76,7 @@ function openSetup(view){clearBot();resetZoom();closeDeed();document.getElementB
   const canResume=!!(S&&S.phase!=='over'&&!NET&&S.started);
   document.getElementById('btnResume').hidden=!canResume;
   document.getElementById('homeResume').hidden=!canResume;
-  showSetupView(view||'home');
+  refreshHome();showSetupView(view||'home');
   document.getElementById('setup').hidden=false;drawNames();renderLobby()}
 function quickToks(){const tk=fixToks([prefTok(),null]);S.players.forEach((p,i)=>p.tok=tk[i])}
 document.getElementById('homePlay').onclick=()=>{

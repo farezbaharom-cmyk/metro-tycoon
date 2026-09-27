@@ -24,13 +24,13 @@ function track(name,title){
   document.head.appendChild(s)})();
 /* Telefon: menegak (≤700px lebar) atau mendatar (rendah dan ≤1000px lebar). */
 const PHONE_Q='(max-width:700px),(max-width:1000px) and (max-height:520px) and (orientation:landscape)';
-const GROUPS=[
+let GROUPS=[
  {n:'Monorel KL',c:'#84BD00',h:50},{n:'KTM Komuter',c:'#1F5FAD',h:50},
  {n:'LRT Sri Petaling',c:'#8C1D40',h:100},{n:'LRT Ampang',c:'#EE7A00',h:100},
  {n:'LRT Kelana Jaya',c:'#D6124F',h:150},{n:'ERL',c:'#6B2D90',h:150},
  {n:'MRT Kajang',c:'#0B8A45',h:200},{n:'MRT Putrajaya',c:'#E8B400',h:200}];
 const P=(n,g,p,r)=>({t:'prop',n,g,p,r});
-const SQ=[
+let SQ=[
  {t:'go',n:'Mula',ic:'←'},
  P('Titiwangsa',0,60,[2,10,30,90,160,250]),
  {t:'tabung',n:'Tabung Komuniti',ic:'?'},
@@ -75,7 +75,7 @@ const HUBS=[5,15,25,35], UTILS=[12,28];
 /* Petak sudut bertema KL: lakaran mercu tanda menggantikan ikon.
    Warna asas ikut tinta tema (currentColor); .cut ialah "lubang" berwarna
    petak supaya gerbang dan tingkap kelihatan dalam kedua-dua tema. */
-const CORNER={
+let CORNER={
  0:{sub:'Stesen KL Lama',svg:`<rect x="4" y="22" width="56" height="13" rx="1"/>
    ${[10,17,24,40,47,54].map(x=>`<path class="cut" d="M${x-2.4} 35v-6a2.4 2.4 0 0 1 4.8 0v6z"/>`).join('')}
    ${[[7,5],[32,7],[57,5]].map(([x,h])=>`<rect x="${x-3}" y="${22-h}" width="6" height="${h}"/><path d="M${x-4.2} ${22-h}a4.2 4.6 0 0 1 8.4 0z"/><rect x="${x-.4}" y="${22-h-8.6}" width=".8" height="4.4"/>`).join('')}
@@ -106,7 +106,7 @@ const CORNER={
 const cornerSVG=i=>`<svg class="cill" viewBox="0 0 64 40" aria-hidden="true" fill="currentColor">${CORNER[i].svg}</svg>`;
 /* Kod stesen sebenar (papan tanda Rapid KL / KTM / ERL), dipaparkan sebagai
    pil berwarna laluan di petak dan dalam kad hartanah. */
-const CODE={1:'MR11',3:'MR10',6:'KC05',8:'KC01',9:'KA06',11:'SP17',13:'SP18',14:'SP12',
+let CODE={1:'MR11',3:'MR10',6:'KC05',8:'KC01',9:'KA06',11:'SP17',13:'SP18',14:'SP12',
   16:'AG18',18:'AG15',19:'AG13',21:'KJ28',23:'KJ24',24:'KJ16',26:'KT4',27:'KT3',29:'KT5',
   31:'KG08',32:'KG14',34:'KG18A',37:'PY22',39:'PY21'};
 const COLORS=['#0F766E','#E4572E','#4F46E5','#C98A00','#C2185B'];
@@ -157,7 +157,7 @@ const buyable=i=>['prop','hub','util'].includes(SQ[i].t);
 /* ---------- cards ---------- */
 /* Kad bertema KL. Susunan boleh berubah, tetapi jangan kurangkan bilangan
    kad: simpanan dan bilik online lama menyimpan nombor indeks kad. */
-const PELUANG=[
+let PELUANG=[
  ['Maju ke MULA. Kutip RM200.',async p=>advanceTo(p,0)],
  ['Grab surge 3×, tapi tetap naik. Terus ke Persiaran KLCC.',async p=>advanceTo(p,39)],
  ['Mesyuarat di Bangsar yang sepatutnya jadi emel. Jika melepasi MULA, kutip RM200.',async p=>advanceTo(p,24)],
@@ -178,7 +178,7 @@ const PELUANG=[
  ['Makan di Jalan Alor, baru sedar dompet tertinggal. Bayar RM60.',async p=>pay(p,60)],
  ['Pusing Pavilion 40 minit cari parkir. Pergi ke Bukit Bintang.',async p=>advanceTo(p,34)],
  ['Hujan lebat pukul 5 petang. Semua orang lari ke KL Sentral, anda pun ikut. Jika melepasi MULA, kutip RM200.',async p=>advanceTo(p,5)]];
-const TABUNG=[
+let TABUNG=[
  ['Maju ke MULA. Kutip RM200.',async p=>advanceTo(p,0)],
  ['Bank tersilap kira, memihak kepada anda. Terima RM200.',async p=>receive(p,200)],
  ['Banjir kilat di Masjid Jamek, kereta tenggelam separuh: bayar RM80.',async p=>pay(p,80)],
@@ -303,7 +303,9 @@ function newGame(names,qual,endLaps,cash,bots,useAuc,fast){
    turn:0,phase:'roll',doubles:0,again:false,dice:[3,4],qual,endLaps,msg:`${names[0]}, baling dadu untuk mula.`,
    useAuc:useAuc!==false,auc:null,trade:null,
    card:null,log:[],decks:{peluang:shuffle([...PELUANG.keys()]),tabung:shuffle([...TABUNG.keys()])},
-   fast:!!fast,fastRounds:fastRounds(names.length),round:1,st:names.map(()=>newStat(cash)),gid:Date.now().toString(36)};
+   fast:!!fast,fastRounds:fastRounds(names.length),round:1,st:names.map(()=>newStat(cash)),gid:Date.now().toString(36),
+   ed:prefEd()};
+  applyEdition(S.ed);   /* nama petak & kad edisi mesti siap sebelum dealFast dan log */
   addLog(qual?`Permainan bermula. Setiap pemain perlu lengkapkan ${qual} pusingan sebelum boleh membeli hartanah.`:'Permainan bermula. Semoga berjaya!');
   if(S.fast)dealFast();
   const bl=S.players.filter(p=>p.bot);

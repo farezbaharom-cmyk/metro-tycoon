@@ -88,8 +88,9 @@
   <div id="setupHome">
     <div class="homesky" id="homeSky" aria-hidden="true"></div>
     <span class="lines" aria-hidden="true"><i style="background:#D6124F"></i><i style="background:#EE7A00"></i><i style="background:#0B8A45"></i><i style="background:#E8B400"></i></span>
-    <h2 class="hometitle">Metro <span>Tycoon</span> KL</h2>
-    <p>Permainan hartanah laluan transit Lembah Klang.</p>
+    <h2 class="hometitle" id="homeTitle">Metro <span>Tycoon</span> KL</h2>
+    <p id="homeTag">Permainan hartanah laluan transit Lembah Klang.</p>
+    <div class="seg edpick" role="radiogroup" aria-label="Edisi papan"></div>
     <button class="btn primary big" type="button" id="homePlay"><span>Main sekarang</span><small>Anda lawan bot · 30 ronde</small></button>
     <button class="btn big" type="button" id="homeFast"><span>⚡ Main cepat</span><small>Anda lawan bot · ±20 minit</small></button>
     <button class="btn big" type="button" id="homeFriends"><span>Main dengan kawan</span><small>Bilik online atau satu peranti</small></button>
@@ -109,6 +110,7 @@
       <div id="onlineStart">
         <div class="field"><label for="myName">Nama anda</label><input id="myName" maxlength="16" placeholder="Contoh: Farez"></div>
         <h4>Cipta bilik baharu</h4>
+        <div class="seg edpick" role="radiogroup" aria-label="Edisi papan"></div>
         <div class="row">
           <div class="field"><label for="oMode">Mod permainan</label>
             <select id="oMode"><option value="0" selected>Biasa</option><option value="1">⚡ Cepat (±20 minit)</option></select></div>
@@ -156,6 +158,7 @@
 
     <form id="setupForm" hidden style="display:flex;flex-direction:column;gap:14px">
       <p>Semua pemain berkongsi satu skrin dan bergilir-gilir. Tukar mana-mana pemain kepada bot untuk main sendirian.</p>
+      <div class="seg edpick" role="radiogroup" aria-label="Edisi papan"></div>
       <div class="row">
         <div class="field"><label for="nPlayers">Bilangan pemain</label>
           <select id="nPlayers"><option>2</option><option>3</option><option>4</option><option selected>5</option></select></div>
@@ -317,6 +320,7 @@
 <script src="js/rules.js"></script>
 <script src="js/bot.js"></script>
 <script src="js/render.js"></script>
+<script src="js/editions.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/online.js"></script>
 <script src="js/app.js"></script>

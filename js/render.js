@@ -48,12 +48,12 @@ function fitNames(){
     e.textContent=best;
     e.style.fontSize=Math.max(FIT_MIN,Math.floor(bs*10)/10)+'px'});
 }
-const SHORT_SYL={1:'Titi\u00ADwang\u00ADsa',2:'Ta\u00ADbung',4:'Cukai',5:'KL Sentral',6:'Batu Caves',7:'Pe\u00ADluang',9:'Ke\u00ADpong',11:'Bkt Jalil',
+let SHORT_SYL={1:'Titi\u00ADwang\u00ADsa',2:'Ta\u00ADbung',4:'Cukai',5:'KL Sentral',6:'Batu Caves',7:'Pe\u00ADluang',9:'Ke\u00ADpong',11:'Bkt Jalil',
   12:'Elek\u00ADtrik',13:'Sri Pe\u00ADtaling',15:'M.Jamek',16:'Am\u00ADpang',17:'Ta\u00ADbung',18:'Pandan Indah',
   20:'Parkir',21:'Su\u00ADbang Jaya',22:'Pe\u00ADluang',23:'Kelana Jaya',24:'Bang\u00ADsar',25:'Pasar Seni',26:'Salak Tinggi',
   27:'Putra\u00ADjaya',28:'Air',30:'Ke Lokap',31:"Mu\u00ADtiara D'sara",32:'Seman\u00ADtan',
   33:'Ta\u00ADbung',34:'Bkt Bin\u00ADtang',35:'TBS',36:'Pe\u00ADluang',38:'Cukai',39:'KLCC'};
-const SHORT={1:'Titi\u00ADwangsa',2:'Tabung',4:'Cukai',5:'KL Sentral',6:'Batu Caves',7:'Peluang',9:'Kepong',11:'Bkt Jalil',
+let SHORT={1:'Titi\u00ADwangsa',2:'Tabung',4:'Cukai',5:'KL Sentral',6:'Batu Caves',7:'Peluang',9:'Kepong',11:'Bkt Jalil',
   12:'Elektrik',13:'Sri Petaling',15:'M.Jamek',16:'Ampang',17:'Tabung',18:'Pandan Indah',
   20:'Parkir',21:'Subang Jaya',22:'Peluang',23:'Kelana Jaya',24:'Bangsar',25:'Pasar Seni',26:'Salak Tinggi',
   27:'Putra\u00ADjaya',28:'Air',30:'Ke Lokap',31:"Mutiara D'sara",32:'Semantan',
@@ -100,7 +100,7 @@ function buildBoard(){
     h+=`<div class="sq ${side(i)} t-${s.t}" id="sq${i}" style="grid-row:${r};grid-column:${c}" data-i="${i}" role="button" tabindex="0" aria-label="${esc(s.n)}">${stripe}<div class="body">${icon}${code}<span class="nm nm-f${fit}">${esc(s.n)}</span><span class="nm nm-s" aria-hidden="true">${esc(SHORT[i]||s.n)}</span>${csub}${label}</div><div class="tokens"></div></div>`});
   const lines=GROUPS.map((g,k)=>{const y=12+k*11;return `<path d="M-5 ${y} C 30 ${y+18}, 70 ${y-20}, 105 ${y+6}" stroke="${g.c}" stroke-width="2.2" fill="none"/>`}).join('');
   h+=`<div class="center" id="center"><svg class="map" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${lines}</svg>${skylineSVG()}
-    <div class="logo"><h1>Metro<br><span>Tycoon</span> KL</h1><p>Edisi Lembah Klang</p></div>
+    <div class="logo"><h1>${EDITIONS[curEd].logo}</h1><p>${EDITIONS[curEd].sub}</p></div>
     <div class="dice">${dieHTML(0)}${dieHTML(1)}</div>
     <div class="msg" id="msg" aria-live="polite"></div><div id="cardSlot"></div></div>`;
   h+=`<div class="flyer" id="flyer" aria-hidden="true"></div>`;
@@ -109,6 +109,8 @@ function buildBoard(){
   if(window.ResizeObserver&&!b._fitRO){b._fitRO=new ResizeObserver(()=>requestAnimationFrame(fitNames));b._fitRO.observe(b)}
   if(document.fonts&&!b._fitFonts){b._fitFonts=1;document.fonts.ready.then(()=>requestAnimationFrame(fitNames))}
   if(!document.getElementById('boardHelp')){const help=document.createElement('p');help.id='boardHelp';help.className='board-help';help.textContent='Sentuh mana-mana stesen untuk lihat nama penuh, harga dan sewa.';b.parentElement.insertAdjacentElement('afterend',help)}
+  /* Papan dilukis semula bila edisi bertukar: pasang pendengar sekali sahaja. */
+  if(b._bound)return;b._bound=1;
   b.addEventListener('click',e=>{const sq=e.target.closest('.sq');
     if(sq&&zPan.moved<7)showDeed(+sq.dataset.i)});   /* seretan bukan ketukan */
   b.addEventListener('keydown',e=>{const sq=e.target.closest('.sq');if(sq&&(e.key==='Enter'||e.key===' ')){e.preventDefault();showDeed(+sq.dataset.i)}});
@@ -643,7 +645,7 @@ async function keepAwake(){
       wakeLock.addEventListener('release',()=>{wakeLock=null})}
     else if(!want&&wakeLock){wakeLock.release();wakeLock=null}}catch(e){wakeLock=null}}
 document.addEventListener('visibilitychange',keepAwake);
-function renderAll(){trackMin();renderBoard();renderDice();renderSide();renderMissions();renderAuction();newsHook();achHook();moneyHook();ownHook();keepAwake();
+function renderAll(){ensureEd();trackMin();renderBoard();renderDice();renderSide();renderMissions();renderAuction();newsHook();achHook();moneyHook();ownHook();keepAwake();
   const t=S&&(S.trade||draft);
   /* Dalam bilik online, hanya dua pihak yang terlibat melihat tetingkap ini. */
   const forMe=t&&(!NET||t.stage==='build'||mySeat()===t.from||mySeat()===t.to);

@@ -188,7 +188,7 @@ document.getElementById('missionToggle')?.addEventListener('click',()=>{
 /* ---------- boot ---------- */
 async function start(){
   loadPrefs();buildBoard();bindZoom();
-  const hs=document.getElementById('homeSky');if(hs)hs.innerHTML=skylineSVG('skyh');
+  refreshHome();
   applyView();
   try{$('myName').value=localStorage.getItem('mtkl-name')||''}catch(e){}
   const params=new URLSearchParams(location.search);const invite=(params.get('bilik')||'').toUpperCase();
@@ -220,7 +220,7 @@ if('serviceWorker'in navigator&&(location.protocol==='https:'||location.hostname
   const ios=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
   let deferred=null;
   addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;btn.hidden=false});
-  addEventListener('appinstalled',()=>{btn.hidden=true;deferred=null;toast('Metro Tycoon KL dipasang! Buka dari skrin utama.')});
+  addEventListener('appinstalled',()=>{btn.hidden=true;deferred=null;toast('Metro Tycoon dipasang! Buka dari skrin utama.')});
   if(ios&&!standalone)btn.hidden=false;
   btn.onclick=async()=>{
     if(deferred){deferred.prompt();try{const c=await deferred.userChoice;if(c&&c.outcome==='accepted')track('pasang-app','Pasang app')}catch(e){}deferred=null;btn.hidden=true;return}
