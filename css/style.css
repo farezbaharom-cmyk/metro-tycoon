@@ -1409,7 +1409,6 @@ body:has(.overlay:not([hidden])) .bar{z-index:40}
 .ticket-owner{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-top:2px dashed var(--rule);font-size:12px;overflow-wrap:anywhere}
 .ticket-serial{flex:none;font:700 11px var(--mono);letter-spacing:.1em;color:var(--muted)}
 .station-landmark{width:4cqi;height:3.5cqi;min-height:16px;flex:none;color:var(--muted);opacity:.8}
-.sq:has(.station-landmark) .ic{display:none}
 .sq.owned .own{display:flex;align-items:center;justify-content:center;z-index:7;border:1px solid var(--board);font-weight:900;box-shadow:0 1px 3px #0005}
 .sq.owned::after{border-radius:0;opacity:.8}
 #players .money,.pstrip .money,.turnhead>.money{position:relative}
@@ -1447,3 +1446,10 @@ body.v3d .center svg.map.ed-borneo{opacity:.4}
 .homesky svg.sky{animation:edfade .45s ease}
 @keyframes edfade{from{opacity:0}}
 @media (prefers-reduced-motion:reduce){.homesky svg.sky{animation:none}.edcard:hover{transform:none}}
+
+/* Mercu tanda stesen sebagai tera air di sudut petak (semua saiz skrin), supaya
+   nama, kod dan harga sentiasa muat. Sudut dipilih jauh dari jalur warna laluan. */
+.sq .station-landmark{position:absolute;right:2px;bottom:2px;width:clamp(16px,3.2cqi,26px);height:auto;aspect-ratio:56/48;
+  min-height:0;opacity:.3;pointer-events:none;z-index:0}
+.sq.left .station-landmark{right:auto;left:2px}
+.sq.top .station-landmark{bottom:auto;top:2px}

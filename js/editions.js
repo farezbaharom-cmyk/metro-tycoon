@@ -180,7 +180,13 @@ const ED_BORNEO={id:'borneo',label:'Edisi Borneo',emoji:'🌴',blurb:'Sabah & Sa
   logo:'Metro<br><span>Tycoon</span> Borneo',sub:'Edisi Sabah & Sarawak',
   home:'Metro <span>Tycoon</span> Borneo',tag:'Permainan hartanah laluan rel impian Sabah dan Sarawak.',
   sq:B_SQ,groups:B_GROUPS,code:B_CODE,corner:B_CORNER,short:B_SHORT,syl:B_SYL,events:B_EVENTS,
-  pel:B_PEL,tab:B_TAB,sky:borneoSkyline,map:borneoMap};
+  pel:B_PEL,tab:B_TAB,sky:borneoSkyline,map:borneoMap,
+  /* Lakaran mercu tanda pada stesen (viewBox 56×48, garisan sahaja). */
+  marks:{
+    39:['Gunung Kinabalu','M4 43L16 27l5 3 6-13 4 7 4-11 5 9 4-4 12 25H4M22 30l5-4 4 4 5-5'],
+    34:['Bangunan DUN Sarawak','M8 43h40M12 43V30h32v13M6 31q22-26 44 0M28 13V6M18 43v-7m10 7v-7m10 7v-7'],
+    19:['Tokong Tua Pek Kong','M20 43V11h16v32M16 43h24M17 11l11-6 11 6M16 19h24M16 27h24M16 35h24M26 43v-5h4v5'],
+    13:['Perahu Lepa','M4 32h48l-6 8H12zM26 32V8M26 9l14 18H26M26 12L15 27h11M4 44q6-3 12 0t12 0t12 0t12 0']}};
 const EDITIONS={kl:ED_KL,borneo:ED_BORNEO};
 
 /* ---------- menukar edisi ---------- */

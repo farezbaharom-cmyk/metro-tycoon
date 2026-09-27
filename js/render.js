@@ -82,10 +82,10 @@ function skylineSVG(gid){gid=gid||'skyg';
     ${rects('b0',back)}${kltower}${twin}${m118}
     ${front.map(([x,w,h])=>rects('b2',[[x,w,h]])+wins(x,w,h,196)).join('')}
     <rect class="trk" x="0" y="184" width="400" height="3"/>${pillars}${train}</svg>`}
-/* Small original landmark drawings, limited to the KL edition. */
+/* Lakaran kecil mercu tanda pada stesen tertentu, ikut edisi. */
 function stationLandmark(i){
-  if(curEd!=='kl')return '';
-  const marks={
+  /* Edisi lain membawa lakaran sendiri (EDITIONS[..].marks). */
+  const marks=curEd!=='kl'?(EDITIONS[curEd].marks||{}):{
     39:['Menara Berkembar Petronas','M12 43V19h10v24m-8-24V12h6v7m-3-7V4m17 39V19h10v24m-8-24V12h6v7m-3-7V4M22 28h12M9 43h38M14 23h6m-6 6h6m-6 6h6m16-12h6m-6 6h6m-6 6h6'],
     11:['Stadium Bukit Jalil','M6 26Q28 10 50 26v11Q28 49 6 37Zm0 0q22 14 44 0M12 23V12m32 11V12M8 12h8m24 0h8M14 31v8m9-5v8m10-8v8m9-11v8'],
     15:['Masjid Jamek','M10 43V28h36v15M18 28q0-15 10-18 10 3 10 18M28 10V5M6 43V17h7m30 0h7v26M5 17l4-7 4 7m30 0 4-7 4 7M23 43V33h10v10'],
