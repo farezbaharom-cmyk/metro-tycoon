@@ -112,7 +112,7 @@ let CODE={1:'MR11',3:'MR10',6:'KC05',8:'KC01',9:'KA06',11:'SP17',13:'SP18',14:'S
 const COLORS=['#0F766E','#E4572E','#4F46E5','#C98A00','#C2185B'];
 /* Lima siluet tren — dibezakan oleh bentuk, bukan warna sahaja, supaya
    pemain yang sukar membezakan warna masih boleh mengenal token sendiri. */
-const TRAINS=[
+let TRAINS=[
  /* MRT: hidung landai */
  "<path class=\"body\" d=\"M3 5.6h9c6.4 0 11 3.4 12.6 6.6v1.6a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6.6a1 1 0 0 1 1-1z\"/><circle class=\"body\" cx=\"7.5\" cy=\"16.4\" r=\"2\"/><circle class=\"body\" cx=\"18\" cy=\"16.4\" r=\"2\"/><path class=\"win\" d=\"M14.4 7.6c3.2.5 5.6 2 7 3.9h-7z\"/>",
  /* Monorel: kabin atas rasuk */
@@ -131,7 +131,7 @@ const TRAINS=[
 const TOKS=['tren','c0','c1','c2','c3','c4'];
 const isTok=t=>TOKS.includes(t);
 const defTok=k=>'c'+(k%5);
-const tokName=t=>t==='tren'?'Tren':(MetroCats.names[+String(t).slice(1)]||'Kucing');
+const tokName=t=>t==='tren'?(typeof curEd!=='undefined'&&curEd==='borneo'?'Kenderaan':'Tren'):(MetroCats.names[+String(t).slice(1)]||'Kucing');
 function tokSVG(t,k){return t==='tren'?`<svg class="train" viewBox="0 0 28 20" aria-hidden="true">${TRAINS[k%TRAINS.length]}</svg>`:MetroCats.svg(+t.slice(1))}
 function tokOf(k){const p=S&&S.players&&S.players[k];return p&&isTok(p.tok)?p.tok:defTok(k)}
 const trainSVG=k=>tokSVG(tokOf(k),k);
@@ -209,12 +209,13 @@ const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(M
 const newStat=c=>({sewaIn:0,sewaOut:0,lokap:0,mula:0,beli:0,bina:0,ganda:0,kad:0,rosak:0,lelong:0,tawar:0,along:0,min:c});
 function stt(pi){if(!S.st)S.st=[];if(!S.st[pi])S.st[pi]=newStat(S.players[pi]?S.players[pi].cash:0);return S.st[pi]}
 /* ---------- misi ----------
-   Sembilan misi kecil setiap permainan, sama untuk semua pemain. Setiap misi
+   Sembilan misi kecil setiap permainan (tambah satu misi khas edisi, lihat
+   editions.js), sama untuk semua pemain. Setiap misi
    hanya boleh disiapkan sekali oleh setiap pemain dan memberi ganjaran tunai.
    Semakan dibuat oleh peranti yang sedang bertindak (dalam sync), supaya
    dalam bilik online ganjaran hanya diberi sekali lalu diselaraskan.
    p(k) → [kemajuan, sasaran]. */
-const MISI=[
+let MISI=[
  {id:'beli3', e:'🏠',t:'Pengumpul Stesen',d:'Beli 3 stesen',r:50, p:k=>[stt(k).beli,3]},
  {id:'laluan',e:'🛤️',t:'Pengumpul Laluan',d:'Lengkapkan satu laluan',r:100,p:k=>[GROUPS.some((g,gi)=>hasSet(k,gi))?1:0,1]},
  {id:'hotel', e:'🏨',t:'Hotel Pertama',   d:'Bina hotel pertama',r:100,p:k=>[S.houses.some((h,i)=>h===5&&S.owner[i]===k)?1:0,1]},

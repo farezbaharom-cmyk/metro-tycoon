@@ -32,7 +32,7 @@ Peraturan penuh ada dalam permainan, di **⚙️ Menu → Peraturan**.
 
 ## Ciri-ciri
 
-- 🌴 **Dua edisi papan:** pilih **Edisi KL** (Lembah Klang) atau **Edisi Borneo** di skrin utama. Edisi Borneo ada laluan rel impian Sabah dan Sarawak (Keretapi Sabah, ART Kuching, Laluan Kinabalu dan lain-lain), dengan kad, berita dan pemandangan sendiri. Peraturan sama untuk kedua-dua edisi, dan bilik online ikut edisi yang dipilih hos.
+- 🌴 **Dua edisi papan:** pilih **Edisi KL** (Lembah Klang) atau **Edisi Borneo** di skrin utama. Edisi Borneo ada laluan rel impian Sabah dan Sarawak (Keretapi Sabah, ART Kuching, Laluan Kinabalu dan lain-lain), dengan kad, berita dan pemandangan sendiri. Peraturan sama untuk kedua-dua edisi, dan bilik online ikut edisi yang dipilih hos. Edisi Borneo ada kenderaan sendiri (bot ekspres, bas, kapal terbang kecil, feri), mercu tanda, suara stesen khas dan misi **Penjelajah Borneo**. Pautan terus: [farezbaharom-cmyk.github.io/metro-tycoon/borneo/](https://farezbaharom-cmyk.github.io/metro-tycoon/borneo/)
 - 🗺️ **Laluan sebenar Lembah Klang:** MRT Kajang, MRT Putrajaya, LRT Kelana Jaya, LRT Ampang, LRT Sri Petaling, Monorel KL, KTM Komuter dan ERL, dengan hab KL Sentral, Masjid Jamek, Pasar Seni dan Bandar Tasik Selatan.
 - 🃏 **40 kad Peluang dan Tabung bertema KL:** Grab surge, jem di Jalan Tun Razak, LRT tersadai, banjir kilat, duit raya dan angpau, teh tarik di mamak.
 - 📰 **Berita rawak setiap ronde:** waktu puncak MRT, laluan ditutup, promosi tambang, pengecualian cukai dan lain-lain, dipaparkan pada jalur LED macam papan stesen sebenar.

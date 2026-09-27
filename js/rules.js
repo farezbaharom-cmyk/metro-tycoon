@@ -452,11 +452,11 @@ function badges(){
     if(sets.length===1)out[k].push({e:'🛤️',t:'Raja '+sets[0],d:'miliki laluan penuh',r:3});
     else if(sets.length>1)out[k].push({e:'🛤️',t:`Raja ${sets.length} Laluan`,d:sets.join(', '),r:3});
     if(!q.bankrupt&&stt(k).min<50&&netWorth(q)>=stt(k).min+500)out[k].push({e:'🔥',t:'Bangkit Semula',d:`pernah tinggal ${fmt(stt(k).min)}`,r:4});
-    if(stt(k).rosak)out[k].push({e:'🚧',t:'Mangsa Tren Rosak',d:`terlepas ${stt(k).rosak} giliran`,r:10})});
+    if(stt(k).rosak)out[k].push({e:'🚧',t:curEd==='borneo'?'Mangsa Kenderaan Rosak':'Mangsa Tren Rosak',d:`terlepas ${stt(k).rosak} giliran`,r:10})});
   out.forEach(l=>l.sort((a,b)=>a.r-b.r));
   return out}
 function endSummary(rk,bd){
-  const url=location.origin+location.pathname;
+  const url=edShareURL();
   const seri=rk.filter(r=>r.pos===1&&!r.p.bankrupt).length>1;
   return `${curEd==='borneo'?'🌴':'🚆'} ${edTitle()}${S.fast?' ⚡ Mod cepat':''}${seri?' · Keputusan seri!':''}\n`+
     rk.map((r,i)=>{const k=S.players.indexOf(r.p);const b=bd[k].slice(0,3).map(x=>x.e+' '+x.t).join(', ');
@@ -477,11 +477,12 @@ function showEnd(){
   document.getElementById('endTitle').textContent=tie?'Seri!':`${names} menang!`;
   /* Wira: token pemenang besar bermahkota. */
   document.getElementById('endHero').innerHTML=top.length
-    ?top.slice(0,3).map(r=>{const k=S.players.indexOf(r.p);return `<span class="herotok"><span class="crown">👑</span>${trainMark(k,r.p.color)}</span>`}).join(''):'';
+    ?`<span class="endsky">${skylineSVG('skye')}</span>`+top.slice(0,3).map(r=>{const k=S.players.indexOf(r.p);return `<span class="herotok"><span class="crown">👑</span>${trainMark(k,r.p.color)}</span>`}).join(''):'';
   const rounds=Math.min(S.round||1,S.maxRounds||S.fastRounds||999);
-  document.getElementById('endLead').textContent=top.length
+  const edTag=`${EDITIONS[curEd].emoji} ${EDITIONS[curEd].label} · `;
+  document.getElementById('endLead').textContent=edTag+(top.length
     ?`${tie?'Berkongsi tempat pertama dengan':'Kekayaan bersih'} ${fmt(top[0].w)} · ${rounds} ronde`
-    :`${rounds} ronde`;
+    :`${rounds} ronde`);
   const medal=['🥇','🥈','🥉'];
   document.getElementById('rank').innerHTML=rk.map(r=>{const k=S.players.indexOf(r.p),t=stt(k);
     const owned=S.owner.filter(o=>o===k).length,misi=MISI.filter(m=>missDone(k)[m.id]).length;

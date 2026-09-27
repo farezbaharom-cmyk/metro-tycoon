@@ -17,11 +17,16 @@
 /* ---------- salinan edisi KL ---------- */
 const PEL_FX=PELUANG.map(c=>c[1]), TAB_FX=TABUNG.map(c=>c[1]);
 const klSkyline=skylineSVG;
+const BASE_MISI=MISI.slice();
+/* Laluan berbeza yang ada sekurang-kurangnya satu stesen milik pemain k. */
+const linesOwned=k=>new Set(SQ.map((s,i)=>s.t==='prop'&&S.owner[i]===k?s.g:null).filter(g=>g!==null));
 const ED_KL={id:'kl',label:'Edisi KL',emoji:'🏙️',blurb:'Lembah Klang · MRT, LRT, Monorel',title:'Metro Tycoon KL',
   logo:'Metro<br><span>Tycoon</span> KL',sub:'Edisi Lembah Klang',
   home:'Metro <span>Tycoon</span> KL',tag:'Permainan hartanah laluan transit Lembah Klang.',
   sq:SQ,groups:GROUPS,code:CODE,corner:CORNER,short:SHORT,syl:SHORT_SYL,events:EVENTS,
-  pel:PELUANG.map(c=>c[0]),tab:TABUNG.map(c=>c[0]),sky:klSkyline};
+  pel:PELUANG.map(c=>c[0]),tab:TABUNG.map(c=>c[0]),sky:klSkyline,
+  card:{peluang:{c:'#EE7A00',ic:'🎟️'},tabung:{c:'#1F5FAD',ic:'🤝'}},trains:TRAINS,
+  misi:[{id:'jelajahKL',e:'🚇',t:'Penjelajah Lembah Klang',d:'Miliki stesen di 4 laluan berbeza',r:60,p:k=>[linesOwned(k).size,4]}]};
 
 /* ---------- Edisi Borneo ----------
    Laluan rel "impian" merentas Sabah dan Sarawak. Keretapi Sabah dan ART
@@ -54,6 +59,7 @@ const B_CORNER={
    ${[10,18,26,34,42,50].map(x=>`<rect class="cut" x="${x}" y="22.2" width="4" height="4.4" rx=".5"/>`).join('')}
    ${[8,17,26,35,44,53].map(x=>`<rect x="${x}" y="29" width="1.8" height="6"/>`).join('')}
    <path d="M58 29l3 6h1.6l-3-6z"/><rect x="2" y="35" width="60" height="2" rx="1"/>
+   ${[1,2,3].map(k=>`<circle class="smk s${k}" cx="36" cy="10" r="1.8" opacity="0"/>`).join('')}
    <path class="ca" d="M8 4.5h8M8 4.5l3-3M8 4.5l3 3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`},
  10:{sub:'Kubu Margherita',svg:ED_KL.corner[10].svg},
  20:{sub:'Pantai Tanjung Aru',svg:`<circle cx="49" cy="11" r="5" fill="#F2A93B"/>
@@ -61,7 +67,8 @@ const B_CORNER={
    <path d="M24 13q-8-4-14 1q7-2 14-1z"/><path d="M24 13q-2-8-10-9q7 3 10 9z"/><path d="M24 13q6-7 14-5q-8 0-14 5z"/>
    <path d="M24 13q9 0 13 7q-6-5-13-7z"/><path d="M24 13q-9 2-12 9q5-6 12-9z"/>
    <circle class="cu" cx="23" cy="14.8" r="1.4"/><circle class="cu" cx="25.6" cy="14.4" r="1.4"/>
-   <path d="M30 30q4-2.6 8 0t8 0t8 0t8 0" stroke="#1F8AC0" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+   <path class="wave" d="M30 30q4-2.6 8 0t8 0t8 0t8 0t8 0" stroke="#1F8AC0" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+   <path class="wave w2" d="M36 33q4-2 8 0t8 0t8 0t8 0" stroke="#1F8AC0" stroke-width="1.1" fill="none" stroke-linecap="round" opacity=".6"/>
    <path d="M2 36q15-4 60 0z"/>`},
  30:ED_KL.corner[30]};
 const B_EVENTS=[
@@ -140,8 +147,8 @@ function borneoSkyline(gid){gid=gid||'skyg';
   /* Bukit di belakang dan Gunung Kinabalu yang bergerigi di kanan. */
   const hills=`<path class="b0" d="M0 200V150q40-22 90-8t80 2q40-14 70 0V200z"/>`;
   const kinabalu=`<path class="lm" d="M226 200L256 148l14-8l10-22l8-4l6-18l6 8l5-16l5 12l6-14l4 10l6-6l8 22l12 10l16 30l22 20l6 8V200z"/>
-    <path class="b1" opacity=".35" d="M299 76l5 12l6-14l4 10l6-6l8 22l12 10l16 30l22 20l6 8V200H300z"/>
-    <path fill="#fff" opacity=".42" d="M280 70l8 8l8-16l8 12l8-8l6 16l-7-3l-6 5l-6-6l-7 7l-6-8l-7 6l-4-4z"/>`;
+    <path class="b1" opacity=".35" d="M305 88l5 12l6-14l4 10l6-6l8 22l12 10l16 30l22 20l6 8V200H305z"/>
+    <path fill="#fff" opacity=".42" d="M288 114l6-18l6 8l5-16l5 12l6-14l4 10l6-6l5 13l-6-2l-5 5l-5-6l-6 7l-5-6l-5 8l-6-5l-5 9z"/>`;
   /* Menara Tun Mustapha: silinder kaca tinggi. */
   const tower=`<rect class="lm" x="196" y="64" width="16" height="136" rx="3"/><rect class="lm" x="200" y="52" width="8" height="14" rx="2"/><rect class="lm" x="203.3" y="36" width="1.4" height="18"/><circle class="beacon" cx="204" cy="36" r="1.4"/>`;
   /* Bangunan DUN Sarawak: bumbung payung emas. */
@@ -152,16 +159,19 @@ function borneoSkyline(gid){gid=gid||'skyg';
     ${[14,26,38,50,62,74,86,97].map(x=>`<rect class="lm" x="${x}" y="174" width="2" height="12"/>`).join('')}`;
   const palm=(x,h)=>`<path class="lmS" stroke-width="2.4" stroke-linecap="round" d="M${x} 200q-2-${h/2} 4-${h}"/>
     <g class="lm" transform="translate(${x+4} ${200-h})"><path d="M0 0q-9-4-15 2q7-2 15-2z"/><path d="M0 0q-3-9-11-10q8 4 11 10z"/><path d="M0 0q7-8 15-5q-9 0-15 5z"/><path d="M0 0q10 0 14 8q-6-6-14-8z"/></g>`;
+  /* Kunang-kunang: hanya kelihatan pada waktu malam (tema gelap), lihat CSS. */
+  const fireflies=[[30,150],[62,142],[96,156],[128,138],[150,128],[182,146],[250,150],[282,138],[346,150],[380,134],[396,146],[8,162]]
+    .map(([x,y],k)=>`<circle class="ff f${k%4}" cx="${x}" cy="${y}" r="1.3"/>`).join('');
   const front=[[112,20,30],[178,16,26],[222,18,30],[240,26,36],[268,22,28],[292,18,34],[312,18,26],[330,26,40],[358,22,30]];
   const pillars=[20,70,120,170,220,270,320,370].map(x=>`<rect class="trk" x="${x}" y="186" width="4" height="14"/>`).join('');
   const train=`<g class="train"><rect class="tbody" x="0" y="173" width="84" height="11" rx="3"/><path class="tnose" d="M84 173h4q6 0 8 11h-12z"/>${[6,20,34,48,62,74].map(x=>`<rect class="twin" x="${x}" y="176" width="8" height="4" rx="1"/>`).join('')}</g>`;
   return `<svg class="sky" viewBox="0 0 400 200" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
     <defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="sg-a" stop-opacity="0"/><stop offset=".45" class="sg-a"/><stop offset="1" class="sg-b"/></linearGradient></defs>
     <rect width="400" height="200" fill="url(#${gid})"/>${stars}
-    <circle class="orbg" cx="356" cy="38" r="17"/><circle class="orb" cx="356" cy="38" r="8.5"/>
+    <circle class="orbg" cx="336" cy="30" r="17"/><circle class="orb" cx="336" cy="30" r="8.5"/>
     ${hills}${kinabalu}${tower}${dun}${longhouse}
     ${front.map(([x,w,h])=>rects('b2',[[x,w,h]])+wins(x,w,h,196)).join('')}
-    ${palm(116,46)}${palm(372,52)}${palm(390,40)}
+    ${palm(116,46)}${palm(372,52)}${palm(390,40)}${fireflies}
     <rect class="trk" x="0" y="184" width="400" height="3"/>${pillars}${train}</svg>`}
 /* Peta Borneo ringkas untuk pusat papan (viewBox 100×100 papan). Pulau
    dilukis di bahagian atas tengah, dengan laluan berwarna antara bandar. */
@@ -176,11 +186,42 @@ function borneoMap(){
     <path class="isle" d="M72 7L80 14L88 21L95 25L92 33L90 37L84 40L80 50L78 63L74 78L70 90L56 93L40 90L28 86L18 78L12 64L10 51L16 43L27 39L38 33L47 27L55 23L61 17L66 11z"/>
     ${R.map(([g,ids])=>line(g,ids)).join('')}
     ${Object.values(P).map(([x,y])=>`<circle class="city" cx="${x}" cy="${y}" r="1.1"/>`).join('')}</g>`}
+/* Nota suara khas bila tiba di stesen tertentu (ikut gaya suara). Pakcik
+   selitkan sedikit loghat Sabah (bah) dan Sarawak (kitak, kamek). */
+const B_SAY={
+  pakcik:{1:['Kopi Tenom wangi, nak. Pakcik nak secawan.'],6:['Naik bot ekspres je boleh sampai sini, nak.'],
+    13:['Laut biru macam kaca. Kamek pun nak terjun.'],19:['Makan kampua dulu, nak. Sedap tu.'],
+    23:['Bandar minyak ni, nak. Ramai orang senang.'],29:['Sepilok dekat sini. Kirim salam kat orang utan.'],
+    31:['Gunung Santubong tu, nak. Ada cerita puteri dia.'],32:['Pasar Satok. Beli terung dayak sikit.'],
+    34:['Kitak jalan-jalan tepi sungai dulu. Cantik waktu malam.'],37:['Sejuk sini, nak. Pakai baju tebal.','Nampak Kinabalu tu? Cantik, bah.'],
+    39:['Kota Kinabalu ni, bah. Sejuk mata tengok laut.','Bandar besar Sabah, bah. Jaga dompet.']},
+  slay:{1:['Kopi Tenom, geng. Slay betul.'],13:['Air dia biru gila, filter pun tak perlu.'],19:['Kampua mee, must try, geng!'],
+    29:['Orang utan Sepilok comel gila, geng.'],34:['Night walk tepi sungai. Content sampai lebam.'],
+    37:['Vibe New Zealand, tapi Malaysia. Slay!'],39:['Sunset Tanjung Aru memang aesthetic, geng.']},
+  pengulas:{13:['Pantai timur yang memukau, penonton!'],34:['Tebing Sungai Sarawak! Pemandangan kelas dunia!'],
+    37:['Kaki Gunung Kinabalu! Udara sejuk, semangat panas!'],39:['Ibu negeri Sabah! Penonton bersorak!']}};
+/* Token "Tren" dalam Edisi Borneo: lima kenderaan Borneo, dibezakan oleh
+   bentuk (bukan warna) seperti tren KL. viewBox 28×20, kelas body/win sama. */
+const B_TRAINS=[
+ /* Bot ekspres sungai */
+ '<path class="body" d="M1 11h26l-3 5H4zM6 6h13a3 3 0 0 1 3 3v2H6z"/><path class="win" d="M8 7.5h3v2H8zM12.5 7.5h3v2h-3zM17 7.5h3v2h-3z"/>',
+ /* Bas ekspres Pan Borneo */
+ '<path class="body" d="M2 4h22a2 2 0 0 1 2 2v9a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><circle class="body" cx="7" cy="16.6" r="2.2"/><circle class="body" cx="20" cy="16.6" r="2.2"/><path class="win" d="M4 6.5h4V10H4zM9.5 6.5h4V10h-4zM15 6.5h4V10h-4zM20.5 6.5H24v5h-3.5z"/>',
+ /* Kapal terbang kecil luar bandar */
+ '<path class="body" d="M2 10.5C2 9.1 3 8 5 8h15c3 0 6 1.5 7 3.5-1 1.5-4 2.5-7 2.5H5c-2 0-3-1-3-2.5zM11 11l-4 7h3l6-7zM2.6 8.6 1 3h2.6l4 5z"/><path class="win" d="M13 9.4h1.6V11H13zM16 9.4h1.6V11H16zM19 9.4h1.6V11H19z"/>',
+ /* Feri ke Labuan */
+ '<path class="body" d="M1 12h26l-4 5H5zM5 7h16v5H5zM9 3h9v4H9z"/><path class="win" d="M7 8.5h2v2H7zM11 8.5h2v2h-2zM15 8.5h2v2h-2zM11 4.4h2V6h-2z"/>',
+ /* Lokomotif Keretapi Sabah (sama seperti KL) */
+ TRAINS[4]];
 const ED_BORNEO={id:'borneo',label:'Edisi Borneo',emoji:'🌴',blurb:'Sabah & Sarawak · laluan rel impian',title:'Metro Tycoon Borneo',
   logo:'Metro<br><span>Tycoon</span> Borneo',sub:'Edisi Sabah & Sarawak',
   home:'Metro <span>Tycoon</span> Borneo',tag:'Permainan hartanah laluan rel impian Sabah dan Sarawak.',
   sq:B_SQ,groups:B_GROUPS,code:B_CODE,corner:B_CORNER,short:B_SHORT,syl:B_SYL,events:B_EVENTS,
   pel:B_PEL,tab:B_TAB,sky:borneoSkyline,map:borneoMap,
+  card:{peluang:{c:'#D9480F',ic:'🌴'},tabung:{c:'#1B7F8C',ic:'🛶'}},say:B_SAY,trains:B_TRAINS,
+  /* Laluan Sabah: 0 Keretapi Sabah, 2 Pantai Timur, 5 Pantai Utara, 7 Kinabalu; selebihnya Sarawak. */
+  misi:[{id:'jelajahBorneo',e:'🌴',t:'Penjelajah Borneo',d:'Miliki stesen di Sabah dan Sarawak',r:60,
+    p:k=>{const g=linesOwned(k);return[([0,2,5,7].some(x=>g.has(x))?1:0)+([1,3,4,6].some(x=>g.has(x))?1:0),2]}}],
   /* Lakaran mercu tanda pada stesen (viewBox 56×48, garisan sahaja). */
   marks:{
     39:['Gunung Kinabalu','M4 43L16 27l5 3 6-13 4 7 4-11 5 9 4-4 12 25H4M22 30l5-4 4 4 5-5'],
@@ -188,6 +229,7 @@ const ED_BORNEO={id:'borneo',label:'Edisi Borneo',emoji:'🌴',blurb:'Sabah & Sa
     19:['Tokong Tua Pek Kong','M20 43V11h16v32M16 43h24M17 11l11-6 11 6M16 19h24M16 27h24M16 35h24M26 43v-5h4v5'],
     13:['Perahu Lepa','M4 32h48l-6 8H12zM26 32V8M26 9l14 18H26M26 12L15 27h11M4 44q6-3 12 0t12 0t12 0t12 0']}};
 const EDITIONS={kl:ED_KL,borneo:ED_BORNEO};
+MISI=BASE_MISI.concat(ED_KL.misi);   /* edisi mula ialah KL */
 
 /* ---------- menukar edisi ---------- */
 let curEd='kl';
@@ -195,6 +237,16 @@ const edId=id=>EDITIONS[id]?id:'kl';
 const edTitle=()=>EDITIONS[curEd].title;
 /* Pusat papan dan latar 3D ikut edisi yang sedang dimainkan. */
 skylineSVG=gid=>EDITIONS[curEd].sky(gid);
+/* Pautan ?edisi=borneo (dari borneo/index.html) memilih edisi untuk permainan baharu,
+   kemudian dibuang dari bar alamat supaya tidak melekat bila pautan disalin semula. */
+(()=>{try{const u=new URL(location.href),e=u.searchParams.get('edisi');if(!e)return;
+  if(EDITIONS[e])localStorage.setItem('mtkl-ed',e);
+  u.searchParams.delete('edisi');history.replaceState(null,'',u)}catch(x){}})();
+/* Pautan untuk dikongsi: edisi Borneo ada halaman sendiri dengan gambar pratonton Borneo. */
+function edShareURL(){const base=location.origin+location.pathname.replace(/[^/]*$/,'');return curEd==='kl'?base:base+curEd+'/'}
+/* Nota tiba khas edisi (jika ada), kadang-kadang sahaja supaya nota biasa masih kedengaran. */
+function edNota(i){const v=EDITIONS[curEd].say&&EDITIONS[curEd].say[gaya]&&EDITIONS[curEd].say[gaya][i];
+  return v&&Math.random()<.7?pk(gaya+':ed:'+i,v):''}
 function prefEd(){try{return edId(localStorage.getItem('mtkl-ed'))}catch(e){return 'kl'}}
 function savePrefEd(id){try{localStorage.setItem('mtkl-ed',edId(id))}catch(e){}}
 function applyEdition(id){
@@ -202,6 +254,7 @@ function applyEdition(id){
   const E=EDITIONS[id];curEd=id;
   SQ=E.sq;GROUPS=E.groups;CODE=E.code;CORNER=E.corner;SHORT=E.short;SHORT_SYL=E.syl;EVENTS=E.events;
   PELUANG=E.pel.map((t,i)=>[t,PEL_FX[i]]);TABUNG=E.tab.map((t,i)=>[t,TAB_FX[i]]);
+  MISI=BASE_MISI.concat(E.misi||[]);TRAINS=E.trains;
   const b=document.getElementById('board');if(b&&b.childElementCount)buildBoard();
   const bd=document.getElementById('bdrop');if(bd&&bd.firstChild)bd.innerHTML=skylineSVG('skyd');
   edChrome();

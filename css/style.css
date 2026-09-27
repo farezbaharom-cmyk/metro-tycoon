@@ -1453,3 +1453,37 @@ body.v3d .center svg.map.ed-borneo{opacity:.4}
   min-height:0;opacity:.3;pointer-events:none;z-index:0}
 .sq.left .station-landmark{right:auto;left:2px}
 .sq.top .station-landmark{bottom:auto;top:2px}
+
+/* Kad Peluang/Tabung: ikon edisi; Borneo ada jalur motif pua kumbu di bawah kepala kad. */
+.card header .cic{font-size:1.1em;margin-right:.15em}
+.card.ed-borneo header{position:relative;padding-bottom:calc(1.6cqi + 6px)}
+.card.ed-borneo header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:6px;opacity:.55;
+  background:linear-gradient(135deg,transparent 33%,#fff 33% 50%,transparent 50% 83%,#fff 83%) 0 0/8px 6px,
+             linear-gradient(45deg,transparent 33%,#fff 33% 50%,transparent 50% 83%,#fff 83%) 4px 0/8px 6px}
+/* Skrin tamat: pemandangan edisi di belakang pemenang. */
+.endhero{position:relative;isolation:isolate}
+.endhero .endsky{position:absolute;left:-40px;right:-40px;top:-30px;height:130px;z-index:-1;opacity:.55;pointer-events:none;
+  -webkit-mask-image:linear-gradient(#000 55%,transparent);mask-image:linear-gradient(#000 55%,transparent)}
+.endhero .endsky svg.sky{width:100%;height:100%}
+
+/* Petak sudut Borneo: asap dapur dari rumah panjang (MULA), ombak di pantai (Parkir). */
+.cill .smk{transform-box:fill-box;transform-origin:center;animation:csmoke 3.6s ease-out infinite}
+.cill .smk.s2{animation-delay:1.2s}.cill .smk.s3{animation-delay:2.4s}
+@keyframes csmoke{0%{opacity:0;transform:translate(0,4px) scale(.5)}25%{opacity:.45}100%{opacity:0;transform:translate(4px,-7px) scale(1.6)}}
+.cill .wave{animation:cwave 2.6s ease-in-out infinite alternate}.cill .wave.w2{animation-duration:3.3s;animation-direction:alternate-reverse}
+@keyframes cwave{from{transform:translateX(0)}to{transform:translateX(-5px)}}
+@media (prefers-reduced-motion:reduce){.cill .smk,.cill .wave{animation:none}.cill .smk{opacity:0}}
+
+/* Langit Borneo waktu malam: kunang-kunang berkelip dan melayang. */
+.sky .ff{fill:#E9FF7A;opacity:0}
+:root[data-theme="dark"] .sky .ff{animation:ffly 4s ease-in-out infinite}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .sky .ff{animation:ffly 4s ease-in-out infinite}}
+.sky .ff.f1{animation-delay:1s!important;animation-duration:5s!important}.sky .ff.f2{animation-delay:2.2s!important}.sky .ff.f3{animation-delay:3.1s!important;animation-duration:4.6s!important}
+@keyframes ffly{0%,100%{opacity:0;transform:translate(0,0)}30%{opacity:.95}50%{opacity:.35;transform:translate(3px,-4px)}70%{opacity:.9;transform:translate(-2px,-7px)}}
+.sky .ff{filter:drop-shadow(0 0 2px #E9FF7A)}
+@media (prefers-reduced-motion:reduce){.sky .ff{animation:none!important;opacity:0}}
+
+/* Telefon kecil (cth. iPhone SE): kad edisi dipadatkan supaya butang main kelihatan tanpa skrol. */
+@media (max-width:360px),(max-height:620px){
+  .edcard{padding:7px 10px;gap:3px}.edcard small{display:none}.edcard b{font-size:13px}.edcard .edtick{top:6px;width:16px;height:16px}}
+.edcard b{padding-right:18px}

@@ -245,5 +245,5 @@ function sayArrive(i){
   if(!S||!SQ[i])return;
   const s=SQ[i],g=gy();
   pidsShow('Tiba di',s.n);pidsHide(2600);
-  gongArrive();speak(line('arrive',s.n,nota(s.t)));
+  gongArrive();speak(line('arrive',s.n,edNota(i)||nota(s.t)));
 }

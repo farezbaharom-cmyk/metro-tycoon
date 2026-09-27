@@ -171,7 +171,8 @@ function renderBoard(){
   document.getElementById('msg').textContent=S.msg;
   const cs=document.getElementById('cardSlot');
   if(S.card&&cs.dataset.k!==String(S.card.id)&&!cs.dataset.deed&&closedCard!==S.card.id){const pel=S.card.deck==='peluang';
-    cs.innerHTML=`<div class="card"><header style="background:${pel?'#EE7A00':'#1F5FAD'}"><span>${pel?'Peluang':'Tabung Komuniti'}</span><button class="x" type="button" aria-label="Tutup">×</button></header><div class="ct">${esc(S.card.text)}</div></div>`;
+    const cd=EDITIONS[curEd].card[pel?'peluang':'tabung'];
+    cs.innerHTML=`<div class="card ed-${curEd}"><header style="background:${cd.c}"><span><span class="cic" aria-hidden="true">${cd.ic}</span> ${pel?'Peluang':'Tabung Komuniti'}</span><button class="x" type="button" aria-label="Tutup">×</button></header><div class="ct">${esc(S.card.text)}</div></div>`;
     cs.dataset.k=String(S.card.id);cs.querySelector('.x').onclick=()=>{closedCard=S.card&&S.card.id;cs.innerHTML='';delete cs.dataset.k}}
   else if(!S.card&&cs.dataset.k&&!cs.dataset.deed){cs.innerHTML='';delete cs.dataset.k}
 }
