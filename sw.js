@@ -7,7 +7,7 @@
    Pangkalan data Firebase dan log masuk TIDAK disentuh — ia mesti sentiasa
    bercakap terus dengan pelayan.
    Tukar VERSI jika senarai fail teras berubah (contohnya fail js/ baharu). */
-const VERSI = 'mtkl-v34-celoteh';
+const VERSI = 'mtkl-v35-segar';
 const TERAS = [
   './', 'index.html', 'manifest.webmanifest', 'icon-180.png', 'icon-192.png', 'icon-512.png',
   'css/style.css',
@@ -40,7 +40,7 @@ self.addEventListener('fetch', e => {
   /* Laman utama */
   if (req.mode === 'navigate') {
     e.respondWith(
-      fetch(req)
+      fetch(req, { cache: 'no-cache' })
         .then(res => {
           if (res.ok) { const salin = res.clone(); caches.open(VERSI).then(c => c.put('./', salin)); }
           return res;
@@ -50,10 +50,12 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  /* Fail sendiri: rangkaian dahulu, simpanan jika luar talian */
+  /* Fail sendiri: rangkaian dahulu, simpanan jika luar talian.
+     no-cache: sentiasa semak versi terbaharu dengan pelayan (GitHub Pages
+     menyimpan fail 10 minit dalam pelayar), supaya kemas kini terus sampai. */
   if (url.origin === self.location.origin) {
     e.respondWith(
-      fetch(req)
+      fetch(req, { cache: 'no-cache' })
         .then(res => {
           if (res.ok) { const salin = res.clone(); caches.open(VERSI).then(c => c.put(req, salin)); }
           return res;
