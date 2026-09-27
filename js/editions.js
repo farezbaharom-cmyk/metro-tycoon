@@ -17,7 +17,7 @@
 /* ---------- salinan edisi KL ---------- */
 const PEL_FX=PELUANG.map(c=>c[1]), TAB_FX=TABUNG.map(c=>c[1]);
 const klSkyline=skylineSVG;
-const ED_KL={id:'kl',label:'Edisi KL',emoji:'🏙️',title:'Metro Tycoon KL',
+const ED_KL={id:'kl',label:'Edisi KL',emoji:'🏙️',blurb:'Lembah Klang · MRT, LRT, Monorel',title:'Metro Tycoon KL',
   logo:'Metro<br><span>Tycoon</span> KL',sub:'Edisi Lembah Klang',
   home:'Metro <span>Tycoon</span> KL',tag:'Permainan hartanah laluan transit Lembah Klang.',
   sq:SQ,groups:GROUPS,code:CODE,corner:CORNER,short:SHORT,syl:SHORT_SYL,events:EVENTS,
@@ -163,11 +163,24 @@ function borneoSkyline(gid){gid=gid||'skyg';
     ${front.map(([x,w,h])=>rects('b2',[[x,w,h]])+wins(x,w,h,196)).join('')}
     ${palm(116,46)}${palm(372,52)}${palm(390,40)}
     <rect class="trk" x="0" y="184" width="400" height="3"/>${pillars}${train}</svg>`}
-const ED_BORNEO={id:'borneo',label:'Edisi Borneo',emoji:'🌴',title:'Metro Tycoon Borneo',
+/* Peta Borneo ringkas untuk pusat papan (viewBox 100×100 papan). Pulau
+   dilukis di bahagian atas tengah, dengan laluan berwarna antara bandar. */
+function borneoMap(){
+  const P={kch:[17,45],sto:[14,40],sam:[23,51],sri:[27,44],sib:[31,42],kap:[40,48],bel:[48,44],btu:[40,34],
+    mir:[48,28],lim:[55,26],bft:[58,24],ten:[61,31],kk:[63,17],kun:[70,21],kdt:[70,8],kbd:[66,12],
+    sdk:[86,22],lhd:[88,31],tws:[83,38],smp:[91,37]};
+  const R=[[4,['kch','sri','sib','btu','mir','lim','kk']],[0,['kk','bft','ten']],[7,['kk','kun']],
+    [5,['kdt','kbd','kk']],[5,['kdt','sdk']],[2,['sdk','lhd','tws','smp']],[3,['sam','sri','sib']],[1,['sib','kap','bel']],[6,['sto','kch']]];
+  const line=(g,ids)=>`<polyline points="${ids.map(k=>P[k].join(',')).join(' ')}" stroke="${GROUPS[g].c}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>`;
+  return `<g transform="translate(6 2) scale(.88 .8)">
+    <path class="isle" d="M72 7L80 14L88 21L95 25L92 33L90 37L84 40L80 50L78 63L74 78L70 90L56 93L40 90L28 86L18 78L12 64L10 51L16 43L27 39L38 33L47 27L55 23L61 17L66 11z"/>
+    ${R.map(([g,ids])=>line(g,ids)).join('')}
+    ${Object.values(P).map(([x,y])=>`<circle class="city" cx="${x}" cy="${y}" r="1.1"/>`).join('')}</g>`}
+const ED_BORNEO={id:'borneo',label:'Edisi Borneo',emoji:'🌴',blurb:'Sabah & Sarawak · laluan rel impian',title:'Metro Tycoon Borneo',
   logo:'Metro<br><span>Tycoon</span> Borneo',sub:'Edisi Sabah & Sarawak',
   home:'Metro <span>Tycoon</span> Borneo',tag:'Permainan hartanah laluan rel impian Sabah dan Sarawak.',
   sq:B_SQ,groups:B_GROUPS,code:B_CODE,corner:B_CORNER,short:B_SHORT,syl:B_SYL,events:B_EVENTS,
-  pel:B_PEL,tab:B_TAB,sky:borneoSkyline};
+  pel:B_PEL,tab:B_TAB,sky:borneoSkyline,map:borneoMap};
 const EDITIONS={kl:ED_KL,borneo:ED_BORNEO};
 
 /* ---------- menukar edisi ---------- */
@@ -203,7 +216,10 @@ function refreshHome(){const id=prefEd(),E=EDITIONS[id];
   document.querySelectorAll('.edpick button').forEach(b=>{const on=b.dataset.ed===id;
     b.classList.toggle('on',on);b.setAttribute('aria-checked',on?'true':'false')})}
 document.querySelectorAll('.edpick').forEach(el=>{
-  el.innerHTML=Object.values(EDITIONS).map(E=>`<button type="button" role="radio" data-ed="${E.id}" aria-checked="false">${E.emoji} ${E.label}</button>`).join('');
+  /* Skrin utama: kad edisi bergambar jalur warna laluan; tempat lain: suis ringkas. */
+  el.innerHTML=Object.values(EDITIONS).map(E=>el.classList.contains('edcards')
+    ?`<button type="button" class="edcard" role="radio" data-ed="${E.id}" aria-checked="false"><span class="edbar" aria-hidden="true">${[4,3,6,7].map(g=>`<i style="background:${E.groups[g].c}"></i>`).join('')}</span><b>${E.emoji} ${E.label}</b><small>${E.blurb}</small><span class="edtick" aria-hidden="true">✓</span></button>`
+    :`<button type="button" role="radio" data-ed="${E.id}" aria-checked="false">${E.emoji} ${E.label}</button>`).join('');
   el.addEventListener('click',e=>{const b=e.target.closest('[data-ed]');if(!b)return;
     savePrefEd(b.dataset.ed);refreshHome();
     /* Papan di belakang skrin persediaan hanya contoh (bukan permainan
