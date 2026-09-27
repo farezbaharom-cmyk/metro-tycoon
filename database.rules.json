@@ -42,6 +42,15 @@
             "$other": { ".validate": false }
           }
         },
+        "react": {
+          "$uid": {
+            ".write": "auth != null && $uid === auth.uid && newData.exists() && (root.child('rooms/' + $code + '/seats/' + auth.uid).exists() || root.child('rooms/' + $code + '/online/' + auth.uid).exists())",
+            ".validate": "newData.hasChildren(['e', 't']) && (!data.exists() || newData.child('t').val() >= data.child('t').val() + 700)",
+            "e": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 15" },
+            "t": { ".validate": "newData.isNumber() && newData.val() <= now" },
+            "$other": { ".validate": false }
+          }
+        },
         "state": {
           ".write": "auth != null && root.child('rooms/' + $code + '/seats/' + auth.uid).exists()",
           ".validate": "newData.isString() && newData.val().length < 200000"

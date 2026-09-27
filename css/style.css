@@ -1515,3 +1515,36 @@ body:has(#endBox:not([hidden])) :is(.mfloat,.stamp){display:none}
 .jppop .jpn .av svg{width:100%;height:100%;display:block}
 .jppop small{color:#B7C4D0;font-size:max(10px,1.5cqi)}
 @media(prefers-reduced-motion:reduce){.jppop{opacity:1;transform:translate(-50%,-50%)}.jppop .jpt,.potled.bump{animation:none}}
+/* ---------- Reaksi langsung (bilik online) ---------- */
+.reactfab{position:relative;display:inline-flex;margin-left:4px}
+.reactfab[hidden]{display:none}
+.zoomctl .reactfab .rbtn{width:40px;height:40px;min-width:40px;padding:0;border-radius:999px;font-size:20px;line-height:1;
+  background:var(--accent);border-color:transparent;box-shadow:0 3px 10px rgba(214,18,79,.35)}
+.zoomctl .reactfab .rbtn:hover{background:var(--accent)}
+.zoomctl .reactfab .rbtn.on{transform:scale(.92);box-shadow:0 0 0 3px var(--panel),0 0 0 5px var(--accent)}
+.rtray{position:absolute;right:-6px;bottom:calc(100% + 10px);z-index:60;width:min(300px,calc(100vw - 24px));
+  padding:10px;border-radius:16px;background:var(--panel);border:1px solid var(--rule);
+  box-shadow:0 12px 32px rgba(0,0,0,.25);animation:rtray-in .18s cubic-bezier(.3,1.4,.5,1)}
+.rtray[hidden]{display:none}
+@keyframes rtray-in{from{opacity:0;transform:translateY(8px) scale(.95)}}
+.rtray .rgrid{display:grid;grid-template-columns:repeat(8,1fr);gap:2px}
+.zoomctl .rtray .rgrid button{width:auto;min-width:0;height:36px;padding:0;border:0;background:transparent;font-size:22px;border-radius:10px;box-shadow:none}
+.zoomctl .rtray .rgrid button:hover,.zoomctl .rtray .rphr button:hover{background:var(--soft);transform:scale(1.12)}
+.rtray .rphr{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid var(--rule)}
+.zoomctl .rtray .rphr button{width:auto;min-width:0;height:30px;padding:0 10px;font-size:12.5px;font-weight:700;white-space:nowrap;box-shadow:none}
+.reactlayer{position:fixed;inset:0;z-index:70;pointer-events:none;overflow:hidden}
+.rfly{position:fixed;display:flex;flex-direction:column;align-items:center;gap:2px;transform:translate(-50%,0);
+  animation:rfly 2.6s cubic-bezier(.2,.7,.3,1) forwards}
+.rfly .re{font-size:40px;line-height:1;filter:drop-shadow(0 3px 6px rgba(0,0,0,.25))}
+.rfly.txt .re{font-size:30px}
+.rfly .rt{padding:4px 11px;border-radius:999px;background:var(--rc);color:#fff;font-weight:800;font-size:14px;white-space:nowrap;
+  box-shadow:0 4px 12px rgba(0,0,0,.25)}
+.rfly small{padding:1px 8px;border-radius:999px;background:var(--panel);color:var(--ink);font-weight:700;font-size:11px;
+  box-shadow:0 0 0 2px var(--rc);white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis}
+@keyframes rfly{0%{opacity:0;transform:translate(-50%,20px) scale(.4)}
+  12%{opacity:1;transform:translate(-50%,0) scale(1.15)}
+  22%{transform:translate(-50%,-14px) scale(1)}
+  80%{opacity:1}
+  100%{opacity:0;transform:translate(calc(-50% + var(--dx)),-220px) scale(.9)}}
+@media(prefers-reduced-motion:reduce){.rfly{animation:rfly-rm 1.6s linear forwards}
+  @keyframes rfly-rm{0%,80%{opacity:1;transform:translate(-50%,-40px)}100%{opacity:0;transform:translate(-50%,-40px)}}}

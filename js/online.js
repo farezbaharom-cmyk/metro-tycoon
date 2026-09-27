@@ -367,6 +367,7 @@ function onRoom(snap){
     if(!NET.shown){NET.shown=true;$('setup').hidden=true}
   }
   renderLobby();if(S&&r.meta.started){afkTrack();renderSide()}
+  if(typeof reactRoom==='function')reactRoom(r);
 }
 /* Edisi bilik (meta/ed): hos boleh tukar sebelum mula; pemain lain nampak
    edisi dan papan di belakang lobi ikut edisi itu. Bilik lama tanpa meta/ed
@@ -460,6 +461,7 @@ function leaveRoom(quiet){
   try{localStorage.removeItem('mtkl-room')}catch(e){}
   try{const u=new URL(location.href);u.searchParams.delete('bilik');history.replaceState(null,'',u)}catch(e){}
   $('roomChip').hidden=true;
+  if(typeof reactReset==='function')reactReset();
   if(!quiet){newGame(DEFAULT_NAMES.slice(),0,0,1500);renderAll()}
   renderLobby();
 }

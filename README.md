@@ -48,6 +48,7 @@ Peraturan penuh ada dalam permainan, di **⚙️ Menu → Peraturan**.
 - 🏅 **Statistik dan lencana di skrin tamat**, contohnya Raja Sewa, Tuan Tanah, Banduan Tetap dan Bangkit Semula, dengan butang kongsi keputusan ke WhatsApp.
 - 🐱 **Pilih watak** di lobi atau borang permainan: tren, atau salah satu daripada lima kucing (Oyen, Tuxedo, Putih, Kelabu, Calico). Setiap kucing hanya untuk seorang pemain, dan pilihan anda diingati untuk permainan seterusnya.
 - 🤖 **Bot dua tahap**, Mudah dan Sederhana.
+- 😂 **Reaksi langsung** dalam bilik online: ketik butang 😄 di bawah papan untuk hantar emoji atau ayat pendek (Padan muka!, Cepatlah!, GG!…) yang terbang di atas papan pada skrin semua pemain dan penonton.
 - ⏱️ **Had masa giliran** dalam bilik online (30, 60 atau 90 saat, atau tiada had). Jika pemain tidak bertindak atau terputus talian, bot mengambil alih giliran itu secara automatik.
 - 👀 **Mod penonton**: kawan yang masuk selepas permainan bermula, atau bila bilik penuh, boleh menonton secara langsung.
 - 🅿️ **Tabung Parkir (jackpot):** cukai, denda dan bayaran kad kepada bank terkumpul di tengah papan. Mendarat tepat di Parkir Percuma untuk sapu semuanya, dengan sambutan JACKPOT di semua peranti.
@@ -87,6 +88,7 @@ Peraturan penuh ada dalam permainan, di **⚙️ Menu → Peraturan**.
 | `borneo/index.html` | Pautan kongsi Edisi Borneo dengan gambar pratonton sendiri (`og-borneo.png`). |
 | `js/ui.js` | Butang, papan kekunci, borang persediaan, pandangan 3D dan enjin partikel. |
 | `js/online.js` | Bilik online Firebase, penonton, had masa giliran, pembersihan bilik terbiar. |
+| `js/reaksi.js` | Reaksi langsung (emoji dan ayat pendek) dalam bilik online. |
 | `js/app.js` | Panel giliran telefon, tab bawah, tetingkap boleh diakses, boot dan PWA. |
 
 Semua fail `js/` berkongsi skop global dan dimuatkan **mengikut susunan** dalam `index.html` (`config.js` dahulu, `app.js` terakhir). Fungsi boleh dipanggil merentas fail, tetapi kod yang berjalan semasa laman dimuatkan hanya boleh guna apa yang sudah dimuatkan sebelumnya. Jika menambah fail `js/` baharu, tambahkan juga dalam `TERAS` di `sw.js` dan naikkan `VERSI`, supaya mod tanpa internet terus berfungsi.
@@ -145,6 +147,15 @@ Semua fail `js/` berkongsi skop global dan dimuatkan **mengikut susunan** dalam 
             ".validate": "newData.hasChild('t')",
             "t": { ".validate": "newData.isNumber() && newData.val() <= now" },
             "w": { ".validate": "newData.isString() && newData.val().length <= 16" },
+            "$other": { ".validate": false }
+          }
+        },
+        "react": {
+          "$uid": {
+            ".write": "auth != null && $uid === auth.uid && newData.exists() && (root.child('rooms/' + $code + '/seats/' + auth.uid).exists() || root.child('rooms/' + $code + '/online/' + auth.uid).exists())",
+            ".validate": "newData.hasChildren(['e', 't']) && (!data.exists() || newData.child('t').val() >= data.child('t').val() + 700)",
+            "e": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 15" },
+            "t": { ".validate": "newData.isNumber() && newData.val() <= now" },
             "$other": { ".validate": false }
           }
         },
