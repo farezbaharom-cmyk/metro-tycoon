@@ -295,7 +295,7 @@ function dealFast(){
       got.push(i);pool.splice(k,1);k--}
     addLog(`⚡ Mod cepat: ${pl.name} terima ${got.map(i=>SQ[i].n).join(', ')}.`)});
 }
-function newGame(names,qual,endLaps,cash,bots,useAuc,fast){
+function newGame(names,qual,endLaps,cash,bots,useAuc,fast,ed){
   clearBot();
   if(fast){qual=0;endLaps=0}
   S={players:names.map((n,i)=>({name:n,color:COLORS[i],cash,pos:0,laps:0,inJail:false,jailTurns:0,cards:0,bankrupt:false,creditor:null,bot:(bots&&bots[i])||null})),
@@ -304,7 +304,7 @@ function newGame(names,qual,endLaps,cash,bots,useAuc,fast){
    useAuc:useAuc!==false,auc:null,trade:null,
    card:null,log:[],decks:{peluang:shuffle([...PELUANG.keys()]),tabung:shuffle([...TABUNG.keys()])},
    fast:!!fast,fastRounds:fastRounds(names.length),round:1,st:names.map(()=>newStat(cash)),gid:Date.now().toString(36),
-   ed:prefEd()};
+   ed:edId(ed||prefEd())};
   applyEdition(S.ed);   /* nama petak & kad edisi mesti siap sebelum dealFast dan log */
   addLog(qual?`Permainan bermula. Setiap pemain perlu lengkapkan ${qual} pusingan sebelum boleh membeli hartanah.`:'Permainan bermula. Semoga berjaya!');
   if(S.fast)dealFast();

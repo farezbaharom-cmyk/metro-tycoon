@@ -320,6 +320,9 @@ async function createRoom(){
     for(let i=0;i<8&&!code;i++){const c=genCode();if(await claimRoom(c,data))code=c}
     if(!code){omsg('Tidak dapat mencari kod bilik yang kosong. Cuba sekali lagi.');return}
     fdb.ref('roomIndex/'+code).set(data.meta.created).catch(()=>{});
+    /* Edisi ditulis berasingan: jika peraturan Firebase lama (tanpa meta/ed)
+       masih digunakan, bilik tetap tercipta dan edisi hos dipakai semasa mula. */
+    fdb.ref('rooms/'+code+'/meta/ed').set(prefEd()).catch(()=>{});
     rememberRoom(code);
     enterRoom(code);omsg('');track('online-cipta','Cipta bilik online');
     sweepMyRooms(code)}
@@ -362,6 +365,22 @@ function onRoom(snap){
   }
   renderLobby();if(S&&r.meta.started){afkTrack();renderSide()}
 }
+/* Edisi bilik (meta/ed): hos boleh tukar sebelum mula; pemain lain nampak
+   edisi dan papan di belakang lobi ikut edisi itu. Bilik lama tanpa meta/ed
+   (atau peraturan Firebase lama) disembunyikan — edisi hos dipakai semasa mula. */
+function renderEdLobby(r,started){
+  const box=$('edLobby');if(!box)return;const ed=r.meta.ed;
+  box.hidden=started||!ed;if(box.hidden)return;
+  box.innerHTML=NET.host
+    ?`<div class="seg" role="radiogroup" aria-label="Edisi papan bilik">${Object.values(EDITIONS).map(E=>
+      `<button type="button" role="radio" data-ed="${E.id}" aria-checked="${E.id===ed}" class="${E.id===ed?'on':''}">${E.emoji} ${E.label}</button>`).join('')}</div>`
+    :`<p class="note">Edisi papan: <b>${EDITIONS[edId(ed)].emoji} ${EDITIONS[edId(ed)].label}</b></p>`;
+  /* Papan contoh di belakang lobi ikut edisi bilik. */
+  if(S&&!S.started&&S.ed!==edId(ed)){S.ed=edId(ed);renderAll()}}
+$('edLobby')?.addEventListener('click',e=>{const b=e.target.closest('[data-ed]');
+  if(!b||!NET||!NET.host||!NET.room||NET.room.meta.started)return;
+  savePrefEd(b.dataset.ed);refreshHome();
+  NET.ref.child('meta/ed').set(b.dataset.ed).catch(err=>omsg('Tidak dapat menukar edisi: '+err.message))});
 function renderLobby(){
   const online=!!FIREBASE_CONFIG;$('onlineOff').hidden=online;$('onlineStart').hidden=!online||!!NET;$('lobby').hidden=!NET;
   if(!NET||!NET.room)return;const r=NET.room;
@@ -380,6 +399,7 @@ function renderLobby(){
     v.bot&&NET.host&&!started?`<button class="mini" type="button" data-kick="${id}">Buang</button>`:''
     }<span class="live ${isOnline(id)?'':'off'}" title="${isOnline(id)?'Dalam talian':'Luar talian'}"></span></li>`).join('');
   $('botAdd').hidden=!NET.host||started||seats.length>=5;
+  renderEdLobby(r,started);
   const w=watchers();
   $('watchers').hidden=!w.length;
   $('watchers').textContent=w.length?`👀 Penonton (${w.length}): ${w.join(', ')}`:'';
@@ -410,7 +430,7 @@ async function startOnline(){
   if(!NET||!NET.host)return;const r=NET.room;const seats=Object.entries(r.seats||{}).sort((a,b)=>a[1].t-b[1].t).slice(0,5);
   if(seats.length<2)return;
   newGame(seats.map(s=>s[1].name),r.meta.qual,r.meta.endLaps,r.meta.cash,
-          seats.map(s=>s[1].bot||null),r.meta.auc!==false,!!r.meta.fast);
+          seats.map(s=>s[1].bot||null),r.meta.auc!==false,!!r.meta.fast,r.meta.ed);
   S.players.forEach((p,i)=>p.uid=seats[i][0]);S.gid=Date.now().toString(36);S.started=true;S.rev=0;
   track('online-mula',`Mula online · ${seats.length} pemain`);
   S.tl=r.meta.tl==null?60:+r.meta.tl;afkSeat=-1;

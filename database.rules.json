@@ -19,6 +19,7 @@
           "tl": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 300" },
           "auc": { ".validate": "newData.isBoolean()" },
           "fast": { ".validate": "newData.isBoolean()" },
+          "ed": { ".validate": "newData.val() === 'kl' || newData.val() === 'borneo'" },
           "$other": { ".validate": false }
         },
         "seats": {
