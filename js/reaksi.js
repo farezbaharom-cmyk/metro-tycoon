@@ -10,7 +10,7 @@ const REAKSI=[
   {e:'😏',t:'Padan muka!'},{e:'🥺',t:'Kesian...'},{e:'⏳',t:'Cepatlah!'},{e:'🤝',t:'Jom deal?'},
   {e:'🤑',t:'Wah kaya!'},{e:'🆘',t:'Tolong la!'},{e:'🎉',t:'GG!'},{e:'🍵',t:'Teh tarik?'}];
 const REACT_GAP=900;           /* had kekerapan sendiri (peraturan Firebase: 700ms) */
-let reactSeen=null,reactLast=0,reactWarned=false,reactOpen=false;
+let reactLane=0,reactSeen=null,reactLast=0,reactWarned=false,reactOpen=false;
 
 /* Siapa nama pengirim: kerusi pemain, atau nama penonton. */
 function reactName(uid){
@@ -52,16 +52,23 @@ function reactFly(i,name,color){
   const x=REAKSI[i];if(!x)return;
   let layer=document.getElementById('reactLayer');
   if(!layer){layer=document.createElement('div');layer.id='reactLayer';layer.className='reactlayer';layer.setAttribute('aria-hidden','true');document.body.appendChild(layer)}
-  if(layer.children.length>=8)layer.firstChild.remove();
+  if(layer.children.length>=6)layer.firstChild.remove();
   const bv=document.getElementById('boardview'),r=bv&&bv.getBoundingClientRect();
   const vis=r&&r.width>40&&r.bottom>60&&r.top<innerHeight-60;
   const L=vis?Math.max(8,r.left):8,W=vis?Math.min(r.width,innerWidth-L-8):innerWidth-16;
   const B=vis?Math.min(r.bottom,innerHeight-80):innerHeight-120;
   const el=document.createElement('div');el.className='rfly'+(x.t?' txt':'');
-  el.style.left=Math.round(L+W*(.15+Math.random()*.7))+'px';el.style.top=Math.round(B-40)+'px';
-  el.style.setProperty('--rc',color);el.style.setProperty('--dx',Math.round((Math.random()-.5)*80)+'px');
+  /* Naik di tepi kiri atau kanan papan (lorong bergilir), supaya stesen dan
+     token di tengah tidak tertutup. */
+  reactLane=(reactLane+1)%2;
+  const edge=Math.min(56,W*.12),x0=reactLane?L+W-edge:L+edge;
+  el.style.left=Math.round(x0+(Math.random()-.5)*edge*.6)+'px';
+  el.style.setProperty('--dx',Math.round((reactLane?-1:1)*Math.random()*14)+'px');el.style.top=Math.round(B-40)+'px';
+  el.style.setProperty('--rc',color);
   el.innerHTML=`<span class="re">${x.e}</span>${x.t?`<span class="rt">${esc(x.t)}</span>`:''}<small>${esc(name)}</small>`;
   layer.appendChild(el);
+  /* Jangan terkeluar dari skrin (ayat panjang di tepi). */
+  {const w=el.offsetWidth,cx=parseFloat(el.style.left);el.style.left=Math.round(Math.max(8+w/2,Math.min(innerWidth-8-w/2,cx)))+'px'}
   if(sound)beep(660+Math.random()*260,.06,'triangle',.035);
   setTimeout(()=>el.remove(),RM?1600:2700);
   /* Pembaca skrin: umumkan secara ringkas. */
@@ -80,7 +87,7 @@ function reactUI(){
     (document.getElementById('zoomctl')||document.body).appendChild(fab);
     fab.addEventListener('click',e=>{
       const b=e.target.closest('[data-r]');
-      if(b){sendReact(+b.dataset.r);return}
+      if(b){sendReact(+b.dataset.r);reactToggle(false);return}   /* tutup sendiri selepas memilih */
       if(e.target.closest('#reactBtn'))reactToggle()});
     document.addEventListener('pointerdown',e=>{if(reactOpen&&!e.target.closest('#reactFab'))reactToggle(false)});
     document.addEventListener('keydown',e=>{if(reactOpen&&e.key==='Escape'){reactToggle(false);document.getElementById('reactBtn').focus()}})}
