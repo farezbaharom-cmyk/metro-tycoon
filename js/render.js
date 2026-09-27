@@ -82,6 +82,17 @@ function skylineSVG(gid){gid=gid||'skyg';
     ${rects('b0',back)}${kltower}${twin}${m118}
     ${front.map(([x,w,h])=>rects('b2',[[x,w,h]])+wins(x,w,h,196)).join('')}
     <rect class="trk" x="0" y="184" width="400" height="3"/>${pillars}${train}</svg>`}
+/* Small original landmark drawings, limited to the KL edition. */
+function stationLandmark(i){
+  if(curEd!=='kl')return '';
+  const marks={
+    39:['Menara Berkembar Petronas','M12 43V19h10v24m-8-24V12h6v7m-3-7V4m17 39V19h10v24m-8-24V12h6v7m-3-7V4M22 28h12M9 43h38M14 23h6m-6 6h6m-6 6h6m16-12h6m-6 6h6m-6 6h6'],
+    11:['Stadium Bukit Jalil','M6 26Q28 10 50 26v11Q28 49 6 37Zm0 0q22 14 44 0M12 23V12m32 11V12M8 12h8m24 0h8M14 31v8m9-5v8m10-8v8m9-11v8'],
+    15:['Masjid Jamek','M10 43V28h36v15M18 28q0-15 10-18 10 3 10 18M28 10V5M6 43V17h7m30 0h7v26M5 17l4-7 4 7m30 0 4-7 4 7M23 43V33h10v10'],
+    29:['Terminal KLIA','M5 43V28h34v15M4 28l18-9 18 9M44 43V16h7v27M43 16V9h9v7M10 34h5m5 0h5m5 0h5M10 39h5m5 0h5m5 0h5']
+  };
+  const m=marks[i];return m?`<svg class="station-landmark" viewBox="0 0 56 48" role="img" aria-label="${m[0]}"><title>${m[0]}</title><path d="${m[1]}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`:'';
+}
 function buildBoard(){
   const b=document.getElementById('board');let h='';
   SQ.forEach((s,i)=>{const [r,c]=gridPos(i);
@@ -93,7 +104,7 @@ function buildBoard(){
     /* Perkataan terpanjang yang menentukan sama ada nama muat dalam satu baris. */
     const lw=Math.max(...s.n.split(/\s+/).map(w=>w.length));
     const fit=lw>=11?' tighter':lw>=9?' tight':'';
-    h+=`<div class="sq ${side(i)} t-${s.t}" id="sq${i}" style="grid-row:${r};grid-column:${c}" data-i="${i}" role="button" tabindex="0" aria-label="${esc(s.n)}">${stripe}<div class="body">${icon}${code}<span class="nm nm-f${fit}">${esc(s.n)}</span><span class="nm nm-s" aria-hidden="true">${esc(SHORT[i]||s.n)}</span>${csub}${label}</div><div class="tokens"></div></div>`});
+    h+=`<div class="sq ${side(i)} t-${s.t}" id="sq${i}" style="grid-row:${r};grid-column:${c}" data-i="${i}" role="button" tabindex="0" aria-label="${esc(s.n)}">${stripe}<div class="body">${icon}${stationLandmark(i)}${code}<span class="nm nm-f${fit}">${esc(s.n)}</span><span class="nm nm-s" aria-hidden="true">${esc(SHORT[i]||s.n)}</span>${csub}${label}</div><div class="tokens"></div></div>`});
   const lines=GROUPS.map((g,k)=>{const y=12+k*11;return `<path d="M-5 ${y} C 30 ${y+18}, 70 ${y-20}, 105 ${y+6}" stroke="${g.c}" stroke-width="2.2" fill="none"/>`}).join('');
   h+=`<div class="center" id="center"><svg class="map" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${lines}</svg>${skylineSVG()}
     <div class="logo"><h1>${EDITIONS[curEd].logo}</h1><p>${EDITIONS[curEd].sub}</p></div>
@@ -148,8 +159,9 @@ function renderBoard(){
     const o=S.owner[i];let own=el.querySelector('.own');
     el.classList.toggle('owned',o!==null);
     if(o!==null){const q=S.players[o];if(!own){own=document.createElement('span');own.className='own';el.appendChild(own)}
-      own.style.background=q.color;own.textContent=(q.name.trim()[0]||'?').toUpperCase();own.title='Milik '+q.name;el.style.setProperty('--oc',q.color)}
+      own.style.background=q.color;own.style.color=lightBg(q.color)?'#17212b':'#fff';own.textContent=(q.name.trim()[0]||'?').toUpperCase();own.title='Milik '+q.name;el.style.setProperty('--oc',q.color)}
     else{if(own)own.remove();el.style.removeProperty('--oc')}
+    el.setAttribute('aria-label',s.n+(o!==null?' · Milik '+S.players[o].name:'')+(S.mort[i]?' · Digadai':''));
     const st=el.querySelector('.stripe');if(st){const h=S.houses[i];st.innerHTML=h===5?'<span class="hotel">H</span>':'<span class="house"></span>'.repeat(h)}
     /* Pergerakan mengelilingi papan: petak 0-19 ke kiri, 20-39 ke kanan. */
     const toks=S.players.map((p,k)=>(!p.bankrupt&&p.pos===i)
@@ -175,6 +187,10 @@ function showDeed(i){
   document.getElementById('deedHead').classList.toggle('on-light',lightBg(head));
   document.getElementById('deedName').textContent=s.n;
   document.getElementById('deedSub').textContent=sub+(s.p?' · '+fmt(s.p):'');
+  document.getElementById('deedTicketLabel').textContent=own?'METRO TYCOON · TIKET STESEN':'METRO TYCOON · INFO PETAK';
+  const ticket=document.getElementById('deedTicket');ticket.hidden=!own;
+  ticket.style.setProperty('--ticket-route',head);
+  ticket.innerHTML=own?`<div class="ticket-facts"><div><small>Harga belian</small><strong>${fmt(s.p)}</strong></div><div><small>${s.t==='util'?'Formula sewa asas':'Sewa asas'}</small><strong>${s.t==='util'?'4× dadu':fmt(s.t==='prop'?s.r[0]:25)}</strong></div></div><div class="ticket-owner"><span>${o===null?'Belum dimiliki':'Milik '+esc(S.players[o].name)}${S.mort[i]?' · Digadai':''}</span><span class="ticket-serial">${esc(CODE[i]||'MT-'+String(i).padStart(2,'0'))}</span></div>`:'';
   const dc=document.getElementById('deedCode');dc.hidden=!CODE[i];dc.textContent=CODE[i]||'';
 
   /* Nombor yang paling dicari dahulu: berapa saya bayar kalau mendarat di sini. */
@@ -367,7 +383,7 @@ function renderSide(){
   afkPaint();
   document.getElementById('players').innerHTML=S.players.map((q,k)=>{
     const sw=S.owner.map((o,i)=>o===k?`<i style="background:${SQ[i].t==='prop'?GROUPS[SQ[i].g].c:'var(--muted)'}"></i>`:'').join('');
-    return `<li class="pl ${k===S.turn&&S.phase!=='over'?'cur':''} ${q.bankrupt?'out':''}" style="--player-color:${q.color}">${trainMark(k,q.color)}<span class="nmx">${NET?`<span class="live ${isOnline(q.uid)?'':'off'}" title="${isOnline(q.uid)?'Dalam talian':'Luar talian'}"></span> `:''}${esc(q.name)}${NET&&q.uid===UID?' <span class="chip ok">Anda</span>':''}</span><span class="money" style="${q.cash<0?'color:var(--bad)':''}"><small class="cash-label">Tunai</small>${fmt(q.cash)}</span>
+    return `<li data-player="${k}" class="pl ${k===S.turn&&S.phase!=='over'?'cur':''} ${q.bankrupt?'out':''}" style="--player-color:${q.color}">${trainMark(k,q.color)}<span class="nmx">${NET?`<span class="live ${isOnline(q.uid)?'':'off'}" title="${isOnline(q.uid)?'Dalam talian':'Luar talian'}"></span> `:''}${esc(q.name)}${NET&&q.uid===UID?' <span class="chip ok">Anda</span>':''}</span><span class="money" style="${q.cash<0?'color:var(--bad)':''}"><small class="cash-label">Tunai</small>${fmt(q.cash)}</span>
     <span class="meta">${k===S.turn&&S.phase!=='over'?'<span class="playing-label">● Sedang bermain</span>':''}${q.bot?`<span class="chip">Bot ${BOT_LEVELS[q.bot]}</span>`:''}${lapBar(q)}${q.bankrupt?'<span class="chip bad">Muflis</span>':S.qual&&q.laps>=S.qual?'<span class="chip ok">Boleh beli</span>':''}${q.inJail?'<span class="chip bad">Lokap</span>':''}${q.cards?`<span class="chip">Kad bebas ×${q.cards}</span>`:''}${q.along&&!q.bankrupt?`<span class="chip bad" title="Ditagih bila lalu MULA">🦈 Hutang Along ${fmt(q.along)}</span>`:''}<span class="chip worth-label">Kekayaan bersih ${fmt(netWorth(q))}</span><span class="swatches">${sw}</span></span></li>`}).join('');
   /* Dalam bilik online, tunjukkan hartanah SENDIRI semasa menunggu giliran
      orang lain — barulah pemain boleh merancang, bukan memandang senarai lawan.
@@ -616,6 +632,7 @@ function moneyHook(){
   now.forEach((c,k)=>{const d=Math.round(c-lastCash[k]);if(!d)return;
     const q=S.players[k],n=(bySq[q.pos]=(bySq[q.pos]||0)+1)-1;
     floatMoney(q.pos,d,n,q.color);
+    balanceMoney(k,d);
     if(k===S.turn){
       const panel=document.getElementById('turn');
       const feedback=document.createElement('p');feedback.className='turn-feedback';
@@ -627,6 +644,16 @@ function moneyHook(){
     const chip=document.querySelector(`.pstrip [data-k="${k}"]`);
     if(chip){chip.classList.remove('up','down');void chip.offsetWidth;chip.classList.add(d>0?'up':'down')}});
   lastCash=now}
+function balanceMoney(k,d){
+  const targets=[document.querySelector(`#players [data-player="${k}"] .money`),document.querySelector(`.pstrip [data-k="${k}"] .money`)];
+  if(k===S.turn)targets.push(document.querySelector('#turn .turnhead .money'));
+  targets.filter(Boolean).forEach(target=>{
+    const badge=document.createElement('span');badge.className='balance-delta '+(d>0?'gain':'loss');
+    badge.textContent=(d>0?'+':'−')+fmt(Math.abs(d));
+    badge.setAttribute('aria-hidden','true');target.appendChild(badge);
+    setTimeout(()=>badge.remove(),1800);
+  });
+}
 function floatMoney(i,d,n,col){
   if(RM)return;const a=fxAt(i);if(!a)return;
   const el=document.createElement('div');el.className='mfloat '+(d>0?'pos':'neg');
