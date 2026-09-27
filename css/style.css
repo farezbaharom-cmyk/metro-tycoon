@@ -1487,3 +1487,4 @@ body.v3d .center svg.map.ed-borneo{opacity:.4}
 @media (max-width:360px),(max-height:620px){
   .edcard{padding:7px 10px;gap:3px}.edcard small{display:none}.edcard b{font-size:13px}.edcard .edtick{top:6px;width:16px;height:16px}}
 .edcard b{padding-right:18px}
+body:has(#endBox:not([hidden])) :is(.mfloat,.stamp){display:none}

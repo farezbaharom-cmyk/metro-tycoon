@@ -499,6 +499,8 @@ function showEnd(){
       <span class="rdet"><span class="stats">${st}</span>${bg?`<span class="bdg">${bg}</span>`:''}</span></li>`}).join('');
   document.getElementById('endBadges').innerHTML='';
   lastSummary=endSummary(rk,bd);
+  /* Label wang terapung dan cop 'Dibeli' yang masih berjalan tidak boleh menutup skrin tamat. */
+  document.querySelectorAll('.mfloat,.stamp').forEach(el=>el.remove());
   document.getElementById('endBox').hidden=false;sfx.win();confetti();
   if(wonSaid!==S.gid){wonSaid=S.gid;speak(tie?`Seri! ${names.replace(' & ',' dan ')} sama kuat. Tahniah semua!`:line('menang',names),false)}}
 /* Kedudukan ikut kekayaan bersih. Pemain yang sama kaya berkongsi kedudukan

@@ -12,9 +12,14 @@ const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const trackQ=[];
 function track(name,title){
   if(typeof GOATCOUNTER_CODE==='undefined'||!GOATCOUNTER_CODE)return;
-  const ev={path:'ev/'+name,title:title||name,event:true};
-  if(window.goatcounter&&window.goatcounter.count){try{window.goatcounter.count(ev)}catch(e){}}
-  else if(trackQ.length<30)trackQ.push(ev)}
+  /* Edisi (KL/Borneo) ditulis pada tajuk; setiap permainan yang bermula atau
+     tamat juga dikira sebagai peristiwa edisi-kl / edisi-borneo tersendiri. */
+  const ed=typeof curEd!=='undefined'?curEd:'kl';
+  const send=ev=>{if(window.goatcounter&&window.goatcounter.count){try{window.goatcounter.count(ev)}catch(e){}}
+    else if(trackQ.length<30)trackQ.push(ev)};
+  send({path:'ev/'+name,title:(title||name)+' · '+ed,event:true});
+  if(/^(mula-|online-mula|tamat-)/.test(name))
+    send({path:`ev/edisi-${ed}-${name.startsWith('tamat')?'tamat':'mula'}`,title:`Edisi ${ed} · ${name.startsWith('tamat')?'tamat':'mula'}`,event:true})}
 (()=>{if(typeof GOATCOUNTER_CODE==='undefined'||!GOATCOUNTER_CODE||!/^[a-z0-9-]+$/.test(GOATCOUNTER_CODE))return;
   const s=document.createElement('script');s.async=true;s.src='https://gc.zgo.at/count.js';
   s.dataset.goatcounter=`https://${GOATCOUNTER_CODE}.goatcounter.com/count`;
@@ -131,8 +136,9 @@ let TRAINS=[
 const TOKS=['tren','c0','c1','c2','c3','c4'];
 const isTok=t=>TOKS.includes(t);
 const defTok=k=>'c'+(k%5);
-const tokName=t=>t==='tren'?(typeof curEd!=='undefined'&&curEd==='borneo'?'Kenderaan':'Tren'):(MetroCats.names[+String(t).slice(1)]||'Kucing');
-function tokSVG(t,k){return t==='tren'?`<svg class="train" viewBox="0 0 28 20" aria-hidden="true">${TRAINS[k%TRAINS.length]}</svg>`:MetroCats.svg(+t.slice(1))}
+const tokName=t=>t==='tren'?(typeof tokEd==='function'&&tokEd()==='borneo'?'Kenderaan':'Tren'):(MetroCats.names[+String(t).slice(1)]||'Kucing');
+function tokSVG(t,k){const T=typeof tokEd==='function'?EDITIONS[tokEd()].trains:TRAINS;
+  return t==='tren'?`<svg class="train" viewBox="0 0 28 20" aria-hidden="true">${T[k%T.length]}</svg>`:MetroCats.svg(+t.slice(1))}
 function tokOf(k){const p=S&&S.players&&S.players[k];return p&&isTok(p.tok)?p.tok:defTok(k)}
 const trainSVG=k=>tokSVG(tokOf(k),k);
 const trainMark=(k,color,cls,t)=>{t=isTok(t)?t:tokOf(k);

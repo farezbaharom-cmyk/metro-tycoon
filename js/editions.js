@@ -247,6 +247,11 @@ function edShareURL(){const base=location.origin+location.pathname.replace(/[^/]
 /* Nota tiba khas edisi (jika ada), kadang-kadang sahaja supaya nota biasa masih kedengaran. */
 function edNota(i){const v=EDITIONS[curEd].say&&EDITIONS[curEd].say[gaya]&&EDITIONS[curEd].say[gaya][i];
   return v&&Math.random()<.7?pk(gaya+':ed:'+i,v):''}
+/* Edisi untuk pratonton watak: semasa skrin persediaan/lobi dibuka, ikut edisi
+   bilik (online) atau pilihan pemain; selainnya ikut papan yang dimainkan. */
+function tokEd(){const su=document.getElementById('setup');
+  if(su&&!su.hidden){const r=typeof NET!=='undefined'&&NET&&NET.room;return edId(r&&r.meta&&r.meta.ed||prefEd())}
+  return curEd}
 function prefEd(){try{return edId(localStorage.getItem('mtkl-ed'))}catch(e){return 'kl'}}
 function savePrefEd(id){try{localStorage.setItem('mtkl-ed',edId(id))}catch(e){}}
 function applyEdition(id){
@@ -280,7 +285,7 @@ document.querySelectorAll('.edpick').forEach(el=>{
     ?`<button type="button" class="edcard" role="radio" data-ed="${E.id}" aria-checked="false"><span class="edbar" aria-hidden="true">${[4,3,6,7].map(g=>`<i style="background:${E.groups[g].c}"></i>`).join('')}</span><b>${E.emoji} ${E.label}</b><small>${E.blurb}</small><span class="edtick" aria-hidden="true">✓</span></button>`
     :`<button type="button" role="radio" data-ed="${E.id}" aria-checked="false">${E.emoji} ${E.label}</button>`).join('');
   el.addEventListener('click',e=>{const b=e.target.closest('[data-ed]');if(!b)return;
-    savePrefEd(b.dataset.ed);refreshHome();
+    savePrefEd(b.dataset.ed);refreshHome();drawNames();
     /* Papan di belakang skrin persediaan hanya contoh (bukan permainan
        tersimpan): tukar terus supaya pemain nampak papan edisi baharu. */
     if(S&&!S.started&&!NET){S.ed=prefEd();renderAll()}})});
