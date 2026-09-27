@@ -1548,3 +1548,18 @@ body:has(#endBox:not([hidden])) :is(.mfloat,.stamp){display:none}
   100%{opacity:0;transform:translate(calc(-50% + var(--dx)),-220px) scale(.9)}}
 @media(prefers-reduced-motion:reduce){.rfly{animation:rfly-rm 1.6s linear forwards}
   @keyframes rfly-rm{0%,80%{opacity:1;transform:translate(-50%,-40px)}100%{opacity:0;transform:translate(-50%,-40px)}}}
+/* ---------- Celoteh watak: gelembung kata-kata di atas token ---------- */
+.chatlayer{position:fixed;inset:0;z-index:66;pointer-events:none;overflow:hidden}
+.cbub{position:fixed;max-width:min(230px,70vw);padding:7px 11px 8px;border-radius:14px;
+  background:var(--panel);color:var(--ink);font-size:13px;font-weight:600;line-height:1.3;text-wrap:balance;
+  box-shadow:0 6px 18px rgba(0,0,0,.22),0 0 0 2px var(--cc);
+  transform:translate(-50%,-100%);transform-origin:var(--tx) 100%;animation:cbub-in .28s cubic-bezier(.3,1.6,.5,1)}
+.cbub b{display:block;font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--cc);margin-bottom:1px}
+.cbub::after{content:"";position:absolute;left:var(--tx);top:100%;margin-left:-7px;border:7px solid transparent;border-bottom:0;
+  border-top-color:var(--cc)}
+.cbub.below{transform:translate(-50%,0);transform-origin:var(--tx) 0}
+.cbub.below::after{top:auto;bottom:100%;border:7px solid transparent;border-top:0;border-bottom-color:var(--cc)}
+.cbub.out{animation:cbub-out .28s ease-in forwards}
+@keyframes cbub-in{from{opacity:0;scale:.4}}
+@keyframes cbub-out{to{opacity:0;scale:.8}}
+@media(prefers-reduced-motion:reduce){.cbub,.cbub.out{animation:none}}

@@ -538,6 +538,7 @@ function newsHook(){
   if(fk!==seenFan){seenFan=fk;if(S.fan)playFanfare(S.fan)}
   if(lk!==seenLol){seenLol=lk;if(S.lol)playLaugh(S.lol)}
   if(jk!==seenJp){seenJp=jk;if(S.jp)playJackpot(S.jp)}
+  if(typeof celotehHook==='function')celotehHook();
   pidsIdle();
 }
 /* Jackpot Tabung Parkir: syiling berhamburan di petak Parkir dan papan

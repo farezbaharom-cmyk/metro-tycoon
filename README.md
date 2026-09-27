@@ -48,6 +48,7 @@ Peraturan penuh ada dalam permainan, di **⚙️ Menu → Peraturan**.
 - 🏅 **Statistik dan lencana di skrin tamat**, contohnya Raja Sewa, Tuan Tanah, Banduan Tetap dan Bangkit Semula, dengan butang kongsi keputusan ke WhatsApp.
 - 🐱 **Pilih watak** di lobi atau borang permainan: tren, atau salah satu daripada lima kucing (Oyen, Tuxedo, Putih, Kelabu, Calico). Setiap kucing hanya untuk seorang pemain, dan pilihan anda diingati untuk permainan seterusnya.
 - 🤖 **Bot dua tahap**, Mudah dan Sederhana.
+- 💬 **Celoteh watak:** kucing, tren dan watak Borneo bercakap dalam gelembung lucu atas token: tuan rumah mengejek bila kutip sewa, yang bayar merungut, pembeli berlagak, yang masuk Lokap merayu. Dilihat semua pemain dalam bilik online; boleh dimatikan di **⚙️ Menu → Celoteh**.
 - 😂 **Reaksi langsung** dalam bilik online: ketik butang 😄 di bawah papan untuk hantar emoji atau ayat pendek (Padan muka!, Cepatlah!, GG!…) yang terbang di atas papan pada skrin semua pemain dan penonton.
 - ⏱️ **Had masa giliran** dalam bilik online (30, 60 atau 90 saat, atau tiada had). Jika pemain tidak bertindak atau terputus talian, bot mengambil alih giliran itu secara automatik.
 - 👀 **Mod penonton**: kawan yang masuk selepas permainan bermula, atau bila bilik penuh, boleh menonton secara langsung.
@@ -81,6 +82,7 @@ Peraturan penuh ada dalam permainan, di **⚙️ Menu → Peraturan**.
 | `js/audio.js` | Bunyi, getaran dan pengumuman stesen bersuara (Pakcik, Slay, Pengulas). |
 | `js/rules.js` | Peraturan: wang, sewa, pemilikan, berita, pergerakan, giliran, lelongan, tawaran, skrin tamat. |
 | `js/bot.js` | Pemain bot Mudah dan Sederhana. |
+| `js/celoteh.js` | Celoteh watak: ayat lucu dalam gelembung atas token. |
 | `js/render.js` | Melukis papan dan panel sisi, animasi Lokap, zum dan geser papan. |
 | `js/editions.js` | Enjin edisi: salinan data KL, senarai `EDITIONS`, pilihan edisi dan menukar papan ikut `S.ed`. |
 | `js/borneo-toks.js` | Lukisan watak Edisi Borneo: Orang Utan dan Kenyalang (gaya sama seperti kucing). |

@@ -177,7 +177,7 @@ function goJail(p){if(lapOne(p)){S.doubles=0;freeLap(p,'terlepas daripada Lokap'
   S.lol={pi:S.players.indexOf(p),id:Date.now().toString(36)+Math.random().toString(36).slice(2,6)};
   /* Bukan perhentian biasa: nada amaran, bukan gong stesen. */
   pidsShow('Perhatian','Ditahan — Lokap');pidsHide(2800);
-  speak(line('jail',p.name),true)}
+  speak(line('jail',p.name),true);celoteh(S.players.indexOf(p),'lokap',{},.8,700)}
 
 async function land(p,opts={}){
   const i=p.pos,s=SQ[i],pi=S.players.indexOf(p);
@@ -185,14 +185,19 @@ async function land(p,opts={}){
     const o=S.owner[i];
     if(o===null&&p.laps<S.qual){const k=S.qual-p.laps;S.msg=`${s.n} belum dimiliki, tetapi ${p.name} perlu lengkapkan ${k} pusingan lagi sebelum boleh membeli.`;return}
     if(o===null){S.phase='buy';S.msg=`${s.n} belum dimiliki. Beli dengan ${fmt(s.p)}?`;return}
-    if(o===pi){S.msg=`${p.name} singgah di hartanah sendiri.`;return}
+    if(o===pi){S.msg=`${p.name} singgah di hartanah sendiri.`;celoteh(pi,'sendiri',{},.35);return}
     if(S.mort[i]){S.msg=`${s.n} sedang digadai. Tiada sewa.`;addLog(S.msg);return}
     let ro=opts;if(opts.util10){const a=r6(),b=r6();ro={...opts,roll:a+b};addLog(`Dadu utiliti: ${a}+${b}.`,'dadu')}
     if(lapOne(p)){freeLap(p,`tak perlu bayar sewa ${s.n}`);flash(i);return}
     const rent=rentOf(i,ro);pay(p,rent,o);stt(pi).sewaOut+=rent;stt(o).sewaIn+=rent;
-    S.msg=`Sewa ${s.n}: ${p.name} bayar ${fmt(rent)} kepada ${S.players[o].name}.`;sayAll(rent>=200?'sewaBesar':'sewa',p.name,S.players[o].name,fmt(rent));flash(i);return}
+    S.msg=`Sewa ${s.n}: ${p.name} bayar ${fmt(rent)} kepada ${S.players[o].name}.`;sayAll(rent>=200?'sewaBesar':'sewa',p.name,S.players[o].name,fmt(rent));flash(i);
+    /* Celoteh: yang bayar merungut, tuan rumah mengejek sejurus kemudian. */
+    {const v={h:fmt(rent),s:s.n},big=rent>=200,hot=s.t==='prop'&&S.houses[i]>=3;
+      celoteh(pi,big?'sewaBesar':'bayarSewa',{...v,o:S.players[o].name},big?1:.6);
+      celoteh(o,hot||big?'tuanBesar':'tuanSewa',{...v,o:p.name},big?1:.6,1300)}
+    return}
   if(s.t==='tax'){if(lapOne(p)){freeLap(p,`tak perlu bayar ${s.n}`);return}
-    if(ev()&&ev().notax){S.msg=`Pengecualian cukai! ${p.name} tak perlu bayar ${s.n}.`;addLog(S.msg);return}pay(p,s.a);S.msg=`${s.n}: ${p.name} bayar ${fmt(s.a)}.`;return}
+    if(ev()&&ev().notax){S.msg=`Pengecualian cukai! ${p.name} tak perlu bayar ${s.n}.`;addLog(S.msg);celoteh(pi,'cukaiBebas');return}pay(p,s.a);S.msg=`${s.n}: ${p.name} bayar ${fmt(s.a)}.`;celoteh(pi,'cukai',{},.7);return}
   if(s.t==='gojail'){goJail(p);return}
   if(s.t==='peluang'||s.t==='tabung'){
     const key=s.t,deck=S.decks[key],all=key==='peluang'?PELUANG:TABUNG;
@@ -203,19 +208,26 @@ async function land(p,opts={}){
     /* "Kutip RM200" ikut bonus MULA semasa (cth. RM300 ketika Promosi tambang). */
     const text=raw.replace(/(kutip) RM200/gi,(m,k)=>`${k} ${fmt(goBonus())}`);
     S.card={deck:key,text,id:Date.now()+Math.random()};S.msg=`${p.name} cabut kad ${s.n}.`;addLog(`${s.n}: ${text}`);sfx.card();renderAll();
-    await sleep(1500);S.card=null;renderAll();await fx(p);return}
+    await sleep(1500);S.card=null;renderAll();
+    const c0=p.cash,pos0=p.pos;await fx(p);
+    /* Kad yang tidak menggerakkan pemain: celoteh ikut untung atau rugi. */
+    if(p.pos===pos0&&!p.inJail){if(p.cash<c0)celoteh(pi,'kadRugi',{},.6);else if(p.cash>c0+20)celoteh(pi,'kadUntung',{},.5)}
+    return}
   if(s.t==='free'){const j=S.pot||0;
-    if(j<=0){S.msg=`${p.name} berehat di ${s.n}. Tabung Parkir kosong buat masa ini.`;return}
+    if(j<=0){S.msg=`${p.name} berehat di ${s.n}. Tabung Parkir kosong buat masa ini.`;celoteh(pi,'kosong',{},.6);return}
     S.pot=0;p.cash+=j;stt(pi).jp=(stt(pi).jp||0)+j;
     const t=`🎰 JACKPOT! ${p.name} kutip Tabung Parkir ${fmt(j)}!`;S.msg=t;addLog(t);
     /* Direkod dalam keadaan supaya sambutan dimainkan pada setiap peranti. */
     S.jp={pi,a:j,id:Date.now().toString(36)+Math.random().toString(36).slice(2,6)};
-    sayAll('jackpot',p.name,fmt(j));return}
+    sayAll('jackpot',p.name,fmt(j));celoteh(pi,'jackpot',{},1,2800);
+    {const others=S.players.map((q,k)=>k).filter(k=>k!==pi&&!S.players[k].bankrupt);
+      if(others.length)celoteh(others[Math.floor(Math.random()*others.length)],'jackpotLain',{},1,4300)}
+    return}
   if(s.t==='jail'){S.msg=`${p.name} sekadar melawat Lokap.`;return}
   if(s.t==='go'){
     /* Mendarat TEPAT di MULA dengan dadu: bonus tambahan (bukan melalui kad). */
     if(opts.dice){const b=TEPAT_BONUS;p.cash+=b;const t=`🎯 Tepat di MULA! ${p.name} dapat bonus ${fmt(b)}.`;
-      S.msg=t;addLog(t);toastAll(t);sfx.coin();fxMoney(0,true);return}
+      S.msg=t;addLog(t);toastAll(t);sfx.coin();fxMoney(0,true);celoteh(pi,'tepat');return}
     S.msg=`${p.name} mendarat tepat di MULA.`}
 }
 const TEPAT_BONUS=100;
@@ -249,7 +261,7 @@ function settle(){const p=cur();
   if(S.phase==='roll'){S.msg+=S.doubles>=2?` Ganda 2/3 — baling lagi, tapi awas: ganda sekali lagi masuk Lokap!`:` Dadu ganda — baling lagi!`;sayAll('ganda',p.name)}}
 function buy(){const p=cur(),i=p.pos,s=SQ[i];if(S.phase!=='buy'||p.cash<s.p||tradePending())return;
   p.cash-=s.p;S.owner[i]=S.turn;stt(S.turn).beli++;S.msg=`${p.name} beli ${s.n} dengan ${fmt(s.p)}.`;addLog(S.msg,'beli');sfx.coin();
-  if(s.t==='prop'&&hasSet(S.turn,s.g))lineDone(S.turn,s.g);else sayAll('beli',p.name,s.n,fmt(s.p));
+  if(s.t==='prop'&&hasSet(S.turn,s.g))lineDone(S.turn,s.g);else{sayAll('beli',p.name,s.n,fmt(s.p));celoteh(S.turn,'beli',{s:s.n},.5)}
   settle();renderAll()}
 function pass(){if(S.phase!=='buy'||tradePending())return;
   const i=cur().pos;S.msg=`${cur().name} tidak membeli ${SQ[i].n}.`;addLog(S.msg);
@@ -411,7 +423,7 @@ function payBail(){const p=cur();if(!p.inJail||S.phase!=='roll'||p.cash<50)retur
 function useCard(){const p=cur();if(!p.inJail||!p.cards)return;p.cards--;p.inJail=false;S.msg=`${p.name} guna Kad Bebas Lokap. Baling dadu!`;addLog(S.msg,'lokap');sfx.card();renderAll()}
 function build(i){if(!canBuild(i))return;const s=SQ[i],c=houseCost(i);cur().cash-=c;S.houses[i]++;stt(S.turn).bina++;
   addLog(`${cur().name} bina ${S.houses[i]===5?'hotel':'rumah'} di ${s.n} (${fmt(c)}).`,'bina');sfx.build();
-  if(S.houses[i]===5)sayAll('hotel',cur().name,s.n);renderAll()}
+  if(S.houses[i]===5){sayAll('hotel',cur().name,s.n);celoteh(S.turn,'hotel',{s:s.n})}renderAll()}
 function sell(i){if(!canSell(i))return;const s=SQ[i],c=sellValue(i);S.houses[i]--;cur().cash+=c;addLog(`${cur().name} jual bangunan di ${s.n} (+${fmt(c)}).`,'bina');sfx.coin();renderAll()}
 function mortgage(i){if(!canMort(i))return;S.mort[i]=true;cur().cash+=SQ[i].p/2;addLog(`${cur().name} gadai ${SQ[i].n} (+${fmt(SQ[i].p/2)}).`);sfx.coin();renderAll()}
 function unmortgage(i){if(!canUnmort(i))return;S.mort[i]=false;cur().cash-=unmortCost(i);addLog(`${cur().name} tebus ${SQ[i].n} (${fmt(unmortCost(i))}).`);sfx.pay();renderAll()}
@@ -420,7 +432,7 @@ function bankrupt(){const p=cur(),pi=S.turn;if(p.cash>=0)return;
   S.owner.forEach((o,i)=>{if(o!==pi)return;S.houses[i]=0;if(to!==null&&!S.players[to].bankrupt){S.owner[i]=to}else{S.owner[i]=null;S.mort[i]=false}});
   if(to!==null)S.players[to].cash+=p.cash;
   if(p.along){addLog(`Along gagal menagih ${fmt(p.along)} daripada ${p.name}. Hutang lesap.`);p.along=0}
-  p.bankrupt=true;p.cash=0;addLog(`${p.name} isytihar muflis!${to!==null?' Hartanah diserahkan kepada '+S.players[to].name+'.':''}`);sfx.jail();sayAll('muflis',p.name);
+  p.bankrupt=true;p.cash=0;addLog(`${p.name} isytihar muflis!${to!==null?' Hartanah diserahkan kepada '+S.players[to].name+'.':''}`);sfx.jail();sayAll('muflis',p.name);celoteh(pi,'muflis');
   S.phase='end';S.again=false;endTurn()}
 /* ---------- Along (pinjaman berisiko) ----------
    Pemain yang kesempitan (tunai bawah RM300, atau negatif) boleh pinjam RM300.
@@ -434,7 +446,7 @@ function canBorrow(){const p=cur();
 function alongPinjam(){if(!canBorrow())return;const p=cur();
   p.cash+=ALONG_PINJAM;p.along=ALONG_BAYAR;if(!p.bot)track('along','Pinjam Along');stt(S.turn).along=(stt(S.turn).along||0)+1;
   const t=`🦈 ${p.name} pinjam ${fmt(ALONG_PINJAM)} daripada Along. Kena bayar ${fmt(ALONG_BAYAR)} bila lalu MULA!`;
-  S.msg=t;addLog(t);sfx.coin();renderAll()}
+  S.msg=t;addLog(t);sfx.coin();celoteh(S.turn,'along',{},.8);renderAll()}
 function alongBayar(){const p=cur();if(!p||!p.along||p.cash<p.along||busy||tradePending())return;
   const a=p.along;p.cash-=a;p.along=0;
   const t=`${p.name} langsaikan hutang Along (${fmt(a)}) awal. Selamat!`;S.msg=t;addLog(t);sfx.pay();renderAll()}
@@ -442,7 +454,7 @@ function alongTagih(p){if(!p.along)return;const a=p.along;p.cash-=a;p.along=0;
   if(p.cash<0)p.creditor=null;
   const t=p.cash<0?`🦈 Along tunggu di MULA! ${p.name} bayar ${fmt(a)} dan kini berhutang ${fmt(-p.cash)}.`
     :`🦈 Along tunggu di MULA! ${p.name} bayar ${fmt(a)}.`;
-  S.msg=t;addLog(t,'sewa');sfx.pay()}
+  S.msg=t;addLog(t,'sewa');sfx.pay();celoteh(S.players.indexOf(p),'alongTagih',{},.8)}
 function finish(){S.phase='over';renderAll();showEnd()}
 /* Lencana: hanya untuk pemain yang benar-benar menonjol — nilai tertinggi,
    melepasi had minimum, dan lebih tinggi daripada sekurang-kurangnya seorang
