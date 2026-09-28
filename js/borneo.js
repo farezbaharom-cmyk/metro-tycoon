@@ -129,10 +129,12 @@ function borneoSkyline(gid){gid=gid||'skyg';
   /* Bangunan DUN Sarawak: bumbung payung emas. */
   const dun=`<rect class="lm" x="132" y="150" width="40" height="50"/><path class="lm" d="M122 152q30-44 60 0z"/><rect class="lm" x="151.3" y="100" width="1.4" height="12"/><circle class="beacon" cx="152" cy="100" r="1.3"/>`;
   /* Rumah panjang bertiang di kiri. Bermula di x=36 kerana pandangan "slice"
-     memotong kira-kira 35 unit di kiri pada skrin sempit (nisbah ~1.65). */
-  const longhouse=`<path class="lm" d="M36 160l10-10h60l10 10z"/><rect class="lm" x="40" y="160" width="72" height="14"/>
-    ${[44,56,68,80,92,104].map(x=>`<rect class="w" x="${x}" y="164" width="4" height="5"/>`).join('')}
-    ${[42,51,60,69,78,87,96,108].map(x=>`<rect class="lm" x="${x}" y="174" width="2" height="12"/>`).join('')}`;
+     memotong kira-kira 35 unit di kiri pada skrin sempit (nisbah ~1.65), dan
+     berakhir di x=104 supaya daun pokok kelapa (x=118, daun dari x=107) tidak
+     bertindih dengan bumbung. */
+  const longhouse=`<path class="lm" d="M36 160l10-10h48l10 10z"/><rect class="lm" x="40" y="160" width="60" height="14"/>
+    ${[45,56,67,78,89].map(x=>`<rect class="w" x="${x}" y="164" width="4" height="5"/>`).join('')}
+    ${[42,50,58,66,74,82,90,97].map(x=>`<rect class="lm" x="${x}" y="174" width="2" height="12"/>`).join('')}`;
   const palm=(x,h)=>`<path class="lmS" stroke-width="2.4" stroke-linecap="round" d="M${x} 200q-2-${h/2} 4-${h}"/>
     <g class="lm" transform="translate(${x+4} ${200-h})"><path d="M0 0q-9-4-15 2q7-2 15-2z"/><path d="M0 0q-3-9-11-10q8 4 11 10z"/><path d="M0 0q7-8 15-5q-9 0-15 5z"/><path d="M0 0q10 0 14 8q-6-6-14-8z"/></g>`;
   /* Kunang-kunang: hanya kelihatan pada waktu malam (tema gelap), lihat CSS. */
@@ -147,7 +149,7 @@ function borneoSkyline(gid){gid=gid||'skyg';
     <circle class="orbg" cx="336" cy="30" r="17"/><circle class="orb" cx="336" cy="30" r="8.5"/>
     ${hills}${kinabalu}${tower}${dun}${longhouse}
     ${front.map(([x,w,h])=>rects('b2',[[x,w,h]])+wins(x,w,h,196)).join('')}
-    ${palm(116,46)}${palm(372,52)}${palm(390,40)}${fireflies}
+    ${palm(118,46)}${palm(372,52)}${palm(390,40)}${fireflies}
     <rect class="trk" x="0" y="184" width="400" height="3"/>${pillars}${train}</svg>`}
 /* Peta Borneo ringkas untuk pusat papan (viewBox 100×100 papan). Pulau
    dilukis di bahagian atas tengah, dengan laluan berwarna antara bandar. */
