@@ -408,7 +408,7 @@ function bankrupt(){const p=cur(),pi=S.turn;if(p.cash>=0)return;
   if(p.along){addLog(`Ah Long gagal menagih ${fmt(p.along)} daripada ${p.name}. Hutang lesap.`);p.along=0}
   p.bankrupt=true;p.cash=0;addLog(`${p.name} isytihar muflis!${to!==null?' Hartanah diserahkan kepada '+S.players[to].name+'.':''}`);sfx.jail();sayAll('muflis',p.name);
   S.phase='end';S.again=false;endTurn()}
-/* ---------- Ahlong (pinjaman berisiko) ----------
+/* ---------- Ah Long (pinjaman berisiko) ----------
    Pemain yang kesempitan (tunai bawah RM300, atau negatif) boleh pinjam RM300.
    Hutang RM400 ditagih secara automatik bila pemain lalu MULA — ditolak terus
    daripada tunai, termasuk pada pusingan pertama. Satu pinjaman sahaja pada
@@ -418,7 +418,7 @@ function canBorrow(){const p=cur();
   return !!p&&!p.bankrupt&&!p.along&&p.cash<ALONG_PINJAM&&!busy&&!tradePending()
     &&(p.cash<0||S.phase==='roll'||S.phase==='end')}
 function alongPinjam(){if(!canBorrow())return;const p=cur();
-  p.cash+=ALONG_PINJAM;p.along=ALONG_BAYAR;if(!p.bot)track('along','Pinjam Ahlong');stt(S.turn).along=(stt(S.turn).along||0)+1;
+  p.cash+=ALONG_PINJAM;p.along=ALONG_BAYAR;if(!p.bot)track('along','Pinjam Ah Long');stt(S.turn).along=(stt(S.turn).along||0)+1;
   const t=`🦈 ${p.name} pinjam ${fmt(ALONG_PINJAM)} daripada Ah Long. Kena bayar ${fmt(ALONG_BAYAR)} bila lalu MULA!`;
   S.msg=t;addLog(t);sfx.coin();renderAll()}
 function alongBayar(){const p=cur();if(!p||!p.along||p.cash<p.along||busy||tradePending())return;
