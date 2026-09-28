@@ -111,9 +111,13 @@ const B_TAB=[
  'Cuti sekolah! Semua pemain terima RM20.',
  'Menang pertandingan makan buah tarap: terima RM50.'];
 /* Siluet langit Borneo (viewBox 400×200, kelas CSS sama dengan KL supaya ikut
-   tema siang/malam): rumah panjang bertiang, Bangunan DUN Sarawak berbumbung
-   payung, Menara Tun Mustapha dan Gunung Kinabalu, dengan pokok kelapa dan
-   Keretapi Sabah yang melintas. Tengah dibiarkan rendah untuk dadu. */
+   tema siang/malam): rumah panjang bertiang di tebing sungai berhutan,
+   Bangunan DUN Sarawak berbumbung payung, Menara Tun Mustapha dan Gunung
+   Kinabalu. Di hadapan, sungai mengalir ke laut dengan perahu panjang yang
+   menghilir, pantai Sabah berpokok kelapa di kanan dan burung kenyalang
+   terbang di langit. Keretapi Sabah melintas di atas jambatan. Tengah
+   dibiarkan rendah untuk dadu; hiasan penting disimpan dalam x≈30–370 kerana
+   papan segi empat memotong tepi viewBox. */
 function borneoSkyline(gid){gid=gid||'skyg';
   let seed=11;const rnd=()=>(seed=(seed*9301+49297)%233280)/233280;
   const rects=(cls,list)=>list.map(([x,w,h])=>`<rect class="${cls}" x="${x}" y="${200-h}" width="${w}" height="${h}"/>`).join('');
@@ -127,27 +131,54 @@ function borneoSkyline(gid){gid=gid||'skyg';
   /* Menara Tun Mustapha: silinder kaca tinggi. */
   const tower=`<rect class="lm" x="196" y="64" width="16" height="136" rx="3"/><rect class="lm" x="200" y="52" width="8" height="14" rx="2"/><rect class="lm" x="203.3" y="36" width="1.4" height="18"/><circle class="beacon" cx="204" cy="36" r="1.4"/>`;
   /* Bangunan DUN Sarawak: bumbung payung emas. */
-  const dun=`<rect class="lm" x="132" y="150" width="40" height="50"/><path class="lm" d="M122 152q30-44 60 0z"/><rect class="lm" x="151.3" y="100" width="1.4" height="12"/><circle class="beacon" cx="152" cy="100" r="1.3"/>`;
-  /* Rumah panjang bertiang di kiri. */
+  const dun=`<rect class="lm" x="132" y="150" width="40" height="50"/><path class="lm" d="M122 152q30-44 60 0z"/><rect class="lm" x="151.3" y="118" width="1.4" height="13"/><circle class="beacon" cx="152" cy="118" r="1.3"/>`;
+  /* Kanopi hutan hujan di belakang rumah panjang: pokok tualang menjulang. */
+  const jungle=`<path class="b1" d="M0 168V150q6-9 13-4q5-8 12-3q6-7 13 0q4-6 10-2q6-8 13-1q7-5 12 2q6-4 11 3q5-3 9 4V168z"/>
+    <path class="b1" d="M44 147V122h2.4v25z"/><circle class="b1" cx="39" cy="121" r="5"/><circle class="b1" cx="46" cy="116.5" r="6"/><circle class="b1" cx="52" cy="121.5" r="4.6"/>`;
+  /* Rumah panjang bertiang di tebing sungai, dengan tangga kayu ke jeti dan perahu tertambat. */
   const longhouse=`<path class="lm" d="M8 160l12-10h72l12 10z"/><rect class="lm" x="12" y="160" width="88" height="14"/>
     ${[16,30,44,58,72,86].map(x=>`<rect class="w" x="${x}" y="164" width="5" height="5"/>`).join('')}
-    ${[14,26,38,50,62,74,86,97].map(x=>`<rect class="lm" x="${x}" y="174" width="2" height="12"/>`).join('')}`;
-  const palm=(x,h)=>`<path class="lmS" stroke-width="2.4" stroke-linecap="round" d="M${x} 200q-2-${h/2} 4-${h}"/>
-    <g class="lm" transform="translate(${x+4} ${200-h})"><path d="M0 0q-9-4-15 2q7-2 15-2z"/><path d="M0 0q-3-9-11-10q8 4 11 10z"/><path d="M0 0q7-8 15-5q-9 0-15 5z"/><path d="M0 0q10 0 14 8q-6-6-14-8z"/></g>`;
+    ${[14,26,38,50,62,74,86,97].map(x=>`<rect class="lm" x="${x}" y="174" width="2" height="12"/>`).join('')}
+    <path class="b1" d="M0 200V184q60-3 104 0q10 1 16 6V200z"/>
+    <path class="lmS" stroke-width="1.6" stroke-linecap="round" d="M100 172l12 18M103 176h3M106 180.5h3M109 185h3"/>
+    <rect class="lm" x="108" y="189" width="16" height="1.6"/>`;
+  /* Pokok kelapa condong (warna latar depan supaya jelas di hadapan Kinabalu):
+     akar di pasir (by), condong ke kanan (+) atau kiri (−). */
+  const palm=(x,h,by,lean,s)=>`<path class="plS" stroke-width="${(2.4*s).toFixed(1)}" stroke-linecap="round" d="M${x} ${by}q${lean*.2}-${h/2} ${lean}-${h}"/>
+    <g class="pl" transform="translate(${x+lean} ${by-h}) scale(${s})"><path d="M0 0q-9-4-15 2q7-2 15-2z"/><path d="M0 0q-3-9-11-10q8 4 11 10z"/><path d="M0 0q7-8 15-5q-9 0-15 5z"/><path d="M0 0q10 0 14 8q-6-6-14-8z"/><path d="M0 0q-8 2-11 10q4-7 11-10z"/><circle cx="1" cy="2" r="1.8"/></g>`;
+  /* Pantai Sabah: pasir di kaki Kinabalu, deretan kelapa condong ke laut. */
+  const beach=`<path class="snd" d="M280 200V186q18-9 50-10q40 0 70 6V200z"/>`;
+  const palms=palm(116,46,200,4,1)+palm(304,42,184,-7,1.1)+palm(322,60,181,6,1.3)+palm(340,48,180,-5,1.15)+palm(358,56,181,8,1.25);
+  /* Sungai mengalir ke laut: kilauan air bergerak perlahan. */
+  const shim=[[14,193,10],[52,196,8],[136,192,12],[178,197,7],[232,193,10],[276,196,9],[322,192,11],[364,196,8]]
+    .map(([x,y,w],k)=>`<rect class="rvw s${k%3}" x="${x}" y="${y}" width="${w}" height=".9" rx=".45"/>`).join('');
+  const river=`<rect class="rv" x="0" y="188" width="400" height="12"/>${shim}`;
+  /* Perahu panjang: badan runcing dengan hujung terangkat, pendayung, enjin sangkut dan riak di belakang. */
+  const longboat=(x,y,n,cls)=>`<g transform="translate(${x} ${y})"><g class="${cls}"><path class="bt" d="M-3 0l3 2h${n*7+10}l4-3l-1 3q-2 4-7 4H3q-4 0-6-6z"/>
+    ${Array.from({length:n},(_,k)=>`<circle class="bt" cx="${7+k*7}" cy="-1.6" r="1.3"/><rect class="bt" x="${5.8+k*7}" y="-.6" width="2.4" height="2.8"/>`).join('')}
+    <rect class="bt" x="-4" y="1" width="2" height="4"/><rect class="rvw" x="-16" y="4.6" width="10" height=".8"/><rect class="rvw" x="-12" y="6.2" width="6" height=".7"/></g></g>`;
+  /* Burung kenyalang: paruh besar bertanduk jingga, ekor berjalur putih, sayap mengepak. */
+  const hornbill=(x,y,s,k)=>`<g transform="translate(${x} ${y}) scale(${s})"><g class="hb h${k}">
+    <path class="lm" d="M-9 4.6l-9 1.6l9 2z"/><path class="tb" d="M-16 5.6l3-.4v1.8l-3-.2z"/>
+    <ellipse class="lm" cx="-1" cy="5.2" rx="8.4" ry="2.5"/><circle class="lm" cx="7.6" cy="4" r="2.1"/>
+    <path class="lm" d="M9.2 3.2q6.4-.2 9.2 3.6q-4.4-1.6-8.8-.9z"/><path class="cq" d="M9.4 3q3.6-2.6 7.2-.4q-3.6-.3-7.2 1.4z"/>
+    <path class="lm wg" d="M-6 4.4C-4-4 3-8.6 10-9.6l-2.4 3l3.4-.4l-3.4 3.2l2.6.2l-5.6 4l-.6 4z"/></g></g>`;
+  const birds=hornbill(64,74,1.25,0)+hornbill(100,96,.95,1)+hornbill(266,84,.8,2);
   /* Kunang-kunang: hanya kelihatan pada waktu malam (tema gelap), lihat CSS. */
-  const fireflies=[[30,150],[62,142],[96,156],[128,138],[150,128],[182,146],[250,150],[282,138],[346,150],[380,134],[396,146],[8,162]]
+  const fireflies=[[30,142],[62,138],[96,146],[128,138],[150,128],[182,146],[250,150],[282,138],[312,150],[346,142],[366,134],[8,152]]
     .map(([x,y],k)=>`<circle class="ff f${k%4}" cx="${x}" cy="${y}" r="1.3"/>`).join('');
-  const front=[[112,20,30],[178,16,26],[222,18,30],[240,26,36],[268,22,28],[292,18,34],[312,18,26],[330,26,40],[358,22,30]];
+  const front=[[178,16,26],[222,18,30],[240,26,36],[266,20,26]];
   const pillars=[20,70,120,170,220,270,320,370].map(x=>`<rect class="trk" x="${x}" y="186" width="4" height="14"/>`).join('');
   const train=`<g class="train"><rect class="tbody" x="0" y="173" width="84" height="11" rx="3"/><path class="tnose" d="M84 173h4q6 0 8 11h-12z"/>${[6,20,34,48,62,74].map(x=>`<rect class="twin" x="${x}" y="176" width="8" height="4" rx="1"/>`).join('')}</g>`;
   return `<svg class="sky" viewBox="0 0 400 200" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
     <defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="sg-a" stop-opacity="0"/><stop offset=".45" class="sg-a"/><stop offset="1" class="sg-b"/></linearGradient></defs>
     <rect width="400" height="200" fill="url(#${gid})"/>${stars}
     <circle class="orbg" cx="336" cy="30" r="17"/><circle class="orb" cx="336" cy="30" r="8.5"/>
-    ${hills}${kinabalu}${tower}${dun}${longhouse}
+    ${birds}${hills}${kinabalu}${jungle}${tower}${dun}${beach}${longhouse}
     ${front.map(([x,w,h])=>rects('b2',[[x,w,h]])+wins(x,w,h,196)).join('')}
-    ${palm(116,46)}${palm(372,52)}${palm(390,40)}${fireflies}
-    <rect class="trk" x="0" y="184" width="400" height="3"/>${pillars}${train}</svg>`}
+    ${palms}${fireflies}
+    <rect class="trk" x="0" y="184" width="400" height="3"/>${pillars}${river}
+    ${longboat(112,190.4,2,'moor')}${longboat(0,192.6,4,'boat')}${train}</svg>`}
 /* Peta Borneo ringkas untuk pusat papan (viewBox 100×100 papan). Pulau
    dilukis di bahagian atas tengah, dengan laluan berwarna antara bandar. */
 function borneoMap(){

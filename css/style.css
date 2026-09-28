@@ -1483,6 +1483,29 @@ body.v3d .center svg.map.ed-borneo{opacity:.4}
 .sky .ff{filter:drop-shadow(0 0 2px #E9FF7A)}
 @media (prefers-reduced-motion:reduce){.sky .ff{animation:none!important;opacity:0}}
 
+/* Langit Borneo: sungai ke laut, pasir pantai Sabah, perahu panjang dan kenyalang. */
+:root{--river:#A7CEDF;--river-hi:#FFFFFF;--river-hi-op:.75;--sand:#E4D2A8;--palm:#5B7384}
+:root[data-theme="dark"]{--river:#0C2031;--river-hi:#FFE6A8;--river-hi-op:.45;--sand:#253244;--palm:#07111A}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--river:#0C2031;--river-hi:#FFE6A8;--river-hi-op:.45;--sand:#253244;--palm:#07111A}}
+.sky .pl{fill:var(--palm)}.sky .plS{stroke:var(--palm);fill:none}
+.sky .rv{fill:var(--river)}.sky .snd{fill:var(--sand)}.sky .bt{fill:var(--track)}
+.sky .rvw{fill:var(--river-hi);opacity:var(--river-hi-op)}
+.sky .rv~.rvw{animation:rvshim 3.4s ease-in-out infinite alternate}
+.sky .rvw.s1{animation-delay:1.1s}.sky .rvw.s2{animation-delay:2.3s;animation-duration:4.2s}
+@keyframes rvshim{from{transform:translateX(-2px);opacity:calc(var(--river-hi-op)*.35)}to{transform:translateX(3px)}}
+.sky .boat{animation:skyboat 34s linear infinite}
+@keyframes skyboat{from{transform:translateX(-50px)}to{transform:translateX(450px)}}
+.sky .moor{animation:skybob 3s ease-in-out infinite alternate}
+@keyframes skybob{to{translate:0 .6px}}
+.sky .hb .tb{fill:#fff;opacity:.7}.sky .hb .cq{fill:#EE7A2A}
+.sky .hb{animation:hbglide 7s ease-in-out infinite alternate}
+.sky .hb.h1{animation-duration:8.5s;animation-delay:-3s}.sky .hb.h2{animation-duration:6s;animation-delay:-1.5s}
+@keyframes hbglide{from{transform:translate(-4px,1px)}to{transform:translate(5px,-3px)}}
+.sky .hb .wg{transform-box:fill-box;transform-origin:30% 100%;animation:hbflap .9s ease-in-out infinite alternate}
+.sky .hb.h1 .wg{animation-delay:-.4s}.sky .hb.h2 .wg{animation-delay:-.7s}
+@keyframes hbflap{to{transform:scaleY(-.35)}}
+@media (prefers-reduced-motion:reduce){.sky .rvw,.sky .moor,.sky .hb,.sky .hb .wg{animation:none!important}.sky .boat{animation:none;transform:translateX(150px)}}
+
 /* Telefon kecil (cth. iPhone SE): kad edisi dipadatkan supaya butang main kelihatan tanpa skrol. */
 @media (max-width:360px),(max-height:620px){
   .edcard{padding:7px 10px;gap:3px}.edcard small{display:none}.edcard b{font-size:13px}.edcard .edtick{top:6px;width:16px;height:16px}}
