@@ -128,10 +128,11 @@ function borneoSkyline(gid){gid=gid||'skyg';
   const tower=`<rect class="lm" x="196" y="64" width="16" height="136" rx="3"/><rect class="lm" x="200" y="52" width="8" height="14" rx="2"/><rect class="lm" x="203.3" y="36" width="1.4" height="18"/><circle class="beacon" cx="204" cy="36" r="1.4"/>`;
   /* Bangunan DUN Sarawak: bumbung payung emas. */
   const dun=`<rect class="lm" x="132" y="150" width="40" height="50"/><path class="lm" d="M122 152q30-44 60 0z"/><rect class="lm" x="151.3" y="100" width="1.4" height="12"/><circle class="beacon" cx="152" cy="100" r="1.3"/>`;
-  /* Rumah panjang bertiang di kiri. */
-  const longhouse=`<path class="lm" d="M8 160l12-10h72l12 10z"/><rect class="lm" x="12" y="160" width="88" height="14"/>
-    ${[16,30,44,58,72,86].map(x=>`<rect class="w" x="${x}" y="164" width="5" height="5"/>`).join('')}
-    ${[14,26,38,50,62,74,86,97].map(x=>`<rect class="lm" x="${x}" y="174" width="2" height="12"/>`).join('')}`;
+  /* Rumah panjang bertiang di kiri. Bermula di x=36 kerana pandangan "slice"
+     memotong kira-kira 35 unit di kiri pada skrin sempit (nisbah ~1.65). */
+  const longhouse=`<path class="lm" d="M36 160l10-10h60l10 10z"/><rect class="lm" x="40" y="160" width="72" height="14"/>
+    ${[44,56,68,80,92,104].map(x=>`<rect class="w" x="${x}" y="164" width="4" height="5"/>`).join('')}
+    ${[42,51,60,69,78,87,96,108].map(x=>`<rect class="lm" x="${x}" y="174" width="2" height="12"/>`).join('')}`;
   const palm=(x,h)=>`<path class="lmS" stroke-width="2.4" stroke-linecap="round" d="M${x} 200q-2-${h/2} 4-${h}"/>
     <g class="lm" transform="translate(${x+4} ${200-h})"><path d="M0 0q-9-4-15 2q7-2 15-2z"/><path d="M0 0q-3-9-11-10q8 4 11 10z"/><path d="M0 0q7-8 15-5q-9 0-15 5z"/><path d="M0 0q10 0 14 8q-6-6-14-8z"/></g>`;
   /* Kunang-kunang: hanya kelihatan pada waktu malam (tema gelap), lihat CSS. */

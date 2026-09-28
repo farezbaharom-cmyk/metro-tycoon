@@ -29,13 +29,16 @@ ${eye(42,40)}${eye(58,40)}
 ${blush(36,64,50)}
 <ellipse cx="40" cy="80" rx="7" ry="4" fill="#c8612a"/><ellipse cx="60" cy="80" rx="7" ry="4" fill="#c8612a"/>`);
   /* Kenyalang (enggang badak): bulu hitam, ekor berjalur putih, paruh kuning
-     dengan tanduk (casque) jingga melengkung ke atas. */
+     dengan tanduk (casque) jingga melengkung ke atas. Sayap terlipat dengan
+     bulu primer berlapis ke arah ekor supaya siluet jelas burung enggang. */
   const kenyalang=wrap(`
 <path class="cat-tail" d="M64 72Q84 80 86 64" fill="none" stroke="#232531" stroke-width="9" stroke-linecap="round"/>
 <path d="M78 76Q85 75 86 66" fill="none" stroke="#f4efe6" stroke-width="7" stroke-linecap="round"/>
 <ellipse cx="48" cy="66" rx="20" ry="17" fill="#232531"/>
 <ellipse cx="48" cy="74" rx="11" ry="6.5" fill="#f4efe6" stroke="none"/>
-<path d="M33 60Q46 53 60 63Q51 77 36 73Z" fill="#373a4c"/>
+<path d="M32 58Q47 48 63 57L77 68Q72 72 68 70Q66 75 60 73Q57 77 51 74Q45 76 40 71Q30 66 32 58Z" fill="#3b3f55"/>
+<path d="M36 59Q46 53 57 59" fill="none" stroke="#5a5e76" stroke-width="1.6" stroke-linecap="round"/>
+<path d="M54 62Q62 65 68 70M48 65Q55 69 60 73M42 67Q47 71 51 74" fill="none" stroke="#1a1c26" stroke-width="1.4" stroke-linecap="round"/>
 <circle cx="45" cy="41" r="19" fill="#232531"/>
 <path d="M58 38Q82 40 91 56Q77 51 59 48Z" fill="#f7e2a0"/>
 <path d="M56 33Q69 19 84 25Q87 31 81 36Q71 32 60 37Z" fill="#f28c28"/>
