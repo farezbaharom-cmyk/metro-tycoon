@@ -23,13 +23,40 @@ function fitNeed(txt,cs,sz){
   return Math.max(...parts.map(x=>fitCtx.measureText(x).width+ls*x.length))}
 /* Bilangan baris jika setiap perkataan/suku kata di baris sendiri. */
 const fitLines=txt=>txt.split(/\s+/).reduce((a,w)=>a+w.split('\u00AD').length,0);
+/* Pecah perkataan panjang (≥8 huruf) sekali ikut suku kata Melayu, paling
+   hampir ke tengah: sebelum konsonan yang diikuti vokal, bukan di tengah
+   gugusan (tr, ng, ny, sy…), dan setiap bahagian ≥3 huruf. Cyber-jaya, Titi-wangsa. */
+const SYL_V=/[aeiouy]/i,SYL_KL=/^(tr|pr|br|kr|gr|dr|fr|pl|bl|kl|fl|ng|ny|sy|kh|gh|sh|ch)$/i;
+const autoSyl=t=>t.split(' ').map(w=>{if(w.length<8)return w;let best=-1;
+  for(let j=3;j<=w.length-3;j++)if(!SYL_V.test(w[j])&&SYL_V.test(w[j+1])&&!SYL_KL.test(w[j-1]+w[j])&&/[a-z]/i.test(w[j-1])
+    &&(best<0||Math.abs(j-w.length/2)<Math.abs(best-w.length/2)))best=j;
+  return best<0?w:w.slice(0,best)+'­'+w.slice(best)}).join(' ');
+/* Saiz terbesar (≤ sz) di mana nama, dibalut seperti pelayar (di ruang, dan di
+   tanda sempang lembut ­), muat dalam avail × availH. */
+function fitWrap(txt,cs,sz,avail,availH,lh){
+  if(cs.textTransform==='uppercase')txt=txt.toUpperCase();
+  fitCtx.font=`${cs.fontWeight} ${sz}px ${cs.fontFamily}`;const ls=parseFloat(cs.letterSpacing)||0;
+  const W=x=>fitCtx.measureText(x).width+ls*x.length,sp=W(' '),hy=W('-');
+  /* Cebisan: {w, j: bersambung dengan cebisan sebelumnya tanpa ruang, h: diikuti cebisan bersambung}. */
+  const ps=txt.split(/\s+/).flatMap(w=>w.split('­').map((x,i,a)=>({w:W(x),j:i>0,h:i<a.length-1})));
+  for(let s=sz;s>FIT_MIN;s-=.25){const k=s/sz;let n=1,x=0,ok=true;
+    for(const p of ps){const ww=(p.w+(p.h?hy:0))*k,gap=p.j?-(hy*k):sp*k;if(ww>avail){ok=false;break}
+      if(x&&x+gap+ww>avail){n++;x=ww}else x+=(x?gap:0)+ww}
+    if(ok&&n*lh*s<=availH)return Math.floor(s*10)/10}
+  return FIT_MIN}
+/* Nama penuh (papan besar) juga dimuatkan: setiap nama dapat saiz terbesar
+   yang muat dalam petaknya, bukan saiz kecil tetap untuk nama panjang. */
 function fitNames(){
-  document.querySelectorAll('#board .sq .nm-s').forEach(e=>{
+  document.querySelectorAll('#board .sq .nm').forEach(e=>{
     if(!e.offsetParent)return;
-    const sq=e.closest('.sq'),i=+sq.dataset.i,nm=SHORT[i]||SQ[i].n,syl=SHORT_SYL[i];
+    const sq=e.closest('.sq'),i=+sq.dataset.i,full=e.classList.contains('nm-f');
+    const nm=full?SQ[i].n:SHORT[i]||SQ[i].n,syl=full?null:SHORT_SYL[i];
     const own=sq.classList.contains('owned'),side=sq.classList.contains('left')||sq.classList.contains('right');
     const st=sq.querySelector('.stripe');
-    const avail=sq.clientWidth-(side&&st?st.offsetWidth:0)-(own?5:3);
+    /* Papan besar: pad kiri-kanan badan petak (3%) lebih tebal daripada di telefon (1px).
+       Pad atas-bawah boleh dimakan — kandungan dipusatkan, jadi tiada yang terpotong. */
+    const padW=full?parseFloat(getComputedStyle(e.parentElement).paddingLeft)*2:0;
+    const avail=sq.clientWidth-(side&&st?st.offsetWidth:0)-(own?5:3)-padW;
     /* Ikon (ϟ, ⇄, RM…) dan kod stesen berkongsi tinggi petak dengan nama. */
     const other=[...e.parentElement.children].reduce((a,c)=>a+(c!==e&&!c.classList.contains('nm')&&c.offsetParent&&getComputedStyle(c).position!=='absolute'?c.offsetHeight:0),0);
     const availH=sq.clientHeight-(!side&&st?st.offsetHeight:0)-other-(own?5:3);
@@ -37,6 +64,11 @@ function fitNames(){
     e.style.fontSize='';e.textContent=nm;
     const cs=getComputedStyle(e),sz=parseFloat(cs.fontSize),lh=(parseFloat(cs.lineHeight)||sz*1.05)/sz;
     const size=t=>Math.min(sz,sz*avail/fitNeed(t,cs,sz),availH/(fitLines(t)*lh));
+    if(full){let fs=fitWrap(nm,cs,sz,avail,availH,lh);
+      /* Terlalu kecil kerana perkataan panjang? Cuba versi dipecah suku kata —
+         hanya jika ia jauh lebih besar, kerana nama utuh lebih mudah dibaca. */
+      if(fs<sz-.05){const sy=autoSyl(nm);if(sy!==nm){const f2=fitWrap(sy,cs,sz,avail,availH,lh);if(f2>=fs*1.2){e.textContent=sy;fs=f2}}}
+      if(fs<sz-.05)e.style.fontSize=fs+'px';return}
     const whole=size(nm);
     if(whole>=sz-.05)return;
     let best=nm,bs=whole;
@@ -98,13 +130,13 @@ function buildBoard(){
   SQ.forEach((s,i)=>{const [r,c]=gridPos(i);
     const stripe=s.t==='prop'?`<div class="stripe" style="background:${GROUPS[s.g].c}"></div>`:'';
     const label=s.p?`<span class="pr">${fmt(s.p)}</span>`:s.a?`<span class="pr">${fmt(s.a)}</span>`:'';
-    const icon=CORNER[i]?cornerSVG(i):s.t!=='prop'?`<span class="ic" aria-hidden="true">${s.ic}</span>`:'';
+    /* Peluang/Tabung: lencana dalam warna dan ikon kad edisi; Cukai: syiling RM. */
+    const cd=(s.t==='peluang'||s.t==='tabung')&&EDITIONS[curEd].card[s.t];
+    const icon=CORNER[i]?cornerSVG(i):cd?`<span class="ic ic-card" style="--cc:${cd.c}" aria-hidden="true">${cd.ic}</span>`
+      :s.t==='tax'?`<span class="ic ic-tax" aria-hidden="true">RM</span>`:s.t!=='prop'?`<span class="ic" aria-hidden="true">${s.ic}</span>`:'';
     const csub=CORNER[i]?`<span class="csub" aria-hidden="true">${CORNER[i].sub}</span>`:'';
     const code=CODE[i]?`<span class="scode" style="--lc:${GROUPS[s.g].c};--lt:${lightBg(GROUPS[s.g].c)?'#1B2530':'#fff'}" aria-hidden="true">${CODE[i]}</span>`:'';
-    /* Perkataan terpanjang yang menentukan sama ada nama muat dalam satu baris. */
-    const lw=Math.max(...s.n.split(/\s+/).map(w=>w.length));
-    const fit=lw>=11?' tighter':lw>=9?' tight':'';
-    h+=`<div class="sq ${side(i)} t-${s.t}" id="sq${i}" style="grid-row:${r};grid-column:${c}" data-i="${i}" role="button" tabindex="0" aria-label="${esc(s.n)}">${stripe}<div class="body">${icon}${stationLandmark(i)}${code}<span class="nm nm-f${fit}">${esc(s.n)}</span><span class="nm nm-s" aria-hidden="true">${esc(SHORT[i]||s.n)}</span>${csub}${label}</div><div class="tokens"></div></div>`});
+    h+=`<div class="sq ${side(i)} t-${s.t}" id="sq${i}" style="grid-row:${r};grid-column:${c}" data-i="${i}" role="button" tabindex="0" aria-label="${esc(s.n)}">${stripe}<div class="body">${icon}${stationLandmark(i)}${code}<span class="nm nm-f">${esc(s.n)}</span><span class="nm nm-s" aria-hidden="true">${esc(SHORT[i]||s.n)}</span>${csub}${label}</div><div class="tokens"></div></div>`});
   const lines=GROUPS.map((g,k)=>{const y=12+k*11;return `<path d="M-5 ${y} C 30 ${y+18}, 70 ${y-20}, 105 ${y+6}" stroke="${g.c}" stroke-width="2.2" fill="none"/>`}).join('');
   const emap=EDITIONS[curEd].map;
   h+=`<div class="center" id="center"><svg class="map ed-${curEd}" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${emap?emap():lines}</svg>${skylineSVG()}
@@ -168,7 +200,9 @@ function renderBoard(){
     const toks=S.players.map((p,k)=>(!p.bankrupt&&p.pos===i)
       ?`<span class="tok ${k===S.turn&&S.phase!=='over'&&S.phase!=='moving'?'me':''} ${i<=19?'flip':''}${lolK.has(k)?' lol':''}" data-k="${k}" style="color:${p.color}" title="${esc(p.name)} · ${tokName(tokOf(k))}">${trainSVG(k)}</span>`:'').join('');
     el.querySelector('.tokens').innerHTML=toks});
-  document.getElementById('msg').textContent=S.msg;
+  /* Mesej baharu "melompat" sekali, dibingkai warna pemain semasa. */
+  const msg=document.getElementById('msg');msg.style.setProperty('--mc',cur().color);
+  if(msg.textContent!==S.msg){msg.textContent=S.msg;msg.classList.remove('pop');void msg.offsetWidth;msg.classList.add('pop')}
   const cs=document.getElementById('cardSlot');
   if(S.card&&cs.dataset.k!==String(S.card.id)&&!cs.dataset.deed&&closedCard!==S.card.id){const pel=S.card.deck==='peluang';
     const cd=EDITIONS[curEd].card[pel?'peluang':'tabung'];
