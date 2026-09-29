@@ -52,6 +52,12 @@ turnDock.addEventListener('click',e=>{
   tutorialClosed=true;renderSide()});
 document.getElementById('missionToggle')?.addEventListener('click',()=>{
   missionsExpanded=!missionsExpanded;renderMissions()});
+/* Portfolio terbuka dalam tab Aset pada skrin kecil; pada desktop ia bermula
+   ringkas dan pemain boleh membukanya tanpa kehilangan kedudukan papan. */
+const portfolioPanel=document.getElementById('portfolioPanel');
+const portfolioMedia=matchMedia('(max-width:1000px)');
+portfolioPanel.open=portfolioMedia.matches;
+portfolioMedia.addEventListener('change',e=>{portfolioPanel.open=e.matches});
 
 /* ---------- tab bawah: Papan · Aset · Log ----------
    Pilihan tab disimpan pada <body data-tab>, dan CSS yang menyorok/menunjuk

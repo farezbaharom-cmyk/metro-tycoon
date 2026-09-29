@@ -68,8 +68,11 @@
   <aside class="side">
     <p id="turnGuide" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
     <section class="panel turn" id="turn" aria-label="Giliran dan tindakan"></section>
-    <section class="panel sect sect-aset"><h3>Pemain</h3><ul class="plist" id="players"></ul></section>
-    <section class="panel sect sect-aset"><h3 id="propsTitle">Hartanah anda</h3><ul class="props" id="props"></ul></section>
+    <section class="panel sect sect-aset sect-players"><h3>Pemain</h3><ul class="plist" id="players"></ul></section>
+    <details class="panel sect sect-aset portfolio-panel" id="portfolioPanel">
+      <summary><span id="propsTitle">Hartanah anda</span><span class="portfolio-summary-count" id="propsCount">0 aset</span></summary>
+      <ul class="props" id="props"></ul>
+    </details>
     <section class="panel sect sect-aset mission-panel"><h3 id="missTitle">Misi</h3><ul class="missions" id="missions"></ul><button class="mission-toggle" id="missionToggle" type="button" aria-expanded="false">Lihat semua misi</button></section>
     <section class="panel sect sect-log"><h3>Catatan permainan</h3><ul class="log" id="log"></ul></section>
   </aside>

@@ -1191,6 +1191,42 @@ body.tapped .tapnote,body.tapped .board-help{display:none}
 #props .portfolio-stations .t small{display:block;margin-top:3px;line-height:1.4}
 @media (max-width:700px),(max-width:1000px) and (max-height:520px) and (orientation:landscape){#props{max-height:none}.portfolio-heading h4{font-size:15px}}
 
+/* Panel aset boleh dibuka semasa pemain mahu membina, menggadai atau mencari stesen. */
+.portfolio-panel>summary{display:flex;align-items:center;gap:8px;cursor:pointer;list-style:none;
+  padding:14px 16px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--ink)}
+.portfolio-panel>summary::-webkit-details-marker{display:none}
+.portfolio-panel>summary::before{content:'▸';font-size:16px;line-height:1;color:var(--accent);transition:transform .18s}
+.portfolio-panel[open]>summary::before{transform:rotate(90deg)}
+.portfolio-panel>summary:focus-visible{outline:2px solid var(--accent);outline-offset:-4px;border-radius:10px}
+.portfolio-summary-count{margin-left:auto;white-space:nowrap;color:var(--muted);font-size:11px;letter-spacing:0;text-transform:none}
+.portfolio-panel[open]>summary{border-bottom:1px solid var(--rule)}
+@media (min-width:1001px){
+  .sect-players h3{padding-bottom:3px}
+  #players{gap:5px;padding-bottom:8px}
+  #players .pl{padding:7px 9px;row-gap:3px}
+  #players .meta{padding-top:5px;margin-top:0;font-size:11px}
+  #players .swatches{display:none}
+}
+.deednow:has(>div){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.deednow>div{display:flex;flex-direction:column;min-width:0;gap:2px}
+.deednow>div+div{border-left:1px solid var(--rule);padding-left:12px}
+.deednow>div span{font-size:clamp(17px,4vw,23px);overflow-wrap:anywhere}
+
+/* Pada papan sederhana, nama ringkas menggunakan ruang petak dengan lebih baik.
+   Kod laluan kekal pada kad stesen yang dibuka apabila petak diketuk. */
+@container (min-width:641px) and (max-width:800px){
+  .sq .nm-f{display:none}
+  .sq .nm.nm-s{display:block;font-size:clamp(10px,1.95cqi,15px);line-height:1.08;
+    letter-spacing:-.02em;hyphens:manual;overflow-wrap:normal;word-break:normal}
+  .sq.corner .nm.nm-s{font-size:clamp(11px,2.3cqi,17px)}
+  .sq .scode{display:none}
+  .sq .pr{font-size:max(9px,1.3cqi)}
+}
+@container (max-width:640px){
+  .sq .scode{display:none}
+  .sq .nm.nm-s{font-size:max(9px,2cqi)}
+}
+
 /* Link each portfolio station to its square on the board. */
 #props .asset-link{display:flex;align-items:center;justify-content:space-between;gap:8px;
   width:100%;min-height:44px;box-sizing:border-box;padding:8px 6px;border:0;border-radius:6px;

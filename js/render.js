@@ -202,7 +202,8 @@ function showDeed(i){
   else if(own&&o!==null&&S.mort[i]){now.hidden=false;
     now.innerHTML=`<b>Digadai</b><span>Tiada sewa</span>`}
   else if(own){now.hidden=false;
-    now.innerHTML=`<b>Harga belian</b><span>${fmt(s.p)}</span>`}
+    const base=s.t==='util'?'4× dadu':fmt(s.t==='prop'?s.r[0]:25);
+    now.innerHTML=`<div><b>Harga belian</b><span>${fmt(s.p)}</span></div><div><b>Sewa asas</b><span>${base}</span></div>`}
   else now.hidden=true;
 
   const row=(a,b,hl)=>`<tr class="${hl?'hl':''}"><td>${a}</td><td>${b}</td></tr>`;
@@ -395,6 +396,7 @@ function renderSide(){
   document.getElementById('propsTitle').textContent=
     who===S.turn?`Hartanah ${p.name}`:'Hartanah anda';
   const mine=S.owner.map((o,i)=>o===who?i:-1).filter(i=>i>=0);
+  document.getElementById('propsCount').textContent=`${mine.length} aset`;
   const lock=busy||S.phase==='moving'||S.phase==='over'||tradePending()||!isActor()||who!==S.turn;
   document.getElementById('props').innerHTML=mine.length?portfolioHTML(mine,i=>{const s=SQ[i];const col=s.t==='prop'?GROUPS[s.g].c:'var(--muted)';
     const h=S.houses[i];const st=S.mort[i]?'Digadai':h===5?'Hotel':h?`${h} rumah`:(s.t==='prop'&&hasSet(who,s.g)?'Set penuh':'');
