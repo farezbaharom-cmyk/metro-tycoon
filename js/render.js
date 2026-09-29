@@ -24,9 +24,11 @@ function fitNeed(txt,cs,sz){
 /* Bilangan baris jika setiap perkataan/suku kata di baris sendiri. */
 const fitLines=txt=>txt.split(/\s+/).reduce((a,w)=>a+w.split('\u00AD').length,0);
 function fitNames(){
+  /* Papan telefon (petak ~30px): guna singkatan paling pendek supaya tulisan lebih besar. */
+  const bd=document.getElementById('board'),small=!!bd&&bd.clientWidth<440;
   document.querySelectorAll('#board .sq .nm-s').forEach(e=>{
     if(!e.offsetParent)return;
-    const sq=e.closest('.sq'),i=+sq.dataset.i,nm=SHORT[i]||SQ[i].n,syl=SHORT_SYL[i];
+    const sq=e.closest('.sq'),i=+sq.dataset.i,nm=SHORT[i]||SQ[i].n,syl=SHORT_SYL[i],xs=small&&SHORT_XS[i];
     const own=sq.classList.contains('owned'),side=sq.classList.contains('left')||sq.classList.contains('right');
     const st=sq.querySelector('.stripe');
     /* Token dalam aliran petak (bukan diapungkan ke luar seperti di telefon) mengambil
@@ -38,7 +40,7 @@ function fitNames(){
     /* Ikon (ϟ, ⇄, RM…) dan kod stesen berkongsi tinggi petak dengan nama. */
     const other=[...e.parentElement.children].reduce((a,c)=>a+(c!==e&&!c.classList.contains('nm')&&c.offsetParent&&getComputedStyle(c).position!=='absolute'?c.offsetHeight:0),0);
     const availH=sq.clientHeight-(!side&&st?st.offsetHeight:0)-th-other-(own?5:3);
-    const key=avail+'|'+availH+'|'+own;if(e._fk===key)return;e._fk=key;
+    const key=avail+'|'+availH+'|'+own+'|'+small;if(e._fk===key)return;e._fk=key;
     e.style.fontSize='';e.textContent=nm;
     const cs=getComputedStyle(e),sz=parseFloat(cs.fontSize),lh=(parseFloat(cs.lineHeight)||sz*1.05)/sz;
     const size=t=>Math.min(sz,sz*avail/fitNeed(t,cs,sz),availH/(fitLines(t)*lh));
@@ -46,6 +48,9 @@ function fitNames(){
     if(whole>=sz-.05)return;
     let best=nm,bs=whole;
     if(whole<FIT_OK&&syl&&syl!==nm){const ss=size(syl);if(ss>whole+.4){best=syl;bs=ss}}
+    /* Telefon: cuba singkatan (bentuk bersih, kemudian dipecah suku kata) — dipilih
+       hanya jika tulisannya jelas lebih besar daripada pilihan di atas. */
+    if(xs)for(const c of [xs.replace(/\u00AD/g,''),xs]){const cz=size(c);if(cz>bs+.4){best=c;bs=cz}}
     e.textContent=best;
     e.style.fontSize=Math.max(FIT_MIN,Math.floor(bs*10)/10)+'px'});
 }
@@ -54,6 +59,10 @@ let SHORT_SYL={1:'Titi\u00ADwang\u00ADsa',2:'Ta\u00ADbung',4:'Cukai',5:'KL Sentr
   20:'Parkir',21:'Su\u00ADbang Jaya',22:'Pe\u00ADluang',23:'Kelana Jaya',24:'Bang\u00ADsar',25:'Pasar Seni',26:'Salak Tinggi',
   27:'Putra\u00ADjaya',28:'Air',30:'Ke Lokap',31:"Mu\u00ADtiara D'sara",32:'Seman\u00ADtan',
   33:'Ta\u00ADbung',34:'Bkt Bin\u00ADtang',35:'TBS',36:'Pe\u00ADluang',38:'Cukai',39:'KLCC'};
+/* Singkatan paling pendek untuk papan telefon. Nama penuh sentiasa ada dalam
+   kad apabila petak ditekan. \u00AD = titik pecah suku kata jika perlu dua baris. */
+let SHORT_XS={5:'Sen\u00ADtral',8:'Sen\u00ADtul',18:'Pan\u00ADdan',21:'Su\u00ADbang',23:'Ke\u00ADlana',26:'Sa\u00ADlak',27:"P'jaya",
+  31:'Mu\u00ADtiara',34:'Bin\u00ADtang',32:'Se\u00ADman\u00ADtan'};
 let SHORT={1:'Titi\u00ADwangsa',2:'Tabung',4:'Cukai',5:'KL Sentral',6:'Batu Caves',7:'Peluang',9:'Kepong',11:'Bkt Jalil',
   12:'Elektrik',13:'Sri Petaling',15:'M.Jamek',16:'Ampang',17:'Tabung',18:'Pandan Indah',
   20:'Parkir',21:'Subang Jaya',22:'Peluang',23:'Kelana Jaya',24:'Bangsar',25:'Pasar Seni',26:'Salak Tinggi',
@@ -253,7 +262,13 @@ function showDeed(i){
   document.getElementById('deedNote').textContent=note;
   document.getElementById('deedBox').hidden=false;
 }
-function lapBar(p){if(!S.qual)return `<span class="chip">Pusingan ${p.laps}</span>`;return `<span class="lap" title="Kelayakan ${Math.min(p.laps,S.qual)}/${S.qual} pusingan">${[...Array(S.qual)].map((_,k)=>`<i class="${k<p.laps?'on':''}"></i>`).join('')}</span><span class="chip">Pusingan ${p.laps}</span>`}
+/* Istilah seragam: "Ronde" = setiap pemain dapat satu giliran (panel giliran),
+   "Pusingan" = satu lingkaran papan, bertambah bila lalu MULA. Kedua-duanya
+   dikira bermula dari 1 (pusingan semasa, bukan bilangan yang sudah lengkap). */
+function lapChip(p){const n=p.laps+1,cap=S.endLaps||0;
+  const t=cap?(p.laps>=cap?`Pusingan ${cap}/${cap} ✓`:`Pusingan ${n}/${cap}`):`Pusingan ${n}`;
+  return `<span class="chip" title="Pusingan papan semasa — bertambah setiap kali lalu MULA. Berbeza dengan ronde (setiap pemain dapat satu giliran).">🔄 ${t}</span>`}
+function lapBar(p){if(!S.qual)return lapChip(p);return `<span class="lap" title="Kelayakan ${Math.min(p.laps,S.qual)}/${S.qual} pusingan lengkap">${[...Array(S.qual)].map((_,k)=>`<i class="${k<p.laps?'on':''}"></i>`).join('')}</span>${lapChip(p)}`}
 function turnGuidance(){
   const p=cur();
   if(S.phase==='over')return 'Permainan tamat. Lihat keputusan atau main semula.';
@@ -264,7 +279,7 @@ function turnGuidance(){
   if(p.cash<0)return 'Jual bangunan atau gadai hartanah untuk pulihkan baki anda.';
   if(S.phase==='moving'||busy)return 'Token sedang bergerak. Tunggu sehingga tiba.';
   if(S.phase==='buy')return SQ[p.pos].n+' · '+(p.cash<SQ[p.pos].p?'Baki tidak mencukupi. Tekan Lepaskan.':'Pilih Beli '+fmt(SQ[p.pos].p)+' atau Lepaskan.');
-  if(S.phase==='end')return 'Selesai? Tekan Tamat giliran untuk pemain seterusnya.';
+  if(S.phase==='end')return (S.owner[p.pos]===S.turn&&SQ[p.pos].p?'✓ '+SQ[p.pos].n+' milik anda. ':'')+'Langkah terakhir: tekan Tamat giliran.';
   if(p.inJail)return 'Pilih cuba dadu ganda, bayar RM50 atau guna Kad Bebas.';
   return S.doubles?'Dadu ganda! Tekan Baling lagi.':'Tekan Baling dadu untuk bergerak.';
 }
@@ -283,32 +298,18 @@ function turnTutorialHTML(){
   const active=!!(S.started&&p&&!p.bot&&!p.bankrupt&&S.turn===seat&&p.laps===0&&S.phase!=='over'&&!tutorialClosed);
   if(!active)return '';
   const sq=SQ[p.pos],phase=S.phase;
-  let step=phase==='roll'?0:phase==='moving'?1:2,title='',text='';
-  if(phase==='roll'){
-    title=`Anda berada di ${sq.n}`;
-    text=p.inJail?'Pilih salah satu cara keluar yang tersedia dalam panel giliran.':'Tekan Baling dadu. Jumlah dadu menentukan berapa petak token bergerak.';
-  }else if(phase==='moving'){
-    title='Token sedang bergerak';
-    text='Ikuti token di papan. Destinasi dan tindakan seterusnya akan diterangkan apabila ia berhenti.';
-  }else if(phase==='buy'){
-    title=`Anda tiba di ${sq.n}`;
-    text=`Beli menjadikan stesen ini milik anda. Lepaskan membiarkan stesen tersedia untuk tindakan seterusnya.`;
-  }else if(phase==='end'){
-    title=`Selesai di ${sq.n}`;
-    text='Semak hasil giliran, kemudian tekan Tamat giliran untuk memberi laluan kepada pemain seterusnya.';
-  }else if(phase==='auction'){
-    title=`Pilihan untuk ${sq.n}`;
-    text='Ikuti arahan yang dipaparkan dalam panel tindakan sehingga proses ini selesai.';
-  }else{
-    title=`Anda berada di ${sq.n}`;
-    text=turnGuidance();
-  }
-  const labels=['Baling','Bergerak','Tindakan'];
-  const steps=labels.map((x,i)=>`<span class="${i===step?'active':i<step?'done':''}"${i===step?' aria-current="step"':''}><i>${i<step?'✓':i+1}</i><small>${x}</small></span>`).join('');
-  return `<aside class="turn-tutorial" id="turnTutorial" role="status" aria-live="polite">
+  /* Satu baris ringkas sahaja: laluan 1·2·3 di atas panel sudah menunjukkan langkah,
+     jadi tutorial tidak perlu bulatan langkah atau penerangan panjang. */
+  let title='',text='';
+  if(phase==='roll'){title='Langkah 1';text=p.inJail?'Pilih cara keluar dari Lokap.':'Tekan Baling dadu untuk bergerak.'}
+  else if(phase==='moving'){title='Langkah 2';text='Ikuti token anda di papan.'}
+  else if(phase==='buy'){title='Langkah 3';text=`Beli ${sq.n} atau Lepaskan.`}
+  else if(phase==='end'){title='Langkah terakhir';text='Tekan Tamat giliran.'}
+  else if(phase==='auction'){title='Lelongan';text='Ikuti panel lelongan.'}
+  else{title='Langkah 3';text=turnGuidance()}
+  return `<aside class="turn-tutorial${phase==='end'?' last':''}" id="turnTutorial" role="status" aria-live="polite">
     <button class="tutorial-close" id="tutorialClose" type="button" aria-label="Tutup tutorial">×</button>
-    <div class="tutorial-steps" aria-label="Kemajuan tutorial">${steps}</div>
-    <div class="tutorial-copy"><b class="tutorial-title">${esc(title)}</b><p>${esc(text)}</p></div>
+    <p><b class="tutorial-title">${esc(title)}</b> ${esc(text)}</p>
   </aside>`;
 }
 let uxTurnKey=null,uxTurnTimer=0;
@@ -360,7 +361,7 @@ function renderSide(){
       if(S.doubles>=2)note=`<div class="note warn keep">Ganda 2/3 · ganda sekali lagi = masuk Lokap!</div>`;
       else if(S.doubles===1)note=`<div class="note keep">Ganda 1/3 · baling lagi</div>`}}
   else if(S.phase==='buy'){const s=SQ[p.pos];acts=`<button class="btn primary" type="button" data-a="buy" ${p.cash<s.p?'disabled':''}>${p.cash<s.p?'Wang tak cukup':'Beli '+fmt(s.p)}</button><button class="btn" type="button" data-a="pass">Lepaskan</button>`}
-  else if(S.phase==='end')acts=`<button class="btn primary" type="button" data-a="end">Tamat giliran</button>`;
+  else if(S.phase==='end')acts=`<button class="btn primary endturn" type="button" data-a="end">Tamat giliran <span aria-hidden="true">→</span></button>`;
   else if(S.phase==='auction')acts=`<button class="btn" type="button" disabled>Lelongan berjalan…</button>`;
   else acts=`<button class="btn primary" type="button" disabled>Bergerak…</button>`;
   if(tradePending()){
@@ -386,7 +387,7 @@ function renderSide(){
   const guide=document.getElementById('turnGuide');
   if(guide&&guide.textContent!==turnGuidance())guide.textContent=turnGuidance();
   const tutorial=turnTutorialHTML();
-  t.innerHTML=`<div class="turnhead"><span class="avatar" style="background:${p.color};color:${p.color}"><span class="tdot av" style="color:${p.color}">${trainSVG(S.turn)}</span></span><div class="who"><small>${S.phase==='over'?'Permainan tamat':NET&&p.uid===UID?'Giliran anda':p.bot?'Giliran bot':'Giliran sekarang'}</small><b>${S.phase==='over'?'':'<span aria-hidden="true">🚇</span> '}${esc(p.name)}</b></div><span class="money" style="color:${neg?'var(--bad)':'inherit'}">${fmt(p.cash)}</span></div>${S.phase==='over'?'':'<div class="turn-route" aria-hidden="true"><i></i><i></i><i></i><span></span></div>'}${note}${tutorial||turnStageHTML()}${tutorial||(neg&&S.phase!=='over')?'':`<p class="turn-guide">${esc(turnGuidance())}</p>`}${alongStrip(p)}<div class="actions">${acts}</div><div class="afkbar" id="afkClock" hidden></div><div class="note">${p.laps<S.qual?`Kelayakan membeli: ${p.laps}/${S.qual} pusingan. `:''}${S.fast?`<span class="fastnote">⚡ Mod cepat · ronde ${Math.min(S.round||1,S.fastRounds)}/${S.fastRounds}</span>`:S.maxRounds?`<span class="fastnote">🏁 Ronde ${Math.min(S.round||1,S.maxRounds)}/${S.maxRounds} · kekayaan tertinggi menang</span>`:S.endLaps?`Tamat apabila semua pemain lengkap ${S.endLaps} pusingan.`:'Tamat apabila hanya seorang pemain tidak muflis.'}</div>`+pstripHTML();
+  t.innerHTML=`<div class="turnhead"><span class="avatar" style="background:${p.color};color:${p.color}"><span class="tdot av" style="color:${p.color}">${trainSVG(S.turn)}</span></span><div class="who"><small>${S.phase==='over'?'Permainan tamat':NET&&p.uid===UID?'Giliran anda':p.bot?'Giliran bot':'Giliran sekarang'}</small><b>${S.phase==='over'?'':'<span aria-hidden="true">🚇</span> '}${esc(p.name)}</b></div><span class="money" style="color:${neg?'var(--bad)':'inherit'}">${fmt(p.cash)}</span></div>${S.phase==='over'?'':'<div class="turn-route" aria-hidden="true"><i></i><i></i><i></i><span></span></div>'}${note}${tutorial||turnStageHTML()}${tutorial||(neg&&S.phase!=='over')?'':`<p class="turn-guide">${esc(turnGuidance())}</p>`}${alongStrip(p)}<div class="actions">${acts}</div><div class="afkbar" id="afkClock" hidden></div><div class="note">${p.laps<S.qual?`Kelayakan membeli: ${p.laps}/${S.qual} pusingan lengkap. `:''}${S.fast?`<span class="fastnote" title="Satu ronde = setiap pemain dapat satu giliran">⚡ Mod cepat · Ronde ${Math.min(S.round||1,S.fastRounds)}/${S.fastRounds}</span>`:S.maxRounds?`<span class="fastnote" title="Satu ronde = setiap pemain dapat satu giliran">🏁 Ronde ${Math.min(S.round||1,S.maxRounds)}/${S.maxRounds} · kekayaan tertinggi menang</span>`:S.endLaps?`Tamat apabila semua pemain lengkap ${S.endLaps} pusingan.`:'Tamat apabila hanya seorang pemain tidak muflis.'}</div>`+pstripHTML();
   turnArrival();
   afkPaint();
   document.getElementById('players').innerHTML=S.players.map((q,k)=>{

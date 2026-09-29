@@ -56,7 +56,7 @@ let EVENTS=[
  {t:'Banjir kilat! KTM Komuter tergendala. Tiada sewa di laluan itu.',gm:{1:0}},
  {t:'Musim cuti: pelancong serbu KLIA. Sewa ERL naik 2×.',gm:{5:2}},
  {t:'Hari Tanpa Kereta di KL! Semua hab sesak — sewa hab 2×.',hub:2},
- {t:'Pengecualian cukai! Tiada Cukai Hasil atau Cukai Mewah pusingan ini.',notax:true},
+ {t:'Pengecualian cukai! Tiada Cukai Hasil atau Cukai Mewah ronde ini.',notax:true},
  {t:'Promosi bahan binaan! Rumah dan hotel separuh harga.',build:.5},
  {t:'Monorel rosak lagi. Laluan Monorel ditutup — tiada sewa.',gm:{0:0}},
  {t:'Pesta Tanglung di Ampang. Sewa LRT Ampang naik 50%.',gm:{3:1.5}},
@@ -64,7 +64,7 @@ let EVENTS=[
  {t:'Hujan lebat di pusat KL! Penumpang beralih ke Monorel — sewa Monorel naik 50%.',gm:{0:1.5}},
  {t:'Waktu puncak petang di KL Sentral! Sewa semua hab naik 50%.',hub:1.5},
  {t:'Acara besar di KLCC! Sewa MRT Kajang dan Putrajaya naik 50%.',gm:{6:1.5,7:1.5}},
- {t:'Gangguan transit di laluan Sri Petaling! Tiada sewa LRT Sri Petaling pusingan ini.',gm:{2:0}},
+ {t:'Gangguan transit di laluan Sri Petaling! Tiada sewa LRT Sri Petaling ronde ini.',gm:{2:0}},
  {t:'Hujan lebat dan jalan sesak! Lebih ramai menaiki LRT Kelana Jaya — sewa naik 50%.',gm:{4:1.5}},
  {t:'Festival di sekitar Bukit Bintang! Sewa Monorel naik 2×.',gm:{0:2}}];
 const ev=()=>S&&S.event&&EVENTS[S.event.k]||null;
@@ -76,10 +76,10 @@ function newRound(){
   if(Math.random()<.75){
     let k;do{k=Math.floor(Math.random()*EVENTS.length)}while(had&&k===had.k&&EVENTS.length>1);
     S.event={k,id:Date.now().toString(36)+Math.random().toString(36).slice(2,6)};
-    addLog(`📰 Berita pusingan ${S.round}: ${EVENTS[k].t}`);
+    addLog(`📰 Berita ronde ${S.round}: ${EVENTS[k].t}`);
   }else{
     S.event=null;
-    if(had)addLog(`📰 Pusingan ${S.round}: semua perkhidmatan kembali seperti biasa.`);
+    if(had)addLog(`📰 Ronde ${S.round}: semua perkhidmatan kembali seperti biasa.`);
   }
 }
 function rentOf(i,opts={}){
@@ -118,7 +118,7 @@ async function walk(p,steps){
   if(steps>0)sayNext((p.pos+steps)%40);
   for(let k=0;k<steps;k++){const from=p.pos;p.pos=(p.pos+1)%40;
     if(k===steps-1)sayArrive(p.pos);
-    if(p.pos===0){const gb=goBonus();p.cash+=gb;p.laps++;stt(k0).mula++;addLog(`🏁 ${p.name} lalu MULA, kutip ${fmt(gb)} (pusingan ${p.laps}).`);sfx.coin();fxMoney(0,true);
+    if(p.pos===0){const gb=goBonus();p.cash+=gb;p.laps++;stt(k0).mula++;addLog(`🏁 ${p.name} lalu MULA, kutip ${fmt(gb)} (${p.laps} pusingan lengkap).`);sfx.coin();fxMoney(0,true);
       if(S.qual&&p.laps===S.qual){toastAll(`${p.name} lengkap ${S.qual} pusingan — kini boleh membeli hartanah!`);addLog(`✅ ${p.name} kini layak membeli hartanah.`)}
       alongTagih(p)}
     sfx.step();renderBoard();renderSide();hop(k0,from,p.pos,k===steps-1);sync();await sleep(STEP_MS)}

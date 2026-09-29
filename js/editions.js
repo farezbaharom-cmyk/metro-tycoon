@@ -23,7 +23,7 @@ const linesOwned=k=>new Set(SQ.map((s,i)=>s.t==='prop'&&S.owner[i]===k?s.g:null)
 const ED_KL={id:'kl',label:'Edisi KL',emoji:'🏙️',blurb:'Lembah Klang · MRT, LRT, Monorel',title:'Metro Tycoon KL',
   logo:'Metro<br><span>Tycoon</span> KL',sub:'Edisi Lembah Klang',
   home:'Metro <span>Tycoon</span> KL',tag:'Permainan hartanah laluan transit Lembah Klang.',
-  sq:SQ,groups:GROUPS,code:CODE,corner:CORNER,short:SHORT,syl:SHORT_SYL,events:EVENTS,
+  sq:SQ,groups:GROUPS,code:CODE,corner:CORNER,short:SHORT,syl:SHORT_SYL,xs:SHORT_XS,events:EVENTS,
   pel:PELUANG.map(c=>c[0]),tab:TABUNG.map(c=>c[0]),sky:klSkyline,
   card:{peluang:{c:'#EE7A00',ic:'🎟️'},tabung:{c:'#1F5FAD',ic:'🤝'}},trains:TRAINS,
   misi:[{id:'jelajahKL',e:'🚇',t:'Penjelajah Lembah Klang',d:'Miliki stesen di 4 laluan berbeza',r:60,p:k=>[linesOwned(k).size,4]}]};
@@ -55,7 +55,7 @@ function savePrefEd(id){try{localStorage.setItem('mtkl-ed',edId(id))}catch(e){}}
 function applyEdition(id){
   id=edId(id);if(id===curEd)return false;
   const E=EDITIONS[id];curEd=id;
-  SQ=E.sq;GROUPS=E.groups;CODE=E.code;CORNER=E.corner;SHORT=E.short;SHORT_SYL=E.syl;EVENTS=E.events;
+  SQ=E.sq;GROUPS=E.groups;CODE=E.code;CORNER=E.corner;SHORT=E.short;SHORT_SYL=E.syl;SHORT_XS=E.xs||{};EVENTS=E.events;
   PELUANG=E.pel.map((t,i)=>[t,PEL_FX[i]]);TABUNG=E.tab.map((t,i)=>[t,TAB_FX[i]]);
   MISI=BASE_MISI.concat(E.misi||[]);TRAINS=E.trains;
   const b=document.getElementById('board');if(b&&b.childElementCount)buildBoard();

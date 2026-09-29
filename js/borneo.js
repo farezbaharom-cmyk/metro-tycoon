@@ -25,6 +25,7 @@ const B_SHORT={1:'Tenom',2:'Tabung',3:'Beau­fort',4:'Cukai',5:'Airport KK',6:'K
   11:'Tawau',12:'Elektrik',13:'Sem­porna',14:'Lahad Datu',15:'Sibu Sentral',16:'Sri Aman',17:'Tabung',18:'Sarikei',19:'Sibu',
   20:'Parkir',21:'Bintulu',22:'Peluang',23:'Miri',24:'Limbang',25:'Jeti Labuan',26:'Kudat',27:'Kota Belud',28:'Air',29:'Sandakan',
   30:'Ke Lokap',31:'Santu­bong',32:'Satok',33:'Tabung',34:'Water­front',35:'Airport Kuching',36:'Peluang',37:'Kunda­sang',38:'Cukai',39:'KK'};
+const B_XS={14:'La\u00ADhad',15:'Sibu S.',25:'La\u00ADbuan',27:'K.Be\u00ADlud',35:'KCH',34:'Water\u00ADfront',5:'KK'};
 const B_SYL={...B_SHORT,2:'Ta­bung',7:'Pe­luang',12:'Elek­trik',13:'Sem­por­na',17:'Ta­bung',18:'Sari­kei',
   21:'Bin­tulu',22:'Pe­luang',24:'Lim­bang',29:'Sanda­kan',33:'Ta­bung',36:'Pe­luang'};
 /* Petak sudut: rumah panjang (MULA), Kubu Margherita (Lokap — lakaran kubu
@@ -54,7 +55,7 @@ const B_EVENTS=[
  {t:'Air Sungai Rajang terlalu cetek, bot ekspres tergendala. Tiada sewa Laluan Hulu Rajang.',gm:{1:0}},
  {t:'Musim cuti: pelancong serbu Sepilok. Sewa Laluan Pantai Utara naik 2×.',gm:{5:2}},
  {t:'Musim balik kampung sempena Gawai! Semua hab sesak — sewa hab 2×.',hub:2},
- {t:'Pengecualian cukai! Tiada Cukai Hasil atau Cukai Mewah pusingan ini.',notax:true},
+ {t:'Pengecualian cukai! Tiada Cukai Hasil atau Cukai Mewah ronde ini.',notax:true},
  {t:'Promosi bahan binaan! Rumah dan hotel separuh harga.',build:.5},
  {t:'Keretapi Sabah rosak lagi. Laluan ditutup — tiada sewa.',gm:{0:0}},
  {t:'Pesta Kebudayaan Borneo di Sibu. Sewa Laluan Sungai Rajang naik 50%.',gm:{3:1.5}},
@@ -62,7 +63,7 @@ const B_EVENTS=[
  {t:'Pesta Kopi Tenom! Sewa Keretapi Sabah naik 50%.',gm:{0:1.5}},
  {t:'Waktu puncak di Lapangan Terbang KK! Sewa semua hab naik 50%.',hub:1.5},
  {t:'Pesta muzik hutan hujan di Santubong! Sewa ART Kuching naik 2×.',gm:{6:2}},
- {t:'Ombak besar di pantai timur! Tiada sewa Laluan Pantai Timur pusingan ini.',gm:{2:0}},
+ {t:'Ombak besar di pantai timur! Tiada sewa Laluan Pantai Timur ronde ini.',gm:{2:0}},
  {t:'Industri minyak rancak di Miri dan Bintulu! Sewa Laluan Pan Borneo naik 50%.',gm:{4:1.5}},
  {t:'Pendaki serbu Gunung Kinabalu! Sewa Laluan Kinabalu naik 2×.',gm:{7:2}}];
 /* Teks kad sahaja; kesannya dikongsi dengan KL ikut indeks (lihat data.js).
@@ -191,7 +192,7 @@ const B_TRAINS=[
 const ED_BORNEO={id:'borneo',label:'Edisi Borneo',emoji:'🌴',blurb:'Sabah & Sarawak · laluan rel impian',title:'Metro Tycoon Borneo',
   logo:'Metro<br><span>Tycoon</span> Borneo',sub:'Edisi Sabah & Sarawak',
   home:'Metro <span>Tycoon</span> Borneo',tag:'Permainan hartanah laluan rel impian Sabah dan Sarawak.',
-  sq:B_SQ,groups:B_GROUPS,code:B_CODE,corner:B_CORNER,short:B_SHORT,syl:B_SYL,events:B_EVENTS,
+  sq:B_SQ,groups:B_GROUPS,code:B_CODE,corner:B_CORNER,short:B_SHORT,syl:B_SYL,xs:B_XS,events:B_EVENTS,
   pel:B_PEL,tab:B_TAB,sky:borneoSkyline,map:borneoMap,
   card:{peluang:{c:'#D9480F',ic:'🌴'},tabung:{c:'#1B7F8C',ic:'🛶'}},say:B_SAY,trains:B_TRAINS,toks:['b0','b1'],
   /* Laluan Sabah: 0 Keretapi Sabah, 2 Pantai Timur, 5 Pantai Utara, 7 Kinabalu; selebihnya Sarawak. */
