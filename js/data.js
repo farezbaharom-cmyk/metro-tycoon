@@ -318,10 +318,10 @@ function newGame(names,qual,endLaps,cash,bots,useAuc,fast,ed){
    fast:!!fast,fastRounds:fastRounds(names.length),round:1,st:names.map(()=>newStat(cash)),gid:Date.now().toString(36),
    ed:edId(ed||prefEd())};
   applyEdition(S.ed);   /* nama petak & kad edisi mesti siap sebelum dealFast dan log */
-  addLog(qual?`Permainan bermula. Setiap pemain perlu lengkapkan ${qual} pusingan sebelum boleh membeli hartanah.`:'Permainan bermula. Semoga berjaya!');
+  addLog('🚦 '+(qual?`Permainan bermula. Setiap pemain perlu lengkapkan ${qual} pusingan sebelum boleh membeli hartanah.`:'Permainan bermula. Semoga berjaya!'));
   if(S.fast)dealFast();
   const bl=S.players.filter(p=>p.bot);
-  if(bl.length)addLog(`Lawan bot: ${bl.map(p=>`${p.name} (${BOT_LEVELS[p.bot]})`).join(', ')}.`);
+  if(bl.length)addLog(`🤖 Lawan bot: ${bl.map(p=>`${p.name} (${BOT_LEVELS[p.bot]})`).join(', ')}.`);
 }
 const cur=()=>S.players[S.turn];
 const fmt=n=>(n<0?'−':'')+'RM'+Math.round(Math.abs(n)).toLocaleString('en-MY');
@@ -329,10 +329,14 @@ const sleep=ms=>new Promise(r=>setTimeout(r,RM?Math.min(ms,30):ms));
 const LOG_ICON={dadu:'🎲',beli:'🏠',sewa:'💸',bina:'🔨',lelong:'⚖️',lokap:'🔒'};
 const LOG_SEP='\u001f';   /* pemisah tak boleh ditaip, jadi nama pemain tidak mungkin mengelirukannya */
 function addLog(t,k){S.log.unshift(k&&LOG_ICON[k]?k+LOG_SEP+t:t);S.log.length=Math.min(S.log.length,80)}
-/* Catatan lama (simpanan atau bilik yang belum dinaik taraf) tiada awalan — ia dipaparkan tanpa ikon. */
+/* Setiap baris log ada ikon di lajur kiri supaya teks sejajar. Catatan tanpa kunci
+   yang bermula dengan emoji (📰 Berita, 🃏 Peluang, 🏆 misi…) — emoji itu diangkat
+   ke lajur ikon. Catatan lama tanpa kedua-duanya dapat titik kecil. */
+const LOG_EMO=/^(\p{Extended_Pictographic}[\uFE0F\u200D\p{Extended_Pictographic}]*)\s*/u;
 function logParts(l){const v=String(l),i=v.indexOf(LOG_SEP);
   if(i>0){const k=v.slice(0,i);if(LOG_ICON[k])return[LOG_ICON[k],v.slice(i+1)]}
-  return['',v]}
+  const m=v.match(LOG_EMO);if(m)return[m[1],v.slice(m[0].length)];
+  return['•',v]}
 /* Simpan hanya sempadan tindakan yang lengkap. Animasi, kad berantai dan
    bayaran semasa pergerakan mesti selesai sebelum mengganti checkpoint. */
 function save(){

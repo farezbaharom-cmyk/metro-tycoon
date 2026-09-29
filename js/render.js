@@ -29,10 +29,15 @@ function fitNames(){
     const sq=e.closest('.sq'),i=+sq.dataset.i,nm=SHORT[i]||SQ[i].n,syl=SHORT_SYL[i];
     const own=sq.classList.contains('owned'),side=sq.classList.contains('left')||sq.classList.contains('right');
     const st=sq.querySelector('.stripe');
-    const avail=sq.clientWidth-(side&&st?st.offsetWidth:0)-(own?5:3);
+    /* Token dalam aliran petak (bukan diapungkan ke luar seperti di telefon) mengambil
+       ruang: lebar di petak kiri/kanan, tinggi di petak atas/bawah. Tanpa ini nama
+       seperti "Cheras" terpotong jadi "Chera" bila tren berhenti di situ. */
+    const tk=sq.querySelector('.tokens'),tkIn=tk&&tk.offsetParent&&getComputedStyle(tk).position!=='absolute';
+    const tw=tkIn&&side?tk.offsetWidth:0,th=tkIn&&!side?tk.offsetHeight:0;
+    const avail=sq.clientWidth-(side&&st?st.offsetWidth:0)-tw-(own?5:3);
     /* Ikon (ϟ, ⇄, RM…) dan kod stesen berkongsi tinggi petak dengan nama. */
     const other=[...e.parentElement.children].reduce((a,c)=>a+(c!==e&&!c.classList.contains('nm')&&c.offsetParent&&getComputedStyle(c).position!=='absolute'?c.offsetHeight:0),0);
-    const availH=sq.clientHeight-(!side&&st?st.offsetHeight:0)-other-(own?5:3);
+    const availH=sq.clientHeight-(!side&&st?st.offsetHeight:0)-th-other-(own?5:3);
     const key=avail+'|'+availH+'|'+own;if(e._fk===key)return;e._fk=key;
     e.style.fontSize='';e.textContent=nm;
     const cs=getComputedStyle(e),sz=parseFloat(cs.fontSize),lh=(parseFloat(cs.lineHeight)||sz*1.05)/sz;

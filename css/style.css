@@ -774,12 +774,20 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:60;width:100%;heigh
   /* Di luar Papan, lebih padat: nota akhir juga disorok (ronde ada dalam Log/Aset). */
   body:not([data-tab="papan"]) #turn>.actions~.note{display:none!important}
 }
-/* Telefon: notis ringkas di atas skrin (bukan gelembung besar di tengah),
-   bertingkat jika lebih daripada satu, dan tidak menghalang sentuhan. */
+/* Telefon: notis ringkas (bukan gelembung besar), satu sahaja pada satu masa,
+   dan tidak menghalang sentuhan. */
 @media (max-width:700px),(max-width:1000px) and (max-height:520px) and (orientation:landscape){
-  .toast{top:calc(max(64px + env(safe-area-inset-top,0px),var(--tt,0px)) + var(--ti,0) * 50px);bottom:auto;
-    border-radius:12px;padding:8px 14px;font-size:13.5px;line-height:1.3;width:max-content;
-    max-width:calc(100% - 24px);pointer-events:none;animation:dn .25s ease-out;opacity:.97}
+  .toast{border-radius:12px;padding:8px 14px;font-size:13.5px;line-height:1.3;width:max-content;
+    max-width:calc(100% - 24px);pointer-events:none;animation:up .25s ease-out;opacity:.97}
+}
+/* Telefon menegak: notis duduk di ruang kosong antara butang zum dan panel giliran,
+   bukan di atas skrin di mana ia menutup baris atas papan (Subang Jaya → KLIA). */
+@media (max-width:700px){
+  .toast{top:auto;bottom:calc(8px + var(--turn-dock-height,0px) + var(--tabbar-h,0px));font-size:13px}
+}
+/* Telefon mendatar: papan penuh tinggi skrin; notis di atas, di bawah popup misi. */
+@media (max-width:1000px) and (max-height:520px) and (orientation:landscape){
+  .toast{top:max(12px + env(safe-area-inset-top,0px),var(--tt,0px));bottom:auto;animation:dn .25s ease-out}
 }
 @keyframes dn{from{transform:translate(-50%,-16px);opacity:0}}
 
@@ -1358,7 +1366,7 @@ body:has(.overlay:not([hidden])) .bar{z-index:40}
     padding-right:max(8px,env(safe-area-inset-right,0px))}
   .tabbar button{min-height:42px;flex-direction:row;gap:6px}
   .tabbar button[aria-selected="true"]::before{top:-4px}
-  .toast{bottom:12px;left:calc((100vw - var(--side-w))/2)}
+  .toast{left:calc((100vw - var(--side-w))/2)}
   .bar .brand{font-size:clamp(13px,2.6vw,19px)}
   /* Skrin utama: langit KL dipendekkan supaya butang main kelihatan tanpa skrol. */
   .homesky{height:64px}

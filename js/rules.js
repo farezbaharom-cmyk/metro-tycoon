@@ -5,15 +5,17 @@
    kod yang BERJALAN semasa muat hanya boleh guna apa yang sudah dimuatkan. */
 /* ---------- money ---------- */
 function toastAll(t){S.toast={id:Date.now()+Math.random(),t};toast(t)}
-function toast(t){const el=document.createElement('div');el.className='toast';el.textContent=t;
-  el.style.setProperty('--ti',Math.min(2,document.querySelectorAll('.toast').length));
+/* Satu notis sahaja pada satu masa: notis baharu menggantikan yang lama
+   (semuanya juga tercatat dalam Log), supaya notis tidak bertindan menutup papan. */
+function toast(t){document.querySelectorAll('.toast').forEach(o=>o.remove());
+  const el=document.createElement('div');el.className='toast';el.textContent=t;
   /* Jangan bertindih dengan popup "Misi selesai" yang juga di atas skrin. */
   const ap=document.querySelector('.achpop');if(ap)el.style.setProperty('--tt',Math.round(ap.getBoundingClientRect().bottom+6)+'px');
   document.body.appendChild(el);setTimeout(()=>el.remove(),t.length>60?3400:2400)}
-function receive(p,a){p.cash+=a;addLog(`${p.name} terima ${fmt(a)}.`);S.msg=`${p.name} terima ${fmt(a)}.`;sfx.coin();fxMoney(p.pos,a>=150)}
+function receive(p,a){p.cash+=a;addLog(`💰 ${p.name} terima ${fmt(a)}.`);S.msg=`${p.name} terima ${fmt(a)}.`;sfx.coin();fxMoney(p.pos,a>=150)}
 /* Pusingan pertama (sebelum lalu MULA kali pertama): tiada bayaran, tiada Lokap. */
 const lapOne=p=>!!p&&p.laps===0&&!(S&&S.fast);
-function freeLap(p,what){const t=`Pusingan pertama: ${p.name} ${what}.`;S.msg=t;addLog(t);toastAll(t)}
+function freeLap(p,what){const t=`Pusingan pertama: ${p.name} ${what}.`;S.msg=t;addLog('🍀 '+t);toastAll(t)}
 function pay(p,a,to=null){
   if(lapOne(p)){freeLap(p,`tak perlu bayar ${fmt(a)}`);return}
   p.cash-=a; if(to!==null){S.players[to].cash+=a}
@@ -25,16 +27,16 @@ function eachOther(p,amt){
   S.players.forEach((o,i)=>{if(o===p||o.bankrupt||(amt>0&&lapOne(o)))return;
     if(amt<0){pay(p,-amt,i)}
     else{const g=Math.max(0,Math.min(amt,o.cash));o.cash-=g;p.cash+=g}});
-  if(amt>0){addLog(`${p.name} kutip ${fmt(amt)} daripada setiap pemain.`);S.msg=`${p.name} kutip ${fmt(amt)} daripada setiap pemain.`;sfx.coin()}
+  if(amt>0){addLog(`💰 ${p.name} kutip ${fmt(amt)} daripada setiap pemain.`);S.msg=`${p.name} kutip ${fmt(amt)} daripada setiap pemain.`;sfx.coin()}
 }
 /* Semua pemain yang masih bermain terima wang daripada bank. */
 function allGet(p,amt){S.players.forEach(o=>{if(!o.bankrupt)o.cash+=amt});
-  const t=`Semua pemain terima ${fmt(amt)}.`;addLog(t);S.msg=t;sfx.coin();fxMoney(p.pos,true)}
+  const t=`Semua pemain terima ${fmt(amt)}.`;addLog('💰 '+t);S.msg=t;sfx.coin();fxMoney(p.pos,true)}
 /* Terlepas giliran seterusnya. Dadu ganda juga terbatal. */
 function skipTurn(p){p.skip=(p.skip||0)+1;stt(S.players.indexOf(p)).rosak++;S.again=false;S.doubles=0;
-  const t=`${p.name} akan terlepas giliran seterusnya.`;addLog(t);S.msg=t}
+  const t=`${p.name} akan terlepas giliran seterusnya.`;addLog('⏸️ '+t);S.msg=t}
 function repairs(p,h,ht){if(lapOne(p)){freeLap(p,'tak perlu bayar apa-apa');return}let c=0;S.owner.forEach((o,i)=>{if(o===S.players.indexOf(p)){const n=S.houses[i];c+=n===5?ht:n*h}});
-  if(c>0)pay(p,c);else{S.msg=`${p.name} tiada bangunan. Tiada bayaran.`;addLog(S.msg)}}
+  if(c>0)pay(p,c);else{S.msg=`${p.name} tiada bangunan. Tiada bayaran.`;addLog('🔨 '+S.msg)}}
 function netWorth(p){const pi=S.players.indexOf(p);let w=p.cash-(p.along||0);
   S.owner.forEach((o,i)=>{if(o!==pi)return;const s=SQ[i];w+=S.mort[i]?s.p/2:s.p;if(s.t==='prop')w+=S.houses[i]*GROUPS[s.g].h});return w}
 
@@ -116,8 +118,8 @@ async function walk(p,steps){
   if(steps>0)sayNext((p.pos+steps)%40);
   for(let k=0;k<steps;k++){const from=p.pos;p.pos=(p.pos+1)%40;
     if(k===steps-1)sayArrive(p.pos);
-    if(p.pos===0){const gb=goBonus();p.cash+=gb;p.laps++;stt(k0).mula++;addLog(`${p.name} lalu MULA, kutip ${fmt(gb)} (pusingan ${p.laps}).`);sfx.coin();fxMoney(0,true);
-      if(S.qual&&p.laps===S.qual){toastAll(`${p.name} lengkap ${S.qual} pusingan — kini boleh membeli hartanah!`);addLog(`${p.name} kini layak membeli hartanah.`)}
+    if(p.pos===0){const gb=goBonus();p.cash+=gb;p.laps++;stt(k0).mula++;addLog(`🏁 ${p.name} lalu MULA, kutip ${fmt(gb)} (pusingan ${p.laps}).`);sfx.coin();fxMoney(0,true);
+      if(S.qual&&p.laps===S.qual){toastAll(`${p.name} lengkap ${S.qual} pusingan — kini boleh membeli hartanah!`);addLog(`✅ ${p.name} kini layak membeli hartanah.`)}
       alongTagih(p)}
     sfx.step();renderBoard();renderSide();hop(k0,from,p.pos,k===steps-1);sync();await sleep(STEP_MS)}
 }
@@ -183,13 +185,13 @@ async function land(p,opts={}){
     if(o===null&&p.laps<S.qual){const k=S.qual-p.laps;S.msg=`${s.n} belum dimiliki, tetapi ${p.name} perlu lengkapkan ${k} pusingan lagi sebelum boleh membeli.`;return}
     if(o===null){S.phase='buy';S.msg=`${s.n} belum dimiliki. Beli dengan ${fmt(s.p)}?`;return}
     if(o===pi){S.msg=`${p.name} singgah di hartanah sendiri.`;return}
-    if(S.mort[i]){S.msg=`${s.n} sedang digadai. Tiada sewa.`;addLog(S.msg);return}
+    if(S.mort[i]){S.msg=`${s.n} sedang digadai. Tiada sewa.`;addLog('🏦 '+S.msg);return}
     let ro=opts;if(opts.util10){const a=r6(),b=r6();ro={...opts,roll:a+b};addLog(`Dadu utiliti: ${a}+${b}.`,'dadu')}
     if(lapOne(p)){freeLap(p,`tak perlu bayar sewa ${s.n}`);flash(i);return}
     const rent=rentOf(i,ro);pay(p,rent,o);stt(pi).sewaOut+=rent;stt(o).sewaIn+=rent;
     S.msg=`Sewa ${s.n}: ${p.name} bayar ${fmt(rent)} kepada ${S.players[o].name}.`;sayAll(rent>=200?'sewaBesar':'sewa',p.name,S.players[o].name,fmt(rent));flash(i);return}
   if(s.t==='tax'){if(lapOne(p)){freeLap(p,`tak perlu bayar ${s.n}`);return}
-    if(ev()&&ev().notax){S.msg=`Pengecualian cukai! ${p.name} tak perlu bayar ${s.n}.`;addLog(S.msg);return}pay(p,s.a);S.msg=`${s.n}: ${p.name} bayar ${fmt(s.a)}.`;return}
+    if(ev()&&ev().notax){S.msg=`Pengecualian cukai! ${p.name} tak perlu bayar ${s.n}.`;addLog('🎉 '+S.msg);return}pay(p,s.a);S.msg=`${s.n}: ${p.name} bayar ${fmt(s.a)}.`;return}
   if(s.t==='gojail'){goJail(p);return}
   if(s.t==='peluang'||s.t==='tabung'){
     const key=s.t,deck=S.decks[key],all=key==='peluang'?PELUANG:TABUNG;
@@ -199,7 +201,7 @@ async function land(p,opts={}){
     const [raw,fx]=(key==='peluang'?PELUANG:TABUNG)[idx];
     /* "Kutip RM200" ikut bonus MULA semasa (cth. RM300 ketika Promosi tambang). */
     const text=raw.replace(/(kutip) RM200/gi,(m,k)=>`${k} ${fmt(goBonus())}`);
-    S.card={deck:key,text,id:Date.now()+Math.random()};S.msg=`${p.name} cabut kad ${s.n}.`;addLog(`${s.n}: ${text}`);sfx.card();renderAll();
+    S.card={deck:key,text,id:Date.now()+Math.random()};S.msg=`${p.name} cabut kad ${s.n}.`;addLog(`${key==='peluang'?'🃏':'🎁'} ${s.n}: ${text}`);sfx.card();renderAll();
     await sleep(1500);S.card=null;renderAll();await fx(p);return}
   if(s.t==='free'){S.msg=`${p.name} berehat di Parkir Percuma.`;return}
   if(s.t==='jail'){S.msg=`${p.name} sekadar melawat Lokap.`;return}
@@ -238,7 +240,7 @@ function buy(){const p=cur(),i=p.pos,s=SQ[i];if(S.phase!=='buy'||p.cash<s.p||tra
   if(s.t==='prop'&&hasSet(S.turn,s.g))lineDone(S.turn,s.g);else sayAll('beli',p.name,s.n,fmt(s.p));
   settle();renderAll()}
 function pass(){if(S.phase!=='buy'||tradePending())return;
-  const i=cur().pos;S.msg=`${cur().name} tidak membeli ${SQ[i].n}.`;addLog(S.msg);
+  const i=cur().pos;S.msg=`${cur().name} tidak membeli ${SQ[i].n}.`;addLog('🚶 '+S.msg);
   if(!S.useAuc){settle();renderAll();return}
   startAuction(i)}
 
@@ -328,24 +330,24 @@ function sendTrade(){
   if(bad){document.getElementById('tradeNote').innerHTML=`<span class="warn">${esc(bad)}</span>`;return}
   S.trade={from:t.from,to:t.to,give:t.give.slice(),want:t.want.slice(),cash:t.cash,stage:'review'};
   draft=null;
-  addLog(`${S.players[t.from].name} menawarkan sesuatu kepada ${S.players[t.to].name}.`);
+  addLog(`🤝 ${S.players[t.from].name} menawarkan sesuatu kepada ${S.players[t.to].name}.`);
   renderAll()}
 /* Pencadang menarik balik tawaran — berguna bila lawan terputus talian. */
 function cancelOffer(){
   if(!tradePending())return;
   const t=S.trade;
-  S.msg=`${S.players[t.from].name} menarik balik tawaran.`;addLog(S.msg);
+  S.msg=`${S.players[t.from].name} menarik balik tawaran.`;addLog('🤝 '+S.msg);
   closeTrade()}
 function tradeAnswer(ok){
   const t=S.trade;if(!t||t.stage!=='review')return;
   const A=S.players[t.from],B=S.players[t.to];
-  if(!ok){S.msg=`${B.name} menolak tawaran ${A.name}.`;addLog(S.msg);closeTrade();return}
+  if(!ok){S.msg=`${B.name} menolak tawaran ${A.name}.`;addLog('🤝 '+S.msg);closeTrade();return}
   const bad=tradeValid(t);
-  if(bad){S.msg=`Tawaran gugur: ${bad}`;addLog(S.msg);closeTrade();return}
+  if(bad){S.msg=`Tawaran gugur: ${bad}`;addLog('🤝 '+S.msg);closeTrade();return}
   t.give.forEach(i=>S.owner[i]=t.to);
   t.want.forEach(i=>S.owner[i]=t.from);
   A.cash-=t.cash;B.cash+=t.cash;
-  S.msg=`${B.name} menerima tawaran ${A.name}.`;addLog(S.msg);sfx.coin();
+  S.msg=`${B.name} menerima tawaran ${A.name}.`;addLog('🤝 '+S.msg);sfx.coin();
   [t.from,t.to].forEach(k=>stt(k).tawar=(stt(k).tawar||0)+1);
   [[t.from,t.want],[t.to,t.give]].forEach(([pi,list])=>{
     const seen=[];
@@ -375,7 +377,7 @@ function endTurn(){
   for(let g=0;g<20;g++){
     do{n=(n+1)%S.players.length}while(S.players[n].bankrupt);
     const q=S.players[n];
-    if(q.skip>0){q.skip--;const t=`${q.name} terlepas giliran — tren masih rosak.`;addLog(t);toastAll(t);continue}
+    if(q.skip>0){q.skip--;const t=`${q.name} terlepas giliran — tren masih rosak.`;addLog('⏸️ '+t);toastAll(t);continue}
     break}
   /* Giliran berpusing semula ke pemain awal = pusingan baharu bermula. */
   if(n<=was){
@@ -399,14 +401,14 @@ function build(i){if(!canBuild(i))return;const s=SQ[i],c=houseCost(i);cur().cash
   addLog(`${cur().name} bina ${S.houses[i]===5?'hotel':'rumah'} di ${s.n} (${fmt(c)}).`,'bina');sfx.build();
   if(S.houses[i]===5)sayAll('hotel',cur().name,s.n);renderAll()}
 function sell(i){if(!canSell(i))return;const s=SQ[i],c=sellValue(i);S.houses[i]--;cur().cash+=c;addLog(`${cur().name} jual bangunan di ${s.n} (+${fmt(c)}).`,'bina');sfx.coin();renderAll()}
-function mortgage(i){if(!canMort(i))return;S.mort[i]=true;cur().cash+=SQ[i].p/2;addLog(`${cur().name} gadai ${SQ[i].n} (+${fmt(SQ[i].p/2)}).`);sfx.coin();renderAll()}
-function unmortgage(i){if(!canUnmort(i))return;S.mort[i]=false;cur().cash-=unmortCost(i);addLog(`${cur().name} tebus ${SQ[i].n} (${fmt(unmortCost(i))}).`);sfx.pay();renderAll()}
+function mortgage(i){if(!canMort(i))return;S.mort[i]=true;cur().cash+=SQ[i].p/2;addLog(`🏦 ${cur().name} gadai ${SQ[i].n} (+${fmt(SQ[i].p/2)}).`);sfx.coin();renderAll()}
+function unmortgage(i){if(!canUnmort(i))return;S.mort[i]=false;cur().cash-=unmortCost(i);addLog(`🏦 ${cur().name} tebus ${SQ[i].n} (${fmt(unmortCost(i))}).`);sfx.pay();renderAll()}
 function bankrupt(){const p=cur(),pi=S.turn;if(p.cash>=0)return;
   const to=p.creditor;
   S.owner.forEach((o,i)=>{if(o!==pi)return;S.houses[i]=0;if(to!==null&&!S.players[to].bankrupt){S.owner[i]=to}else{S.owner[i]=null;S.mort[i]=false}});
   if(to!==null)S.players[to].cash+=p.cash;
-  if(p.along){addLog(`Ah Long gagal menagih ${fmt(p.along)} daripada ${p.name}. Hutang lesap.`);p.along=0}
-  p.bankrupt=true;p.cash=0;addLog(`${p.name} isytihar muflis!${to!==null?' Hartanah diserahkan kepada '+S.players[to].name+'.':''}`);sfx.jail();sayAll('muflis',p.name);
+  if(p.along){addLog(`🦈 Ah Long gagal menagih ${fmt(p.along)} daripada ${p.name}. Hutang lesap.`);p.along=0}
+  p.bankrupt=true;p.cash=0;addLog(`💥 ${p.name} isytihar muflis!${to!==null?' Hartanah diserahkan kepada '+S.players[to].name+'.':''}`);sfx.jail();sayAll('muflis',p.name);
   S.phase='end';S.again=false;endTurn()}
 /* ---------- Ah Long (pinjaman berisiko) ----------
    Pemain yang kesempitan (tunai bawah RM300, atau negatif) boleh pinjam RM300.
@@ -423,7 +425,7 @@ function alongPinjam(){if(!canBorrow())return;const p=cur();
   S.msg=t;addLog(t);sfx.coin();renderAll()}
 function alongBayar(){const p=cur();if(!p||!p.along||p.cash<p.along||busy||tradePending())return;
   const a=p.along;p.cash-=a;p.along=0;
-  const t=`${p.name} langsaikan hutang Ah Long (${fmt(a)}) awal. Selamat!`;S.msg=t;addLog(t);sfx.pay();renderAll()}
+  const t=`${p.name} langsaikan hutang Ah Long (${fmt(a)}) awal. Selamat!`;S.msg=t;addLog('🦈 '+t);sfx.pay();renderAll()}
 function alongTagih(p){if(!p.along)return;const a=p.along;p.cash-=a;p.along=0;
   if(p.cash<0)p.creditor=null;
   const t=p.cash<0?`🦈 Ah Long tunggu di MULA! ${p.name} bayar ${fmt(a)} dan kini berhutang ${fmt(-p.cash)}.`
