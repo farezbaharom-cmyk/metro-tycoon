@@ -140,6 +140,48 @@ function borneoSkyline(gid){gid=gid||'skyg';
   const front=[[112,20,30],[178,16,26],[222,18,30],[240,26,36],[268,22,28],[292,18,34],[312,18,26],[330,26,40],[358,22,30]];
   const pillars=[20,70,120,170,220,270,320,370].map(x=>`<rect class="trk" x="${x}" y="186" width="4" height="14"/>`).join('');
   const train=`<g class="train"><rect class="tbody" x="0" y="173" width="84" height="11" rx="3"/><path class="tnose" d="M84 173h4q6 0 8 11h-12z"/>${[6,20,34,48,62,74].map(x=>`<rect class="twin" x="${x}" y="176" width="8" height="4" rx="1"/>`).join('')}</g>`;
+  /* Bunga Rafflesia di latar depan kiri (berwarna, bukan siluet): lima
+     kelopak merah bata berbintik, cakera tengah berbentuk mangkuk, dan daun
+     pokok perumah (Tetrastigma) di belakang. Dilukis dalam koordinat sendiri
+     kemudian dileperkan (scale Y) supaya nampak dilihat dari sisi atas. */
+  const rafPetal=`<ellipse class="rf-p" cx="0" cy="-27" rx="17.5" ry="16"/>
+    <ellipse class="rf-pe" cx="0" cy="-33" rx="11" ry="7" opacity=".35"/>
+    ${[[-7,-31,2.3],[4,-36,2],[9,-27,2.1],[-2,-23,1.7],[-10,-22,1.5],[1,-41,1.5],[-4,-37,1.3],[12,-34,1.3]]
+      .map(([x,y,r])=>`<circle class="rf-s" cx="${x}" cy="${y}" r="${r}"/>`).join('')}`;
+  /* Putik Rafflesia: bebola "kubis" coklat kemerahan dengan kelopak luar
+     (brakteat) bertindih, duduk di atas akar pokok perumah. */
+  const rafBud=(x,y,k)=>`<g transform="translate(${x} ${y}) scale(${k})">
+    <ellipse class="rb-g" cx="0" cy="0" rx="12" ry="2.6"/>
+    <ellipse class="rb-b" cx="0" cy="-10" rx="10.5" ry="10"/>
+    <path class="rb-t" d="M-5.5-17q5.5-5.5 11 0q-5.5 3-11 0z"/>
+    <path class="rb-m" d="M-9.6-6q1.4-10 9.6-13q-3.4 7-1.4 18.6q-6 .6-8.2-5.6z"/>
+    <path class="rb-m" d="M9.6-6q-1.4-10-9.6-13q3.4 7 1.4 18.6q6 .6 8.2-5.6z"/>
+    <path class="rb-s" d="M-10.4-5.4q4.4 7 10.4 5.4q6 1.6 10.4-5.4q-1.8 6.8-10.4 7.4q-8.6-.6-10.4-7.4z"/>
+    <path class="rb-h" d="M-4-14.6q2.6-3.2 5.8-3.4" fill="none" stroke-width="1.2" stroke-linecap="round"/></g>`;
+  /* Paku pakis: beberapa pelepah melengkung dengan anak daun yang mengecil
+     ke hujung. ang = sudut pelepah, L = panjang. */
+  const frond=(ang,L)=>{let o=`<path class="fn-s" d="M0 0q${(L*.18).toFixed(1)} ${(-L*.55).toFixed(1)} ${(L*.3).toFixed(1)} ${(-L).toFixed(1)}"/>`;
+    const n=Math.round(L/3.2);
+    for(let i=1;i<n;i++){const t=i/n,px=.3*L*t*t*(1.2-.2*t),py=-L*t,sz=(1-t)*4.2+1.3;
+      o+=`<ellipse class="fn-l" cx="${(px-sz).toFixed(1)}" cy="${py.toFixed(1)}" rx="${sz.toFixed(1)}" ry="${(sz*.52).toFixed(1)}" transform="rotate(-32 ${(px-sz).toFixed(1)} ${py.toFixed(1)})"/>`
+       +`<ellipse class="fn-l" cx="${(px+sz).toFixed(1)}" cy="${py.toFixed(1)}" rx="${sz.toFixed(1)}" ry="${(sz*.52).toFixed(1)}" transform="rotate(32 ${(px+sz).toFixed(1)} ${py.toFixed(1)})"/>`}
+    return `<g transform="rotate(${ang})">${o}</g>`};
+  const fern=(x,y,k,flip)=>`<g class="fern" transform="translate(${x} ${y}) scale(${flip?-k:k} ${k})">
+    ${frond(-62,26)}${frond(-34,34)}${frond(-6,38)}${frond(24,34)}${frond(54,26)}</g>`;
+  const rafflesia=`<g class="flora">
+    ${fern(56,203,1.2,false)}${fern(172,203,1,true)}
+    <g class="raf" transform="translate(122 176)">
+    <path class="rf-l" d="M-28 6q-30-4-42-22q24-4 42 20z"/><path class="rf-l2" d="M-28 6q-20-10-36-18"/>
+    <path class="rf-l" d="M28 8q34-2 48-20q-26-8-48 16z"/><path class="rf-l2" d="M28 8q22-7 40-16"/>
+    <g transform="scale(1 .48)">${[0,72,144,216,288].map(a=>`<g transform="rotate(${a+36})">${rafPetal}</g>`).join('')}</g>
+    <path class="rf-cw" d="M-17-2v-5a17 8.2 0 0 1 34 0v5a17 8.2 0 0 1-34 0z"/>
+    <ellipse class="rf-c" cx="0" cy="-7" rx="17" ry="8.2"/>
+    <ellipse class="rf-h" cx="0" cy="-7" rx="11" ry="5.2"/>
+    ${[[-6,-7],[-2,-9],[3,-8.5],[7,-6.5],[0,-5.5],[-4,-5],[4,-5.2]].map(([x,y])=>`<circle class="rf-d" cx="${x}" cy="${y}" r=".9"/>`).join('')}
+    </g>
+    ${rafBud(70,198,1)}
+    ${fern(150,204,.62,false)}
+  </g>`;
   return `<svg class="sky" viewBox="0 0 400 200" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
     <defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="sg-a" stop-opacity="0"/><stop offset=".45" class="sg-a"/><stop offset="1" class="sg-b"/></linearGradient></defs>
     <rect width="400" height="200" fill="url(#${gid})"/>${stars}
@@ -147,7 +189,7 @@ function borneoSkyline(gid){gid=gid||'skyg';
     ${hills}${kinabalu}${tower}${dun}${longhouse}
     ${front.map(([x,w,h])=>rects('b2',[[x,w,h]])+wins(x,w,h,196)).join('')}
     ${palm(116,46)}${palm(372,52)}${palm(390,40)}${fireflies}
-    <rect class="trk" x="0" y="184" width="400" height="3"/>${pillars}${train}</svg>`}
+    <rect class="trk" x="0" y="184" width="400" height="3"/>${pillars}${train}${rafflesia}</svg>`}
 /* Peta Borneo ringkas untuk pusat papan (viewBox 100×100 papan). Pulau
    dilukis di bahagian atas tengah, dengan laluan berwarna antara bandar. */
 function borneoMap(){
