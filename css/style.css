@@ -317,6 +317,18 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 :root[data-theme="dark"] .sky .twin{fill:#FFE6A8;opacity:1}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .sky .twin{fill:#FFE6A8;opacity:1}}
 @media (prefers-reduced-motion:reduce){.sky .train{transform:translateX(150px)}}
+/* Rafflesia, putik dan paku pakis (Edisi Borneo): warna sebenar di latar
+   depan, dimalapkan sedikit pada waktu malam. */
+.sky .flora{--rf-p:#B8321F;--rf-pe:#E0613F;--rf-s:#F6DCC4;--rf-c:#8E1E15;--rf-cw:#6E150E;--rf-h:#2A0806;--rf-d:#F3E3D3;--rf-l:#2F6B3B;--rf-l2:#1F4A28;
+  --rb-b:#6B2418;--rb-s:#833222;--rb-m:#9C4330;--rb-h:#C98068;--fn-l:#4E8F4A;--fn-s:#2F6331;
+  filter:drop-shadow(0 2px 1.5px rgba(0,0,0,.25))}
+.sky .rf-p{fill:var(--rf-p)}.sky .rf-pe{fill:var(--rf-pe)}.sky .rf-s{fill:var(--rf-s)}
+.sky .rf-c{fill:var(--rf-c)}.sky .rf-cw{fill:var(--rf-cw)}.sky .rf-h{fill:var(--rf-h)}.sky .rf-d{fill:var(--rf-d)}
+.sky .rf-l{fill:var(--rf-l)}.sky .rf-l2{fill:none;stroke:var(--rf-l2);stroke-width:1.4}
+.sky .rb-b{fill:var(--rb-b)}.sky .rb-t{fill:#B35A40}.sky .rb-s,.sky .rb-m,.sky .rb-t{stroke:#4A160E;stroke-width:.5;stroke-opacity:.6}.sky .rb-s{fill:var(--rb-s)}.sky .rb-m{fill:var(--rb-m)}.sky .rb-h{stroke:var(--rb-h)}.sky .rb-g{fill:#000;opacity:.18}
+.sky .fn-l{fill:var(--fn-l)}.sky .fn-s{fill:none;stroke:var(--fn-s);stroke-width:1.1;stroke-linecap:round}
+:root[data-theme="dark"] .sky .flora{filter:brightness(.7) saturate(.9) drop-shadow(0 2px 1.5px rgba(0,0,0,.4))}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .sky .flora{filter:brightness(.7) saturate(.9) drop-shadow(0 2px 1.5px rgba(0,0,0,.4))}}
 .logo{position:relative;text-align:center}
 .logo h1{margin:0;font-family:var(--display);font-weight:900;font-size:7.6cqi;line-height:.85;letter-spacing:.01em;text-transform:uppercase}
 .logo h1 span{color:var(--accent)}
