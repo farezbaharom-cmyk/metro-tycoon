@@ -517,6 +517,9 @@ function newsHook(){
   const sq=Array.isArray(S.say)?S.say:[];
   if(seenGid!==S.gid||seenEvent===undefined){seenGid=S.gid;seenEvent=ek;seenFan=fk;seenLol=lk;seenSay=new Set(sq.map(x=>x.id));pidsIdle();return}
   sq.forEach(x=>{if(!x||seenSay.has(x.id))return;seenSay.add(x.id);if(GAYA.pakcik[x.k])speak(line(x.k,...(x.a||[])),false)});
+  /* Permainan tamat: rekod sahaja — berita tidak lagi relevan dan notisnya
+     menutup senarai lencana di skrin tamat (telefon). */
+  if(ek!==seenEvent&&S.phase==='over')seenEvent=ek;
   if(ek!==seenEvent){seenEvent=ek;
     if(S.event){const e=EVENTS[S.event.k];toast('📰 '+e.t);
       if(!busy){pidsShow('Berita terkini',e.t);pidsHide(3200)}
