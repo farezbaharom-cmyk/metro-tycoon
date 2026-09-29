@@ -253,6 +253,16 @@ function achHook(){
   if(seenAch===null||seenAchGid!==S.gid){seenAch=new Set(log.map(a=>a.id));seenAchGid=S.gid;return}
   log.forEach(a=>{if(!seenAch.has(a.id)){seenAch.add(a.id);achQ.push(a)}});
   if(!achBusy)achNext()}
+/* Telefon: pop misi diletak DI BAWAH bar tajuk supaya butang ⚙️ Menu tidak
+   terlindung. Jika papan kelihatan, pop masuk ke bahagian atas kawasan tengah
+   papan (notis biasa di separuh bawah, dadu di tengah). */
+function achPlace(el){
+  if(typeof toastMobile==='undefined'||!toastMobile.matches)return;
+  const bar=document.querySelector('.bar');let top=bar&&bar.offsetParent?bar.getBoundingClientRect().bottom+6:0;
+  const c=document.querySelector('#boardview .center, .center');
+  if(c&&!(document.body.dataset.tab&&document.body.dataset.tab!=='papan')){const r=c.getBoundingClientRect();
+    if(r.width>=120&&r.top<innerHeight&&r.top+8>top)top=r.top+8}
+  if(top>0)el.style.top=Math.round(top)+'px'}
 function achNext(){
   if(!achQ.length){achBusy=false;return}achBusy=true;
   /* Tunggu tetingkap (kad stesen, lelongan, tawaran…) ditutup dahulu supaya pop
@@ -263,7 +273,7 @@ function achNext(){
   const m=MISI.find(x=>x.id===a.m),q=S.players[a.k];if(!m||!q){achNext();return}
   const el=document.createElement('div');el.className='achpop';el.setAttribute('role','status');
   el.innerHTML=`<span class="ae">${m.e}</span><span class="at"><small>Misi selesai · ${esc(q.name)}</small><b>${esc(m.t)}</b></span><span class="ar money">+${fmt(m.r)}</span>`;
-  document.body.appendChild(el);
+  document.body.appendChild(el);achPlace(el);
   beep(784,.09,'triangle',.05);beep(1047,.12,'triangle',.05,.09);beep(1319,.18,'triangle',.05,.18);vib([30,40,30,40,80]);
   setTimeout(()=>{el.classList.add('out');setTimeout(()=>{el.remove();achNext()},320)},2300)}
 function missWho(){const seat=NET?mySeat():-1;

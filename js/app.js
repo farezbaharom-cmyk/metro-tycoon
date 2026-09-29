@@ -242,5 +242,11 @@ if('serviceWorker'in navigator&&(location.protocol==='https:'||location.hostname
 
 /* Sekali sahaja selepas kemas kini: beritahu ciri baharu. */
 (()=>{const K='mtkl-baharu',V='v36';let seen='';try{seen=localStorage.getItem(K)||''}catch(e){}
-  if(seen===V)return;try{localStorage.setItem(K,V)}catch(e){}
-  setTimeout(()=>toast('✨ Baharu: 😂 Reaksi dalam bilik online — ketik butang 😄 di bawah papan untuk bersorak bersama kawan!'),1800)})();
+  if(seen===V)return;
+  /* Tunggu sehingga pemain berada di papan permainan (tiada skrin utama,
+     tetapan atau tetingkap lain dibuka) — di skrin "Main dengan kawan"
+     notis ini menutup butang ← Kembali dan medan nama. */
+  const show=()=>{if(!S||document.querySelector('.overlay:not([hidden])')){setTimeout(show,1500);return}
+    try{localStorage.setItem(K,V)}catch(e){}
+    toast('✨ Baharu: 😂 Reaksi dalam bilik online — ketik butang 😄 di bawah papan untuk bersorak bersama kawan!')};
+  setTimeout(show,1800)})();
