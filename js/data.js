@@ -329,10 +329,25 @@ const sleep=ms=>new Promise(r=>setTimeout(r,RM?Math.min(ms,30):ms));
 const LOG_ICON={dadu:'🎲',beli:'🏠',sewa:'💸',bina:'🔨',lelong:'⚖️',lokap:'🔒'};
 const LOG_SEP='\u001f';   /* pemisah tak boleh ditaip, jadi nama pemain tidak mungkin mengelirukannya */
 function addLog(t,k){S.log.unshift(k&&LOG_ICON[k]?k+LOG_SEP+t:t);S.log.length=Math.min(S.log.length,80)}
-/* Catatan lama (simpanan atau bilik yang belum dinaik taraf) tiada awalan — ia dipaparkan tanpa ikon. */
+/* Catatan tanpa awalan (kad, berita, tawaran, simpanan lama…) diberi ikon
+   berdasarkan teksnya supaya setiap baris log ada ikon di lajur kiri.
+   Emoji di awal teks (📰 🏆 ⚡) dipindahkan ke lajur ikon. Urutan penting:
+   padanan yang lebih khusus diletak dahulu. */
+const LOG_GUESS=[
+  [/^permainan bermula/i,'🚆'],[/^lawan bot/i,'🤖'],
+  [/ah long/i,'🦈'],[/muflis/i,'💥'],[/tawar|menawar/i,'🤝'],
+  [/lelong|bida/i,'⚖️'],[/gadai|tebus/i,'🏦'],[/lokap/i,'🔒'],
+  [/terlepas giliran/i,'⏸️'],[/tidak membeli/i,'🚶'],
+  [/lalu mula|pusingan pertama|layak membeli/i,'🏁'],
+  [/terima|kutip/i,'💰'],[/bayar|cukai/i,'💸']];
+const LOG_LEAD=/^(\p{Extended_Pictographic}\uFE0F?)\s+/u;
 function logParts(l){const v=String(l),i=v.indexOf(LOG_SEP);
   if(i>0){const k=v.slice(0,i);if(LOG_ICON[k])return[LOG_ICON[k],v.slice(i+1)]}
-  return['',v]}
+  const m=v.match(LOG_LEAD);if(m)return[m[1],v.slice(m[0].length)];
+  /* Kad: "<nama petak Peluang/Tabung>: teks kad" (nama ikut edisi). */
+  if(typeof SQ!=='undefined'&&SQ.some(q=>(q.t==='peluang'||q.t==='tabung')&&v.startsWith(q.n+':')))return['🃏',v];
+  for(const[re,ic]of LOG_GUESS)if(re.test(v))return[ic,v];
+  return['•',v]}
 /* Simpan hanya sempadan tindakan yang lengkap. Animasi, kad berantai dan
    bayaran semasa pergerakan mesti selesai sebelum mengganti checkpoint. */
 function save(){

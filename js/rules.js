@@ -5,8 +5,39 @@
    kod yang BERJALAN semasa muat hanya boleh guna apa yang sudah dimuatkan. */
 /* ---------- money ---------- */
 function toastAll(t){S.toast={id:Date.now()+Math.random(),t};toast(t)}
+/* Telefon: notis diletak DALAM kawasan tengah papan (atas gambar bandar),
+   bukan di atas skrin — di situ ia menutup baris atas papan. Notis terbaru
+   di bawah, maksimum 2; yang lama ditolak keluar. Jika papan tidak kelihatan
+   (tab Aset/Log, skrin utama, papan diskrol keluar) guna kedudukan lama. */
+const toastMobile=matchMedia('(max-width:700px),(max-width:1000px) and (max-height:520px) and (orientation:landscape)');
+function toastZone(){
+  if(!toastMobile.matches)return null;
+  if(document.body.dataset.tab&&document.body.dataset.tab!=='papan')return null;
+  if(document.querySelector('.overlay:not([hidden])'))return null;
+  const c=document.querySelector('#boardview .center, .center');if(!c)return null;
+  const r=c.getBoundingClientRect(),dock=document.getElementById('turn');
+  const bottom=Math.min(r.bottom,dock&&dock.offsetParent?dock.getBoundingClientRect().top:innerHeight)-8;
+  /* Hanya separuh bawah kawasan tengah: dadu di tengah kekal kelihatan. */
+  const top=Math.max(r.top+r.height*.56,0);
+  if(r.width<120||bottom-top<60||r.top>innerHeight)return null;
+  let z=document.getElementById('toastzone');
+  if(!z){z=document.createElement('div');z.id='toastzone';z.setAttribute('role','status');z.setAttribute('aria-live','polite');document.body.appendChild(z)}
+  z.style.left=Math.round(r.left+8)+'px';z.style.width=Math.round(r.width-16)+'px';
+  z.style.top=Math.round(top)+'px';z.style.height=Math.round(bottom-top)+'px';
+  return z}
+/* Giliran notis dalam papan: maksimum 2 serentak dan hanya jika muat;
+   selebihnya menunggu (maks. 3) dan keluar bila ada ruang. */
+const toastQ=[];
+function pumpToasts(z){
+  while(toastQ.length&&z.children.length<2){
+    const el=toastQ[0];z.appendChild(el);
+    if(z.children.length>1&&z.scrollHeight>z.clientHeight+1){el.remove();break}
+    toastQ.shift();const n=el.textContent.length;
+    setTimeout(()=>{el.remove();const z2=toastZone();if(z2)pumpToasts(z2);else toastQ.length=0},n>60?3400:2600)}}
 function toast(t){const el=document.createElement('div');el.className='toast';el.textContent=t;
-  el.style.setProperty('--ti',Math.min(2,document.querySelectorAll('.toast').length));
+  const z=toastZone();
+  if(z){el.classList.add('in-board');toastQ.push(el);if(toastQ.length>3)toastQ.shift();pumpToasts(z);return}
+  el.style.setProperty('--ti',Math.min(2,document.querySelectorAll('body>.toast').length));
   /* Jangan bertindih dengan popup "Misi selesai" yang juga di atas skrin. */
   const ap=document.querySelector('.achpop');if(ap)el.style.setProperty('--tt',Math.round(ap.getBoundingClientRect().bottom+6)+'px');
   document.body.appendChild(el);setTimeout(()=>el.remove(),t.length>60?3400:2400)}
