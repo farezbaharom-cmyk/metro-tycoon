@@ -1590,3 +1590,18 @@ body:has(#endBox:not([hidden])) :is(.mfloat,.stamp){display:none}
   100%{opacity:0;transform:translate(calc(-50% + var(--dx)),-170px) scale(.9)}}
 @media(prefers-reduced-motion:reduce){.rfly{animation:rfly-rm 1.6s linear forwards}
   @keyframes rfly-rm{0%,80%{opacity:1;transform:translate(-50%,-40px)}100%{opacity:0;transform:translate(-50%,-40px)}}}
+/* Edisi Borneo: gambar bunga pakma (Rafflesia) di hutan hujan sebagai latar
+   tengah papan. Siluet bandar dan peta dilukis disorok di sini (masih ada di
+   skrin utama dan latar 3D). Lapisan gelap di atas supaya logo mudah dibaca;
+   bunga di bahagian bawah kekal terang. */
+.center.ed-borneo{background:#1E2A17 url(../img/borneo-rafflesia.webp) 30% 62%/cover no-repeat}
+.center.ed-borneo svg.sky,.center.ed-borneo svg.map{display:none}
+.center.ed-borneo::after{inset:0;border-radius:0;
+  background:linear-gradient(180deg,rgba(8,18,10,.62) 0%,rgba(8,18,10,.34) 38%,rgba(8,18,10,0) 62%),
+    radial-gradient(ellipse at 50% 100%,transparent 55%,rgba(0,0,0,.28))}
+.center.ed-borneo .logo h1{color:#FFF8EC;text-shadow:0 2px 0 rgba(0,0,0,.35),0 10px 26px rgba(0,0,0,.55)}
+.center.ed-borneo .logo h1 span{color:#FF5B7E;filter:drop-shadow(0 4px 10px rgba(0,0,0,.45))}
+.center.ed-borneo .logo p{color:#F5E6C8;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+.center.ed-borneo>.msg:not(:empty){background:rgba(255,250,240,.88);color:#1B2418}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .center.ed-borneo>.msg:not(:empty){background:rgba(20,28,18,.86);color:#F5EEDF}}
+:root[data-theme="dark"] .center.ed-borneo>.msg:not(:empty){background:rgba(20,28,18,.86);color:#F5EEDF}

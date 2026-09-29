@@ -107,7 +107,7 @@ function buildBoard(){
     h+=`<div class="sq ${side(i)} t-${s.t}" id="sq${i}" style="grid-row:${r};grid-column:${c}" data-i="${i}" role="button" tabindex="0" aria-label="${esc(s.n)}">${stripe}<div class="body">${icon}${stationLandmark(i)}${code}<span class="nm nm-f${fit}">${esc(s.n)}</span><span class="nm nm-s" aria-hidden="true">${esc(SHORT[i]||s.n)}</span>${csub}${label}</div><div class="tokens"></div></div>`});
   const lines=GROUPS.map((g,k)=>{const y=12+k*11;return `<path d="M-5 ${y} C 30 ${y+18}, 70 ${y-20}, 105 ${y+6}" stroke="${g.c}" stroke-width="2.2" fill="none"/>`}).join('');
   const emap=EDITIONS[curEd].map;
-  h+=`<div class="center" id="center"><svg class="map ed-${curEd}" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${emap?emap():lines}</svg>${skylineSVG()}
+  h+=`<div class="center ed-${curEd}" id="center"><svg class="map ed-${curEd}" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${emap?emap():lines}</svg>${skylineSVG()}
     <div class="logo"><h1>${EDITIONS[curEd].logo}</h1><p>${EDITIONS[curEd].sub}</p></div>
     <div class="dice">${dieHTML(0)}${dieHTML(1)}</div>
     <div class="msg" id="msg" aria-live="polite"></div><div id="cardSlot"></div></div>`;
