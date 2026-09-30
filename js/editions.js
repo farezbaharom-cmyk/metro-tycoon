@@ -78,7 +78,7 @@ function refreshHome(){const id=prefEd(),E=EDITIONS[id];
   const t=document.getElementById('homeTitle');if(t)t.innerHTML=E.home;
   const g=document.getElementById('homeTag');if(g)g.textContent=E.tag;
   document.querySelectorAll('.edpick button').forEach(b=>{const on=b.dataset.ed===id;
-    b.classList.toggle('on',on);b.setAttribute('aria-checked',on?'true':'false');b.tabIndex=on?0:-1})}
+    b.classList.toggle('on',on);b.setAttribute('aria-checked',on?'true':'false');b.tabIndex=on?0:-1;const status=b.querySelector('.edstatus');if(status)status.textContent=on?'Peta dipilih':'Pilih peta'})}
 /* Dipanggil sekali oleh start() dalam app.js, selepas SEMUA edisi didaftar. */
 function initEditions(){
   (()=>{try{const u=new URL(location.href),e=u.searchParams.get('edisi');if(!e)return;
@@ -87,7 +87,7 @@ function initEditions(){
   document.querySelectorAll('.edpick').forEach(el=>{
   /* Skrin utama: kad edisi bergambar jalur warna laluan; tempat lain: suis ringkas. */
   el.innerHTML=Object.values(EDITIONS).map(E=>el.classList.contains('edcards')
-    ?`<button type="button" class="edcard" role="radio" data-ed="${E.id}" aria-checked="false"><span class="edbar" aria-hidden="true">${[4,3,6,7].map(g=>`<i style="background:${E.groups[g].c}"></i>`).join('')}</span><b>${ico(E.icon,'inl')}${E.label}</b><small>${E.blurb}</small><span class="edtick" aria-hidden="true">✓</span></button>`
+    ?`<button type="button" class="edcard edcard-${E.id}" role="radio" data-ed="${E.id}" aria-checked="false"><span class="edscene" aria-hidden="true">${E.sky('edcard-'+E.id)}</span><span class="edbar" aria-hidden="true">${[4,3,6,7].map(g=>`<i style="background:${E.groups[g].c}"></i>`).join('')}</span><b>${ico(E.icon,'inl')}${E.label}</b><small>${esc(E.blurb)}</small><span class="edplaces">${E.id==='kl'?'KLCC · KL Sentral · Batu Caves':'Kuching · Kota Kinabalu · Miri'}</span><span class="edstatus" aria-hidden="true">Pilih peta</span><span class="edtick" aria-hidden="true">✓</span></button>`
     :`<button type="button" role="radio" data-ed="${E.id}" aria-checked="false">${ico(E.icon,'inl')}${E.label}</button>`).join('');
   el.addEventListener('click',e=>{const b=e.target.closest('[data-ed]');if(!b)return;
     savePrefEd(b.dataset.ed);refreshHome();drawNames();
