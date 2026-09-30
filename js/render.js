@@ -116,7 +116,6 @@ function buildBoard(){
   requestAnimationFrame(fitNames);
   if(window.ResizeObserver&&!b._fitRO){b._fitRO=new ResizeObserver(()=>requestAnimationFrame(fitNames));b._fitRO.observe(b)}
   if(document.fonts&&!b._fitFonts){b._fitFonts=1;document.fonts.ready.then(()=>requestAnimationFrame(fitNames))}
-  if(!document.getElementById('boardHelp')){const help=document.createElement('p');help.id='boardHelp';help.className='board-help';help.textContent='Sentuh mana-mana stesen untuk lihat nama penuh, harga dan sewa.';b.parentElement.insertAdjacentElement('afterend',help)}
   /* Papan dilukis semula bila edisi bertukar: pasang pendengar sekali sahaja. */
   if(b._bound)return;b._bound=1;
   b.addEventListener('click',e=>{const sq=e.target.closest('.sq');
