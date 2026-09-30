@@ -59,7 +59,11 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .bar{position:relative}
 .barmenu{display:contents}
 .menubtn{display:none}
-.tapnote{display:none}
+.tapnote{display:block;text-align:center;font-size:13px;line-height:1.35;color:var(--muted);margin:0 0 6px}
+/* Satu arahan sahaja, sentiasa di atas papan. Teksnya ikut cara menunjuk:
+   skrin sentuh "Ketik … · cubit untuk zum", tetikus "Klik …". */
+.tapnote .tn-mouse{display:none}
+@media (hover:hover) and (pointer:fine){.tapnote .tn-touch{display:none}.tapnote .tn-mouse{display:inline}}
 /* Skrin lebar: semua butang muat sebaris jika dipadatkan sedikit. */
 @media not all{
   .bar{flex-wrap:nowrap;gap:8px}
@@ -1049,13 +1053,6 @@ body{
 @media (max-width:340px){.tapnote{font-size:11px}}
 @media (max-width:400px){.bar .brand{gap:5px}.bar .brand .lines{gap:2px}.bar .brand .lines i{width:3px;height:15px}}
 @media not all{.barmenu .ghost{white-space:nowrap}.bar .brand{flex:none}}
-/* 2. Satu arahan sahaja di bawah papan: telefon guna .tapnote (ada "cubit untuk zum"). */
-@media (max-width:700px),(max-width:1000px) and (max-height:520px) and (orientation:landscape){.board-help{display:none}}
-/* Tablet menegak: panel giliran terapung di bawah, jadi arahan di bawah papan
-   terhimpit dengan panel. Guna petunjuk ringkas di atas papan seperti telefon. */
-@media (min-width:701px) and (max-width:1000px) and (min-height:521px){
-  .board-help{display:none}
-  .tapnote{display:block;text-align:center;font-size:13px;line-height:1.35;color:var(--muted);margin:0 0 6px}}
 /* 3. Satu bingkai sahaja pada butang utama giliran anda. */
 #turn.your-turn .actions .primary:not(:disabled){outline:none}
 /* 8. Pemilikan lebih jelas: warna lebih pekat, bingkai lebih tebal dan
@@ -1079,7 +1076,6 @@ body{
 #turn.your-turn .actions .primary:not(:disabled){outline:2px solid var(--turn-color);outline-offset:3px}
 .sq.active-square{outline:3px solid var(--active-color);outline-offset:-3px}
 .sq.active-square .tok.me{filter:drop-shadow(0 0 3px currentColor)}
-.board-help{margin:6px 0;font-size:13px;color:var(--muted);text-align:center}
 @media (max-width:700px),(max-width:1000px) and (max-height:520px) and (orientation:landscape){
   #turn .who small{font-size:12px}
   #turn .who b{font-size:17px}
@@ -1148,8 +1144,8 @@ body{
    bukan bar gelap yang kosong. */
 .pids.idle .lbl{opacity:.7}
 .pids.idle .nm{opacity:.85}
-/* Petunjuk di bawah papan hilang selepas pemain mula mengetik petak. */
-body.tapped .tapnote,body.tapped .board-help{display:none}
+/* Petunjuk di atas papan hilang selepas pemain mula mengetik petak. */
+body.tapped .tapnote{display:none}
 /* Butang utama giliran anda: satu bingkai sahaja (butang itu sendiri),
    dengan denyut lembut dalam warna pemain untuk menarik perhatian. */
 #turn.your-turn .actions .primary:not(:disabled){outline:none;animation:rollpulse 1.8s ease-in-out infinite}

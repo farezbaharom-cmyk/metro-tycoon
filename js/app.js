@@ -231,7 +231,7 @@ if('serviceWorker'in navigator&&(location.protocol==='https:'||location.hostname
   btn.onclick=async()=>{
     if(deferred){deferred.prompt();try{const c=await deferred.userChoice;if(c&&c.outcome==='accepted')track('pasang-app','Pasang app')}catch(e){}deferred=null;btn.hidden=true;return}
     if(ios)alert('Pasang di iPhone/iPad:\n\n1. Tekan butang Kongsi (petak dengan anak panah ke atas) di Safari.\n2. Pilih "Add to Home Screen" / "Tambah ke Skrin Utama".\n3. Tekan "Add".')}})();
-/* Petunjuk "Ketik petak…" hanya perlu dibaca sekali. Selepas pemain
+/* Petunjuk "Ketik/Klik petak…" hanya perlu dibaca sekali. Selepas pemain
    mengetik petak pertama, petunjuk disembunyikan (dan diingati untuk lawatan
    seterusnya) supaya papan dan panel giliran dapat lebih ruang. */
 (()=>{let seen=false;try{seen=localStorage.getItem('mtkl-tapped')==='1'}catch(e){}
