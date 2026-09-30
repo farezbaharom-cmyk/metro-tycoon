@@ -160,9 +160,9 @@ function renderBoard(){
     const o=S.owner[i];let own=el.querySelector('.own');
     el.classList.toggle('owned',o!==null);
     if(o!==null){const q=S.players[o];if(!own){own=document.createElement('span');own.className='own';el.appendChild(own)}
-      own.style.background=q.color;own.style.color=lightBg(q.color)?'#17212b':'#fff';own.textContent=(q.name.trim()[0]||'?').toUpperCase();own.title='Milik '+q.name;el.style.setProperty('--oc',q.color)}
+      own.style.background=q.color;own.style.color=lightBg(q.color)?'#17212b':'#fff';own.textContent=(q.name.trim()[0]||'?').toUpperCase();own.title='Milik '+q.name;own.setAttribute('aria-hidden','true');el.style.setProperty('--oc',q.color)}
     else{if(own)own.remove();el.style.removeProperty('--oc')}
-    el.setAttribute('aria-label',s.n+(o!==null?' · Milik '+S.players[o].name:'')+(S.mort[i]?' · Digadai':''));
+    el.setAttribute('aria-label',s.n+(s.p?' · Harga '+fmt(s.p):'')+(S.phase!=='over'&&cur().pos===i?' · Lokasi pemain semasa':'')+(o!==null?' · Milik '+S.players[o].name:'')+(S.mort[i]?' · Digadai':''));
     const st=el.querySelector('.stripe');if(st){const h=S.houses[i];st.innerHTML=h===5?'<span class="hotel">H</span>':'<span class="house"></span>'.repeat(h)}
     /* Pergerakan mengelilingi papan: petak 0-19 ke kiri, 20-39 ke kanan. */
     const toks=S.players.map((p,k)=>(!p.bankrupt&&p.pos===i)
@@ -246,6 +246,11 @@ function showDeed(i){
     :`${esc(S.players[o].name)}${S.mort[i]?' · digadai':''}`,false);
   document.getElementById('deedTable').innerHTML=rows;
   document.getElementById('deedNote').textContent=note;
+  let preview=document.getElementById('deedPurchase');
+  if(!preview){preview=document.createElement('div');preview.id='deedPurchase';now.insertAdjacentElement('afterend',preview)}
+  preview.innerHTML=S.phase==='buy'&&cur().pos===i?purchaseSummaryHTML(i,cur()):'';
+  document.getElementById('deedBox').dataset.i=String(i);
+  if(preview.innerHTML)now.hidden=true;
   document.getElementById('deedBox').hidden=false;
 }
 function lapBar(p){if(!S.qual)return `<span class="chip">Pusingan ${p.laps}</span>`;return `<span class="lap" title="Kelayakan ${Math.min(p.laps,S.qual)}/${S.qual} pusingan">${[...Array(S.qual)].map((_,k)=>`<i class="${k<p.laps?'on':''}"></i>`).join('')}</span><span class="chip">Pusingan ${p.laps}</span>`}
@@ -343,6 +348,14 @@ function alongStrip(p){
     return `<div class="along-strip owe"><span class="al-ic" aria-hidden="true">🦈</span><span class="al-tx">Hutang Ah Long <b>${fmt(p.along)}</b> · ditagih bila lalu MULA</span><button class="mini" type="button" data-a="alongpay" ${ok?'':'disabled'} title="${ok?'Bayar sekarang':'Tunai tak cukup untuk bayar awal'}">Bayar</button></div>`}
   if(!canBorrow())return '';
   return `<div class="along-strip"><span class="al-ic" aria-hidden="true">🦈</span><span class="al-tx">Kesempitan? Ah Long pinjamkan <b>${fmt(ALONG_PINJAM)}</b>, bayar <b>${fmt(ALONG_BAYAR)}</b> bila lalu MULA.</span><button class="mini" type="button" data-a="along">Pinjam</button></div>`}
+/* Ringkasan ini menggunakan wang semasa; ganjaran misi tidak dianggarkan. */
+function purchaseSummaryHTML(i,p){
+  const s=SQ[i];if(!s||!buyable(i)||S.owner[i]!==null)return '';
+  const balance=p.cash-s.p,afford=balance>=0;
+  const route=s.t==='prop'?GROUPS[s.g]:null;
+  const rent=s.t==='util'?'4× dadu':fmt(s.t==='prop'?s.r[0]:25);
+  return `<section class="purchase-card" aria-label="Ringkasan pembelian" style="--purchase-route:${route?route.c:s.t==='hub'?'#2B3A47':'#3C6E71'}"><div class="purchase-heading"><small>${esc(route?route.n:s.t==='hub'?'Hab pertukaran':'Utiliti')}</small><b>${esc(s.n)}</b></div><dl class="purchase-facts"><div><dt>Harga belian</dt><dd>${fmt(s.p)}</dd></div><div><dt>${s.t==='util'?'Formula sewa asas':'Sewa asas'}</dt><dd>${rent}</dd></div></dl><div class="purchase-balance ${afford?'':'insufficient'}"><span>${afford?'Baki selepas membeli':'Wang tambahan diperlukan'}</span><strong>${fmt(afford?balance:-balance)}</strong></div><p class="purchase-note">${afford?'Baki ini belum termasuk ganjaran misi.':'Wang belum cukup. Lepaskan untuk memulakan lelongan.'}</p></section>`;
+}
 function renderSide(){
   const p=cur();const t=document.getElementById('turn');
   let acts='',note='';const neg=p.cash<0;
@@ -381,7 +394,7 @@ function renderSide(){
   const guide=document.getElementById('turnGuide');
   if(guide&&guide.textContent!==turnGuidance())guide.textContent=turnGuidance();
   const tutorial=turnTutorialHTML();
-  t.innerHTML=`<div class="turnhead"><span class="avatar" style="background:${p.color};color:${p.color}"><span class="tdot av" style="color:${p.color}">${trainSVG(S.turn)}</span></span><div class="who"><small>${S.phase==='over'?'Permainan tamat':NET&&p.uid===UID?'Giliran anda':p.bot?'Giliran bot':'Giliran sekarang'}</small><b>${S.phase==='over'?'':'<span aria-hidden="true">🚇</span> '}${esc(p.name)}</b></div><span class="money" style="color:${neg?'var(--bad)':'inherit'}">${fmt(p.cash)}</span></div>${S.phase==='over'?'':'<div class="turn-route" aria-hidden="true"><i></i><i></i><i></i><span></span></div>'}${note}${tutorial||turnStageHTML()}${tutorial||(neg&&S.phase!=='over')?'':`<p class="turn-guide">${esc(turnGuidance())}</p>`}${alongStrip(p)}<div class="actions">${acts}</div><div class="afkbar" id="afkClock" hidden></div><div class="note">${p.laps<S.qual?`Kelayakan membeli: ${p.laps}/${S.qual} pusingan. `:''}${S.fast?`<span class="fastnote">⚡ Mod cepat · ronde ${Math.min(S.round||1,S.fastRounds)}/${S.fastRounds}</span>`:S.maxRounds?`<span class="fastnote">🏁 Ronde ${Math.min(S.round||1,S.maxRounds)}/${S.maxRounds} · kekayaan tertinggi menang</span>`:S.endLaps?`Tamat apabila semua pemain lengkap ${S.endLaps} pusingan.`:'Tamat apabila hanya seorang pemain tidak muflis.'}</div>`+pstripHTML();
+  t.innerHTML=`<div class="turnhead"><span class="avatar" style="background:${p.color};color:${p.color}"><span class="tdot av" style="color:${p.color}">${trainSVG(S.turn)}</span></span><div class="who"><small>${S.phase==='over'?'Permainan tamat':NET&&p.uid===UID?'Giliran anda':p.bot?'Giliran bot':'Giliran sekarang'}</small><b>${S.phase==='over'?'':'<span aria-hidden="true">🚇</span> '}${esc(p.name)}</b></div><span class="money" style="color:${neg?'var(--bad)':'inherit'}">${fmt(p.cash)}</span></div>${S.phase==='over'?'':'<div class="turn-route" aria-hidden="true"><i></i><i></i><i></i><span></span></div>'}${note}${tutorial||turnStageHTML()}${tutorial||(neg&&S.phase!=='over')?'':`<p class="turn-guide">${esc(turnGuidance())}</p>`}${alongStrip(p)}${S.phase==='buy'?purchaseSummaryHTML(p.pos,p):''}<div class="actions">${acts}</div><div class="afkbar" id="afkClock" hidden></div><div class="note">${p.laps<S.qual?`Kelayakan membeli: ${p.laps}/${S.qual} pusingan. `:''}${S.fast?`<span class="fastnote">⚡ Mod cepat · ronde ${Math.min(S.round||1,S.fastRounds)}/${S.fastRounds}</span>`:S.maxRounds?`<span class="fastnote">🏁 Ronde ${Math.min(S.round||1,S.maxRounds)}/${S.maxRounds} · kekayaan tertinggi menang</span>`:S.endLaps?`Tamat apabila semua pemain lengkap ${S.endLaps} pusingan.`:'Tamat apabila hanya seorang pemain tidak muflis.'}</div>`+pstripHTML();
   turnArrival();
   afkPaint();
   document.getElementById('players').innerHTML=S.players.map((q,k)=>{
@@ -681,6 +694,7 @@ function renderAll(){ensureEd();trackMin();renderBoard();renderDice();renderSide
   const forMe=t&&(!NET||t.stage==='build'||mySeat()===t.from||mySeat()===t.to);
   if(forMe){renderTrade();document.getElementById('tradeBox').hidden=false}
   else document.getElementById('tradeBox').hidden=true;
+  const openDeed=document.getElementById('deedBox');if(!openDeed.hidden&&openDeed.dataset.i!==undefined)showDeed(+openDeed.dataset.i);
   sync();scheduleBot()}
 
 /* ---------- zum & geser papan ---------- */
