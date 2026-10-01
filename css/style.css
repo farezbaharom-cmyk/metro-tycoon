@@ -116,12 +116,17 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   transform-origin:0 0;will-change:transform}
 .boardview.grab{cursor:grab}
 .boardview.grabbing{cursor:grabbing}
-.zoomctl{display:flex;align-items:center;gap:6px;justify-content:center;margin-top:8px}
+.zoomctl{display:flex;flex-wrap:wrap;align-items:center;gap:6px;justify-content:center;margin-top:8px}
 .zoomctl button{background:var(--panel);border:1px solid var(--rule);border-radius:999px;
   min-width:42px;height:38px;padding:0 14px;font-weight:800;font-size:17px;line-height:1}
 .zoomctl button:hover:not(:disabled){background:var(--soft)}
 .zoomctl button:disabled{opacity:.4;cursor:not-allowed}
 .zoomctl button[data-z="reset"]{min-width:0;padding:0 10px;font-size:12px;font-weight:700;white-space:nowrap}
+.zoomctl button[data-z="me"]{min-width:0;padding:0 12px;font-size:12px;font-weight:700;white-space:nowrap;color:var(--accent)}
+.zoomctl button:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+@media(max-width:520px){
+  .zoomctl button[data-z="me"]{flex-basis:100%}
+}
 .zlvl{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--muted);
   min-width:52px;text-align:center;font-variant-numeric:tabular-nums}
 .board{position:relative;aspect-ratio:1;max-width:100%;display:grid;grid-template-columns:1.55fr repeat(9,1fr) 1.55fr;grid-template-rows:1.55fr repeat(9,1fr) 1.55fr;background:var(--rule);gap:1px;border:2px solid var(--ink);border-radius:6px;overflow:hidden;box-shadow:var(--shadow)}
@@ -539,6 +544,7 @@ body.v3d .bdrop svg.sky>rect[fill^="url"]{display:none}
 body.v3d .center svg.sky{display:none}
 body.v3d .center svg.map{-webkit-mask-image:none;mask-image:none;opacity:.22}
 body.v3d .zoomctl{visibility:hidden}
+body.v3d .zoomctl button[data-z="me"]{visibility:visible}
 body.v3d .tapnote{display:none}
 /* Token sedikit lebih besar supaya jelas dari sudut condong */
 body.v3d .tok{filter:drop-shadow(0 3px 2px rgba(0,0,0,.45))}
@@ -1283,6 +1289,8 @@ body.tapped .tapnote{display:none}
 .sq.asset-focus{outline:4px solid var(--focus-color,var(--accent));outline-offset:-4px;z-index:2;
   box-shadow:inset 0 0 0 3px var(--board),inset 0 0 22px var(--focus-color,var(--accent));
   animation:asset-ping .8s ease-out 2}
+.tok.token-focus{background:var(--panel);border-radius:999px;outline:3px solid currentColor;outline-offset:2px;
+  box-shadow:0 0 0 6px var(--panel);position:relative;z-index:7}
 @keyframes asset-ping{0%,100%{filter:brightness(1)}50%{filter:brightness(1.45)}}
 @media(prefers-reduced-motion:reduce){.sq.asset-focus{animation:none}}
 
@@ -1421,10 +1429,13 @@ body:has(.overlay:not([hidden])) .bar{z-index:40}
   .zoomctl .zlvl{font-size:10px}
   .zoomctl button[data-z="reset"]{font-size:0;padding:0}
   .zoomctl button[data-z="reset"]::before{content:"⤢";font-size:17px;line-height:1}
+  .zoomctl button[data-z="me"]{font-size:0;padding:0;flex-basis:auto}
+  .zoomctl button[data-z="me"] span{font-size:20px}
   /* Tab Papan: lajur sisi kosong (panel giliran tetap di kanan) — buang jaraknya
      supaya laman tidak boleh diskrol beberapa piksel. */
   body[data-tab="papan"] .app{gap:0}
 }
+@media(max-width:520px) and (min-height:521px){.boardwrap{--chrome:194px}}
 
 /* ===================== Skrin tamat ===================== */
 #endBox .modal{gap:12px}
