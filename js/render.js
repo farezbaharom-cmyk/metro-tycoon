@@ -15,7 +15,7 @@ const fitCtx=document.createElement('canvas').getContext('2d');
    dipecah ikut suku kata (dua baris) dicuba — ia guna ruang menegak petak yang
    selalunya kosong — dan dipilih jika tulisannya lebih besar. FIT_MIN ialah
    had bawah mutlak. */
-const FIT_MIN=6.5,FIT_OK=8;
+const FIT_MIN=7.5,FIT_OK=8;
 function fitNeed(txt,cs,sz){
   if(cs.textTransform==='uppercase')txt=txt.toUpperCase();
   fitCtx.font=`${cs.fontWeight} ${sz}px ${cs.fontFamily}`;const ls=parseFloat(cs.letterSpacing)||0;
@@ -711,6 +711,9 @@ function applyZoom(){
   b.style.transform=`translate(${zoom.x}px,${zoom.y}px) scale(${zoom.z})`;
   document.getElementById('zlvl').textContent=Math.round(zoom.z*100)+'%';
   v.classList.toggle('grab',zoom.z>1);
+  /* Harga pada petak hanya muncul bila dizum (lihat CSS .zoomed): nama
+     stesen perlu dimuat semula kerana ruang menegak petak berubah. */
+  if(v.classList.toggle('zoomed',zoom.z>1)!==!!v._zoomed){v._zoomed=zoom.z>1;requestAnimationFrame(fitNames)}
   /* pada telefon, halaman masih boleh diskrol selagi papan tidak dizum */
   v.style.touchAction=zoom.z>1?'none':'pan-y';
   const q=s=>document.querySelector('#zoomctl [data-z="'+s+'"]');
