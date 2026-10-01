@@ -375,8 +375,9 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 
 /* Token terbang: lapisan di atas papan supaya lompatan tidak terpotong
    oleh overflow petak. */
-.flyer{position:absolute;inset:0;pointer-events:none;z-index:4;overflow:visible}
+.flyer{position:absolute;inset:0;pointer-events:none;z-index:8;overflow:visible}
 .fly{position:absolute;left:0;top:0;display:block;
+  transform-origin:50% 50%;will-change:transform;
   filter:drop-shadow(0 3px 4px rgba(0,0,0,.45))}
 .tok.ghost{opacity:0}
 @keyframes land{0%{transform:scale(1.14,.82)}55%{transform:scale(.96,1.06)}100%{transform:scale(1)}}

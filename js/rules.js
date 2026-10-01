@@ -139,44 +139,56 @@ function canUnmort(i){return S.owner[i]===S.turn&&S.mort[i]&&cur().cash>=unmortC
 
 /* ---------- movement ---------- */
 const nextOf=(pos,arr)=>arr.find(j=>j>pos)??arr[0];
-/* Satu lompatan sedikit lebih pendek daripada jeda langkah, supaya token
-   sudah mendarat sebelum render seterusnya membina semula petak. */
-const STEP_MS=155, HOP_MS=140, PHONE_BOARD=matchMedia(PHONE_Q);
+/* Setiap langkah menunggu penerbangan selesai; langkah akhir ada lantunan
+   tambahan sebelum tindakan pada petak diproses. */
+const STEP_MS=220, HOP_MS=220;
+const tokenMoves=new Map();
+/* Kedudukan susun atur sebenar, dalam koordinat papan sebelum zum/3D. */
+function tokenAnchor(k,pos){
+  const move=tokenMoves.get(k);
+  if(move&&move.to===pos&&move.sprite.parentNode&&typeof DOMMatrix!=='undefined'){
+    const el=move.sprite,m=new DOMMatrix(getComputedStyle(el).transform);
+    return{x:m.m41+el.offsetWidth/2,y:m.m42+el.offsetHeight/2,w:el.offsetWidth*Math.abs(m.a),h:el.offsetHeight*Math.abs(m.d)};
+  }
+  const token=document.querySelector(`#sq${pos} .tok[data-k="${k}"]`),board=document.getElementById('board');
+  if(!token||!board)return null;
+  let x=token.offsetWidth/2,y=token.offsetHeight/2,el=token;
+  while(el&&el!==board){x+=el.offsetLeft;y+=el.offsetTop;el=el.offsetParent}
+  return el===board?{x,y,w:token.offsetWidth,h:token.offsetHeight}:null;
+}
+function cancelTokenMoves(){
+  tokenMoves.forEach((move,k)=>{
+    document.querySelector(`#sq${move.to} .tok[data-k="${k}"]`)?.classList.remove('ghost');
+    move.anim.cancel();
+  });tokenMoves.clear();
+}
 async function walk(p,steps){
   const k0=S.players.indexOf(p);
   if(steps>0)sayNext((p.pos+steps)%40);
-  for(let k=0;k<steps;k++){const from=p.pos;p.pos=(p.pos+1)%40;
+  for(let k=0;k<steps;k++){const from=p.pos,origin=tokenAnchor(k0,from);p.pos=(p.pos+1)%40;
     if(k===steps-1)sayArrive(p.pos);
     if(p.pos===0){const gb=goBonus();p.cash+=gb;p.laps++;stt(k0).mula++;addLog(`${p.name} lalu MULA, kutip ${fmt(gb)} (pusingan ${p.laps}).`);sfx.coin();fxMoney(0,true);
       if(S.qual&&p.laps===S.qual){toastAll(`${p.name} lengkap ${S.qual} pusingan — kini boleh membeli hartanah!`);addLog(`${p.name} kini layak membeli hartanah.`)}
       alongTagih(p)}
-    sfx.step();renderBoard();renderSide();hop(k0,from,p.pos,k===steps-1);sync();await sleep(STEP_MS)}
+    sfx.step();renderBoard();renderSide();const moving=hop(k0,from,p.pos,k===steps-1,origin);sync();
+    await moving;await sleep(RM?STEP_MS:16)}
 }
 async function walkBack(p,steps){const k0=S.players.indexOf(p);
   if(steps>0)sayNext((p.pos-steps+40)%40);
-  for(let k=0;k<steps;k++){const from=p.pos;p.pos=(p.pos+39)%40;
+  for(let k=0;k<steps;k++){const from=p.pos,origin=tokenAnchor(k0,from);p.pos=(p.pos+39)%40;
     if(k===steps-1)sayArrive(p.pos);
-    sfx.step();renderBoard();hop(k0,from,p.pos,k===steps-1);sync();await sleep(STEP_MS)}}
+    sfx.step();renderBoard();const moving=hop(k0,from,p.pos,k===steps-1,origin);sync();
+    await moving;await sleep(RM?STEP_MS:16)}}
 /* Token melompat dari petak ke petak pada lapisan .flyer. Token sebenar di
    destinasi disembunyikan sepanjang penerbangan, kemudian mendarat dengan
    hentakan kecil. */
-function hop(k,from,to,last){
+function hop(k,from,to,last,origin){
   if(RM||from===to)return;
-  const fl=document.getElementById('flyer'),ref=document.getElementById('sq1');
-  if(!fl||!ref||!S.players[k])return;
-  /* Sasaran lompatan = tepi luar petak, tempat token kini duduk. */
-  const at=i=>{const el=document.getElementById('sq'+i);if(!el)return null;
-    const W=el.offsetWidth,H=el.offsetHeight,sd=el.classList;
-    /* Telefon: token duduk di luar tepi dalam petak. */
-    if(PHONE_BOARD.matches&&!sd.contains('corner'))
-      return sd.contains('left')?{x:el.offsetLeft+W+7,y:el.offsetTop+H/2}
-        :sd.contains('right')?{x:el.offsetLeft-7,y:el.offsetTop+H/2}
-        :sd.contains('top')?{x:el.offsetLeft+W/2,y:el.offsetTop+H+6}
-        :{x:el.offsetLeft+W/2,y:el.offsetTop-6};
-    const fx=sd.contains('left')?.14:sd.contains('right')?.86:.5,fy=sd.contains('top')?.16:sd.contains('left')||sd.contains('right')?.5:.84;
-    return{x:el.offsetLeft+W*fx,y:el.offsetTop+H*fy}};
-  const a=at(from),b=at(to);if(!a||!b)return;
-  const w=ref.offsetWidth*0.46,h=w;
+  const fl=document.getElementById('flyer');
+  if(!fl||!S.players[k])return;
+  const a=origin||tokenAnchor(k,from),b=tokenAnchor(k,to);if(!a||!b||!b.w||!b.h)return;
+  tokenMoves.get(k)?.anim.cancel();
+  const w=b.w,h=b.h;
   const real=()=>document.querySelector(`#sq${to} .tok[data-k="${k}"]`);
   const r0=real();if(r0)r0.classList.add('ghost');
   const sp=document.createElement('span');
@@ -184,18 +196,26 @@ function hop(k,from,to,last){
   sp.style.cssText=`width:${w}px;height:${h}px;color:${S.players[k].color}`;
   sp.innerHTML=trainSVG(k);
   const svg=sp.firstChild;
-  if(svg&&svg.style&&to<=19)svg.style.transform='scaleX(-1)';
+  if(svg&&svg.style&&to<=19&&!svg.classList.contains('mt-cat'))svg.style.transform='scaleX(-1)';
   fl.appendChild(sp);
-  const ox=-w/2,oy=-h/2, lift=Math.min(ref.offsetHeight*0.55,30);
-  const at3=(x,y,sc)=>`translate(${x+ox}px,${y+oy}px) scale(${sc})`;
-  const anim=sp.animate([
-    {transform:at3(a.x,a.y,1),offset:0},
-    {transform:at3((a.x+b.x)/2,(a.y+b.y)/2-lift,1.16),offset:.5},
-    {transform:at3(b.x,b.y,1),offset:1}
-  ],{duration:last?HOP_MS+70:HOP_MS,easing:'cubic-bezier(.33,.7,.4,1)'});
-  const done=()=>{sp.remove();const r=real();
-    if(r){r.classList.remove('ghost');r.classList.add('land')}};
-  anim.onfinish=done;anim.oncancel=done;
+  const ox=-w/2,oy=-h/2,lift=Math.min(Math.max(h*.4,4),14);
+  const at3=(x,y,sx=1,sy=sx)=>`translate(${x+ox}px,${y+oy}px) scale(${sx},${sy})`;
+  const frames=[
+    {transform:at3(a.x,a.y,a.w/w,a.h/h),offset:0},
+    {transform:at3((a.x+b.x)/2,(a.y+b.y)/2-lift,1.04),offset:.45},
+    {transform:at3(b.x,b.y,1.06,.94),offset:last?.78:.9},
+    ...(last?[{transform:at3(b.x,b.y-2,.98,1.04),offset:.9}]:[]),
+    {transform:at3(b.x,b.y),offset:1}
+  ];
+  const done=()=>{sp.remove();const r=real();if(r)r.classList.remove('ghost');tokenMoves.delete(k)};
+  if(!sp.animate){done();return}
+  const anim=sp.animate(frames,{duration:last?HOP_MS+80:HOP_MS,easing:'cubic-bezier(.25,.46,.45,.94)',fill:'both'});
+  tokenMoves.set(k,{anim,to,gid:S.gid,sprite:sp});
+  let cleaned=false;
+  const clean=()=>{if(cleaned)return;cleaned=true;sp.remove();
+    if(tokenMoves.get(k)?.anim===anim){const r=real();if(r)r.classList.remove('ghost');tokenMoves.delete(k)}};
+  anim.onfinish=clean;anim.oncancel=clean;
+  return anim.finished.catch(()=>{}).finally(clean);
 }
 async function advanceTo(p,target,opts){await walk(p,(target-p.pos+40)%40);await land(p,opts)}
 function goJail(p){if(lapOne(p)){S.doubles=0;freeLap(p,'terlepas daripada Lokap');return false}

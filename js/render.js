@@ -94,6 +94,7 @@ function stationLandmark(i){
   const m=marks[i];return m?`<svg class="station-landmark" viewBox="0 0 56 48" role="img" aria-label="${m[0]}"><title>${m[0]}</title><path d="${m[1]}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`:'';
 }
 function buildBoard(){
+  cancelTokenMoves();
   const b=document.getElementById('board');let h='';
   SQ.forEach((s,i)=>{const [r,c]=gridPos(i);
     const stripe=s.t==='prop'?`<div class="stripe" style="background:${GROUPS[s.g].c}"></div>`:'';
@@ -151,6 +152,7 @@ function rollDiceAnim(){
   doublesFx();
 }
 function renderBoard(){
+  if([...tokenMoves.values()].some(move=>move.gid!==S.gid))cancelTokenMoves();
   requestAnimationFrame(fitNames); /* petak dimiliki ada bingkai tebal: muat semula nama */
   SQ.forEach((s,i)=>{const el=document.getElementById('sq'+i);
     el.classList.toggle('active-square',S.phase!=='over'&&cur().pos===i);
@@ -165,7 +167,7 @@ function renderBoard(){
     const st=el.querySelector('.stripe');if(st){const h=S.houses[i];st.innerHTML=h===5?'<span class="hotel">H</span>':'<span class="house"></span>'.repeat(h)}
     /* Pergerakan mengelilingi papan: petak 0-19 ke kiri, 20-39 ke kanan. */
     const toks=S.players.map((p,k)=>(!p.bankrupt&&p.pos===i)
-      ?`<span class="tok ${k===S.turn&&S.phase!=='over'&&S.phase!=='moving'?'me':''} ${i<=19?'flip':''}${lolK.has(k)?' lol':''}" data-k="${k}" style="color:${p.color}" title="${esc(p.name)} · ${tokName(tokOf(k))}">${trainSVG(k)}</span>`:'').join('');
+      ?`<span class="tok ${k===S.turn&&S.phase!=='over'&&S.phase!=='moving'?'me':''} ${i<=19?'flip':''}${lolK.has(k)?' lol':''}${tokenMoves.get(k)?.to===i?' ghost':''}" data-k="${k}" style="color:${p.color}" title="${esc(p.name)} · ${tokName(tokOf(k))}">${trainSVG(k)}</span>`:'').join('');
     el.querySelector('.tokens').innerHTML=toks});
   document.getElementById('msg').textContent=S.msg;
   const cs=document.getElementById('cardSlot');
