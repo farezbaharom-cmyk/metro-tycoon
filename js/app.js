@@ -11,11 +11,30 @@ function updateTurnDock(){
   dockFrame=0;
   const covered=!!document.querySelector('.overlay:not([hidden])');
   document.body.classList.toggle('turn-dock-obscured',covered);
-  const height=turnDockMedia.matches&&!covered?Math.ceil(turnDock.getBoundingClientRect().height):0;
-  document.documentElement.style.setProperty('--turn-dock-height',height+'px');
   const tb=document.getElementById('tabbar');
   const tbh=tb&&turnDockMedia.matches&&!covered?Math.ceil(tb.getBoundingClientRect().height):0;
   document.documentElement.style.setProperty('--tabbar-h',tbh+'px');
+  fitDockRoom(tbh,covered);
+  const height=turnDockMedia.matches&&!covered?Math.ceil(turnDock.getBoundingClientRect().height):0;
+  document.documentElement.style.setProperty('--turn-dock-height',height+'px');
+}
+/* Tab Papan di telefon: panel giliran hanya boleh setinggi ruang di bawah
+   papan. Jika kandungannya lebih panjang (cth. baris "Dibayar −RM200"), panel
+   itu yang skrol, bukan seluruh laman — jadi tajuk di atas tidak terpotong.
+   Jika ruang terlalu sempit (telefon rendah), biar laman skrol seperti biasa. */
+const DOCK_MIN=170;
+function fitDockRoom(tbh,covered){
+  turnDock.style.maxHeight='';
+  const on=turnDockMedia.matches&&!covered&&document.body.dataset.tab==='papan';
+  let fit=false;
+  if(on){
+    const dr=turnDock.getBoundingClientRect(),wrap=document.querySelector('.app');
+    if(wrap&&dr.left<1&&dr.right>innerWidth-1){
+      const mb=parseFloat(getComputedStyle(document.body).marginBottom)||0;
+      const room=Math.floor(innerHeight-tbh-(wrap.getBoundingClientRect().bottom+scrollY)-8-mb);
+      const cssMax=parseFloat(getComputedStyle(turnDock).maxHeight)||Infinity;
+      if(room>=DOCK_MIN){fit=true;if(room<cssMax)turnDock.style.maxHeight=room+'px'}}}
+  document.body.classList.toggle('dock-fit',fit);
 }
 function queueTurnDock(){if(!dockFrame)dockFrame=requestAnimationFrame(()=>{updateTurnDock();fitBoard()})}
 /* Telefon rendah (cth. iPhone SE): papan dan panel giliran tidak muat serentak,
@@ -83,7 +102,8 @@ portfolioMedia.addEventListener('change',e=>{portfolioPanel.open=e.matches});
     if(t==='log')seenLog=null;
     if(t==='aset')seenAset=asetKey();
     badges();
-    if(changed&&scroll&&turnDockMedia.matches){window.scrollTo({top:0,behavior:'instant'});fitKey='';queueTurnDock()}
+    if(changed&&scroll&&turnDockMedia.matches){window.scrollTo({top:0,behavior:'instant'});fitKey=''}
+    if(changed)queueTurnDock()
   }
   function badges(){
     /* Log: kira catatan di atas yang terakhir dilihat */
@@ -191,6 +211,10 @@ portfolioMedia.addEventListener('change',e=>{portfolioPanel.open=e.matches});
   sync();
 })();
 
+/* Pemain lama = ada jejak lawatan dahulu. Dibaca sebelum start() kerana
+   permainan baharu akan menulis simpanan sendiri. */
+const RETURNING=(()=>{try{return ['mtkl-save','mtkl-baharu','mtkl-tapped','mtkl-name']
+  .some(k=>localStorage.getItem(k)!==null)}catch(e){return false}})();
 /* ---------- boot ---------- */
 async function start(){
   initEditions();loadPrefs();buildBoard();bindZoom();
@@ -240,7 +264,21 @@ if('serviceWorker'in navigator&&(location.protocol==='https:'||location.hostname
   b.addEventListener('click',e=>{if(!e.target.closest('.sq'))return;
     document.body.classList.add('tapped');try{localStorage.setItem('mtkl-tapped','1')}catch(e){}},{once:false})})();
 
-/* Sekali sahaja selepas kemas kini: beritahu ciri baharu. */
+/* Sekali sahaja selepas kemas kini: beritahu ciri baharu — hanya kepada pemain
+   yang pernah main (bagi pemain baharu, semuanya baharu). Ditangguhkan sehingga
+   skrin utama ditutup dan pemain sudah membaling dadu, supaya notis tidak
+   menutup butang skrin utama atau arahan "baling dadu untuk mula". */
 (()=>{const K='mtkl-baharu',V='v36';let seen='';try{seen=localStorage.getItem(K)||''}catch(e){}
-  if(seen===V)return;try{localStorage.setItem(K,V)}catch(e){}
-  setTimeout(()=>toast('✨ Baharu: 😂 Reaksi dalam bilik online — ketik butang 😄 di bawah papan untuk bersorak bersama kawan!'),1800)})();
+  if(seen===V)return;
+  const mark=()=>{try{localStorage.setItem(K,V)}catch(e){}};
+  if(!RETURNING){mark();return}
+  const setupEl=document.getElementById('setup');let base=null;
+  const iv=setInterval(()=>{
+    if(!S||!setupEl.hidden){base=null;return}
+    if(document.querySelector('.overlay:not([hidden])'))return;
+    if(document.body.dataset.tab&&document.body.dataset.tab!=='papan')return;
+    const r=S.rollId||0;
+    if(base===null){base=r;return}
+    if(r<=base||S.phase==='moving'||S.phase==='over')return;
+    clearInterval(iv);mark();
+    setTimeout(()=>toast('✨ Baharu: 😂 Reaksi dalam bilik online — ketik butang 😄 di bawah papan untuk bersorak bersama kawan!'),1200)},1000)})();

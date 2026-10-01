@@ -785,6 +785,11 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:60;width:100%;heigh
   #turn{bottom:var(--tabbar-h,0px);padding-bottom:10px}
   body{padding-bottom:calc(24px + var(--turn-dock-height,0px) + var(--tabbar-h,0px))}
   html{scroll-padding-bottom:calc(24px + var(--turn-dock-height,0px) + var(--tabbar-h,0px))}
+  /* Panel giliran dihadkan kepada ruang di bawah papan (lihat fitDockRoom):
+     ruang tambahan 24px tidak perlu, jadi laman tidak lebih tinggi daripada skrin. */
+  body.dock-fit{padding-bottom:calc(8px + var(--turn-dock-height,0px) + var(--tabbar-h,0px))}
+  /* Tab Papan: lajur sisi kosong (panel giliran terapung), jadi tiada jarak grid di bawah papan. */
+  body[data-tab="papan"] .app{row-gap:0}
   .toast{bottom:calc(12px + var(--turn-dock-height,0px) + var(--tabbar-h,0px))}
 
   /* Kandungan ikut tab */
@@ -913,8 +918,10 @@ body[data-tab]:not([data-tab="papan"]) #toastzone{display:none}
 }
 body{
   /* Tolak margin lalai badan (8px atas + bawah), jika tidak laman sentiasa
-     boleh diskrol 16px walaupun kandungan muat dalam skrin. */
+     boleh diskrol 16px walaupun kandungan muat dalam skrin. 100dvh = tinggi
+     yang benar-benar kelihatan (100vh di telefon termasuk bar alamat pelayar). */
   min-height:calc(100vh - 16px);
+  min-height:calc(100dvh - 16px);
   background:
     radial-gradient(circle at 12% 8%,color-mix(in srgb,var(--accent) 10%,transparent),transparent 30rem),
     radial-gradient(circle at 88% 18%,color-mix(in srgb,#38BDF8 10%,transparent),transparent 32rem),
@@ -1634,7 +1641,9 @@ body:has(#endBox:not([hidden])) :is(.mfloat,.stamp){display:none}
 #deedPurchase:empty{display:none}
 #deedPurchase .purchase-card{margin:16px 20px 0}
 @media(min-width:561px){.sq .pr{font-size:max(9px,1.3cqi)}}
-@media(max-width:560px){.sq .pr{display:block;font-size:max(7px,1.35cqi)}.sq .nm.nm-s{line-height:1.08}}
+/* Skrin kecil: harga "RM…" pada zum 100% terlalu kecil untuk dibaca, jadi
+   ia disorok (ketik petak untuk harga) dan hanya muncul apabila papan dizum. */
+@media(max-width:560px){.sq .pr{display:none;font-size:max(7px,1.35cqi)}.boardview.zoomed .sq .pr{display:block}.sq .nm.nm-s{line-height:1.08}}
 @media(max-width:360px),(max-height:620px){.edcard{padding:0 9px 9px;gap:4px}.edcard .edscene{height:64px;margin:0 -9px 3px}.edcard small{display:block;font-size:10px}.edcard .edplaces{display:none}}
 
 .purchase-card{flex-shrink:0}
