@@ -1437,6 +1437,15 @@ body:has(.overlay:not([hidden])) .bar{z-index:40}
 }
 @media(max-width:520px) and (min-height:521px){.boardwrap{--chrome:194px}}
 
+/* Panel berlabuh di bawah: panduan panjang tidak boleh menolak tindakan
+   utama keluar daripada ruang yang tersedia di atas bar tab. */
+@media (max-width:1000px) and (orientation:portrait), (max-width:1000px) and (min-height:521px){
+  #turn .turn-guide,#turn .tutorial-copy{
+    display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;
+  }
+  #turn .tutorial-copy{font-size:12px;line-height:1.35}
+}
+
 /* ===================== Skrin tamat ===================== */
 #endBox .modal{gap:12px}
 .endhero{display:flex;justify-content:center;gap:14px;margin:-4px 0 -6px}
