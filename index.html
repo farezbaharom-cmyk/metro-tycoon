@@ -36,7 +36,7 @@
   <div class="brand"><span class="lines"><i style="background:#D6124F"></i><i style="background:#EE7A00"></i><i style="background:#0B8A45"></i><i style="background:#E8B400"></i></span>Metro Tycoon KL</div>
   <div class="sp"></div>
   <button class="ghost roomchip" id="roomChip" type="button" hidden title="Salin pautan jemputan"></button>
-  <button class="ghost menubtn" id="btnMenu" type="button" aria-expanded="false" aria-controls="barMenu">⚙️ Menu</button>
+  <button class="ghost menubtn" id="btnMenu" type="button" aria-expanded="false" aria-controls="barMenu"><i data-ico="gear" class="inl"></i>Menu</button>
   <div class="barmenu" id="barMenu">
   <button class="ghost" id="btnTheme" type="button">Tema: Auto</button>
   <button class="ghost" id="btnView" type="button" title="Tukar pandangan papan">Pandangan: 2D</button>
@@ -46,7 +46,7 @@
     <button class="ghost" id="btnVoice" type="button">Suara: Hidup</button>
   </span>
   <button class="ghost" id="btnGaya" type="button" title="Gaya suara pengumuman">Gaya: Pakcik</button>
-  <button class="ghost" id="btnInstall" type="button" hidden>📲 Pasang app</button>
+  <button class="ghost" id="btnInstall" type="button" hidden><i data-ico="install" class="inl"></i>Pasang app</button>
   <button class="ghost" id="btnRules" type="button">Peraturan</button>
   <button class="ghost" id="btnFinish" type="button">Tamatkan &amp; kira</button>
   <button class="ghost" id="btnNew" type="button">Permainan baharu</button>
@@ -80,9 +80,9 @@
 
 <!-- Tab bawah (telefon & tablet sahaja): tukar paparan tanpa skrol panjang. -->
 <nav class="tabbar" id="tabbar" role="tablist" aria-label="Paparan">
-  <button type="button" role="tab" id="tabPapan" data-tab="papan" aria-selected="true"><span class="ti" aria-hidden="true">🗺️</span><span>Papan</span></button>
-  <button type="button" role="tab" id="tabAset" data-tab="aset" aria-selected="false"><span class="ti" aria-hidden="true">💼</span><span>Aset</span><span class="bdg" id="bdgAset" hidden></span></button>
-  <button type="button" role="tab" id="tabLog" data-tab="log" aria-selected="false"><span class="ti" aria-hidden="true">📜</span><span>Log</span><span class="bdg" id="bdgLog" hidden></span></button>
+  <button type="button" role="tab" id="tabPapan" data-tab="papan" aria-selected="true"><i data-ico="board" class="ti"></i><span>Papan</span></button>
+  <button type="button" role="tab" id="tabAset" data-tab="aset" aria-selected="false"><i data-ico="case" class="ti"></i><span>Aset</span><span class="bdg" id="bdgAset" hidden></span></button>
+  <button type="button" role="tab" id="tabLog" data-tab="log" aria-selected="false"><i data-ico="log" class="ti"></i><span>Log</span><span class="bdg" id="bdgLog" hidden></span></button>
 </nav>
 
 <div class="overlay" id="setup" hidden>
@@ -94,9 +94,9 @@
     <h2 class="hometitle" id="homeTitle">Metro <span>Tycoon</span> KL</h2>
     <p id="homeTag">Permainan hartanah laluan transit Lembah Klang.</p>
     <div class="edpick edcards" role="radiogroup" aria-label="Edisi papan"></div>
-    <button class="btn primary big" type="button" id="homePlay"><span>Main sekarang</span><small>Anda lawan bot · 30 ronde</small></button>
-    <button class="btn big" type="button" id="homeFast"><span>⚡ Main cepat</span><small>Anda lawan bot · ±20 minit</small></button>
-    <button class="btn big" type="button" id="homeFriends"><span>Main dengan kawan</span><small>Bilik online atau satu peranti</small></button>
+    <button class="btn primary big homebtn" type="button" id="homePlay" style="--route:#D6124F"><i data-ico="play" class="hb-ic"></i><span class="hb-tx"><span>Main sekarang</span><small>Anda lawan bot · 30 ronde</small></span></button>
+    <button class="btn big homebtn" type="button" id="homeFast" style="--route:#E8B400"><i data-ico="bolt" class="hb-ic"></i><span class="hb-tx"><span>Main cepat</span><small>Anda lawan bot · ±20 minit</small></span></button>
+    <button class="btn big homebtn" type="button" id="homeFriends" style="--route:#0B8A45"><i data-ico="users" class="hb-ic"></i><span class="hb-tx"><span>Main dengan kawan</span><small>Bilik online atau satu peranti</small></span></button>
     <button class="ghost" type="button" id="homeResume" hidden>Sambung permainan tersimpan</button>
     <button class="ghost" type="button" id="homeMore">Tetapan lanjut</button>
   </div>
@@ -116,7 +116,7 @@
         <div class="seg edpick" role="radiogroup" aria-label="Edisi papan"></div>
         <div class="row">
           <div class="field"><label for="oMode">Mod permainan</label>
-            <select id="oMode"><option value="0" selected>Biasa</option><option value="1">⚡ Cepat (±20 minit)</option></select></div>
+            <select id="oMode"><option value="0" selected>Biasa</option><option value="1">Cepat (±20 minit)</option></select></div>
           <div class="field"><label for="oQual">Pusingan sebelum beli</label>
             <select id="oQual"><option value="0" selected>Terus boleh beli</option><option value="1">1 pusingan</option><option value="2">2 pusingan</option><option value="3">3 pusingan</option></select></div>
           <div class="field"><label for="oEnd">Tamat apabila</label>
@@ -167,7 +167,7 @@
         <div class="field"><label for="nPlayers">Bilangan pemain</label>
           <select id="nPlayers"><option>2</option><option>3</option><option>4</option><option selected>5</option></select></div>
         <div class="field"><label for="nMode">Mod permainan</label>
-          <select id="nMode"><option value="0" selected>Biasa</option><option value="1">⚡ Cepat (±20 minit)</option></select></div>
+          <select id="nMode"><option value="0" selected>Biasa</option><option value="1">Cepat (±20 minit)</option></select></div>
         <div class="field"><label for="nQual">Pusingan sebelum beli</label>
           <select id="nQual"><option value="0" selected>Terus boleh beli</option><option value="1">1 pusingan</option><option value="2">2 pusingan</option><option value="3">3 pusingan</option></select></div>
         <div class="field"><label for="nEnd">Tamat apabila</label>
@@ -197,7 +197,7 @@
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="rulesTitle" tabindex="-1">
     <h2 id="rulesTitle">Peraturan</h2>
     <ul class="rules">
-      <li><b>Edisi papan:</b> pilih <b>🏙️ Edisi KL</b> (laluan rel Lembah Klang) atau <b>🌴 Edisi Borneo</b> (laluan rel impian Sabah &amp; Sarawak) di skrin utama. Peraturan, harga dan sewa sama; nama stesen, kad, berita, watak kenderaan dan satu misi khas berbeza. Dalam bilik online, hos memilih edisi di lobi. Pautan terus ke Edisi Borneo: <a href="borneo/">/borneo/</a>.</li>
+      <li><b>Edisi papan:</b> pilih <b><i data-ico="city" class="inl"></i>Edisi KL</b> (laluan rel Lembah Klang) atau <b><i data-ico="palm" class="inl"></i>Edisi Borneo</b> (laluan rel impian Sabah &amp; Sarawak) di skrin utama. Peraturan, harga dan sewa sama; nama stesen, kad, berita, watak kenderaan dan satu misi khas berbeza. Dalam bilik online, hos memilih edisi di lobi. Pautan terus ke Edisi Borneo: <a href="borneo/">/borneo/</a>.</li>
       <li><b>Main sendirian:</b> dalam mod <b>Satu peranti</b>, tukar mana-mana pemain kepada <b>Bot mudah</b> atau <b>Bot sederhana</b>. Bot mudah membeli secara longgar dan jarang membina; bot sederhana mengejar set penuh, menyekat lawan, membina hotel dan bertahan di Lokap pada akhir permainan.</li>
       <li>Baling dua dadu dan gerak. Lalu <b>MULA</b> untuk kutip RM200 dan tambah satu pusingan.</li>
       <li><b>Pusingan pertama:</b> sebelum lalu MULA kali pertama, anda tak perlu bayar apa-apa (sewa, cukai, kad) dan tak akan masuk Lokap.</li>
@@ -206,16 +206,16 @@
       <li><b>Lelongan:</b> hartanah yang dilepaskan tidak tersimpan di bank — ia dilelong kepada semua pemain, bermula RM10. Pemain yang melepaskan pun boleh membida.</li>
       <li><b>Tawaran:</b> pada bila-bila masa dalam giliran anda, tawar hartanah dan tunai kepada pemain lain. Hartanah yang ada bangunan perlu dikosongkan dahulu.</li>
       <li>Mendarat di hartanah pemain lain: bayar sewa. Set laluan penuh menggandakan sewa asas.</li>
-      <li><b>Bina rumah:</b> tekan <b>+🏠</b> dalam senarai <b>Hartanah anda</b> pada giliran anda, selepas lengkap pusingan pertama. Tanpa set penuh: maks. 2 rumah setiap stesen, harga rumah dua kali ganda. Dengan set penuh: sehingga 4 rumah kemudian hotel, pada harga biasa.</li>
+      <li><b>Bina rumah:</b> tekan <b>+<i data-ico="house" class="inl"></i></b> dalam senarai <b>Hartanah anda</b> pada giliran anda, selepas lengkap pusingan pertama. Tanpa set penuh: maks. 2 rumah setiap stesen, harga rumah dua kali ganda. Dengan set penuh: sehingga 4 rumah kemudian hotel, pada harga biasa.</li>
       <li>Hab: RM25 / 50 / 100 / 200 ikut bilangan hab dimiliki. Utiliti: 4× dadu (satu), 10× dadu (dua).</li>
-      <li><b>⚡ Mod cepat (±20 minit):</b> setiap pemain terus menerima beberapa stesen secara rawak, sewa dan pembinaan bermula dari giliran pertama (tiada perlindungan pusingan pertama), dan permainan tamat selepas beberapa ronde (satu ronde = setiap pemain dapat satu giliran): 24 ronde untuk 2 pemain, 18 untuk 3, 15 untuk 4, 12 untuk 5. Kekayaan bersih tertinggi menang.</li>
-      <li><b>🏆 Misi:</b> setiap pemain ada 10 misi kecil (termasuk satu misi khas edisi), contohnya beli 3 stesen, lengkapkan satu laluan, bina hotel pertama atau menang satu lelongan. Siapkan misi untuk dapat ganjaran tunai serta-merta (RM30–RM100). Kemajuan dipaparkan dalam panel <b>Misi</b>.</li>
+      <li><b><i data-ico="bolt" class="inl"></i>Mod cepat (±20 minit):</b> setiap pemain terus menerima beberapa stesen secara rawak, sewa dan pembinaan bermula dari giliran pertama (tiada perlindungan pusingan pertama), dan permainan tamat selepas beberapa ronde (satu ronde = setiap pemain dapat satu giliran): 24 ronde untuk 2 pemain, 18 untuk 3, 15 untuk 4, 12 untuk 5. Kekayaan bersih tertinggi menang.</li>
+      <li><b><i data-ico="trophy" class="inl"></i>Misi:</b> setiap pemain ada 10 misi kecil (termasuk satu misi khas edisi), contohnya beli 3 stesen, lengkapkan satu laluan, bina hotel pertama atau menang satu lelongan. Siapkan misi untuk dapat ganjaran tunai serta-merta (RM30–RM100). Kemajuan dipaparkan dalam panel <b>Misi</b>.</li>
       <li><b>Berita:</b> setiap kali semua pemain habis satu pusingan, satu berita mungkin berlaku dan dipaparkan di jalur LED — contohnya sewa satu laluan naik 50%, laluan ditutup (tiada sewa), bonus MULA RM300, pengecualian cukai atau rumah separuh harga. Kesannya kekal sepanjang pusingan itu.</li>
       <li>Dadu ganda = baling lagi. Tiga kali ganda berturut-turut = terus ke Lokap.</li>
       <li>Di Lokap: bayar RM50, guna Kad Bebas Lokap, atau cuba dapatkan dadu ganda (maks. 3 giliran).</li>
       <li>Kekurangan wang? Jual rumah (separuh harga) atau gadai hartanah. Jika tidak cukup, isytihar muflis.</li>
       <li><b>🦈 Ah Long:</b> jika tunai anda bawah RM300 (atau negatif), anda boleh pinjam <b>RM300</b> daripada Ah Long dalam giliran anda. Ah Long menagih <b>RM400</b> secara automatik bila anda lalu MULA, walaupun tunai anda tak cukup. Satu pinjaman sahaja pada satu masa; boleh bayar awal. Hutang Ah Long ditolak daripada kekayaan bersih, dan lesap jika anda muflis.</li>
-      <li><b>🏁 Had ronde:</b> <b>Main sekarang</b> tamat selepas 30 ronde (satu ronde = setiap pemain dapat satu giliran). Anda diberi amaran bila tinggal 5 ronde dan pada ronde terakhir. Dalam <b>Satu peranti</b>, pilih "Selepas 30 ronde" di bawah <b>Tamat apabila</b>.</li>
+      <li><b><i data-ico="flag" class="inl"></i>Had ronde:</b> <b>Main sekarang</b> tamat selepas 30 ronde (satu ronde = setiap pemain dapat satu giliran). Anda diberi amaran bila tinggal 5 ronde dan pada ronde terakhir. Dalam <b>Satu peranti</b>, pilih "Selepas 30 ronde" di bawah <b>Tamat apabila</b>.</li>
       <li>Permainan tamat apabila hanya seorang pemain tinggal, atau apabila semua pemain lengkap bilangan pusingan yang dipilih. Butang <b>Tamatkan &amp; kira</b> menamatkan permainan pada bila-bila masa. Kekayaan bersih tertinggi menang.</li>
     </ul>
     <button class="btn primary" type="button" id="btnRulesClose">Faham</button>
@@ -310,7 +310,7 @@
     <ul class="rank" id="rank"></ul>
     <p class="endnote">Kekayaan bersih = tunai + nilai hartanah + bangunan − hutang 🦈 Ah Long.</p>
     <div id="endBadges" hidden></div>
-    <div class="row"><button class="btn" type="button" id="btnShare">📤 Kongsi keputusan</button>
+    <div class="row"><button class="btn" type="button" id="btnShare"><i data-ico="share" class="inl"></i>Kongsi keputusan</button>
     <button class="btn primary" type="button" id="btnAgain">Main semula</button></div>
   </div>
 </div>
@@ -320,6 +320,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <!-- Kod permainan. Susunan penting: config dahulu, app.js terakhir. -->
+<script src="js/icons.js"></script>
 <script src="js/cats.js"></script>
 <script src="js/config.js"></script>
 <script src="js/data.js"></script>

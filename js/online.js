@@ -215,8 +215,8 @@ function afkPaint(){
   if(!a){el.hidden=true;return}
   const mine=a.p.uid===UID,hot=a.left<=15;
   el.hidden=false;el.classList.toggle('hot',hot);
-  const txt=mine?(hot?`⏱ ${a.left}s — cepat, bot akan ambil alih!`:`⏱ ${a.left}s untuk bertindak`)
-    :`⏱ ${esc(a.p.name)} · ${a.left}s${isOnline(a.p.uid)?'':' (luar talian)'}`;
+  const txt=ico('timer','inl')+(mine?(hot?`${a.left}s — cepat, bot akan ambil alih!`:`${a.left}s untuk bertindak`)
+    :`${esc(a.p.name)} · ${a.left}s${isOnline(a.p.uid)?'':' (luar talian)'}`);
   el.innerHTML=`<span>${txt}</span><span class="tr"><i style="width:${Math.round(100*a.left/a.lim)}%"></i></span>`;
   if(mine&&a.left<=10&&a.left>0&&afkBeeped!==afkKey){afkBeeped=afkKey;
     vib([120,80,120]);beep(660,.14,'square',.05);beep(660,.14,'square',.05,.22)}}
@@ -377,8 +377,8 @@ function renderEdLobby(r,started){
   box.hidden=started||!ed;if(box.hidden)return;
   box.innerHTML=NET.host
     ?`<div class="seg" role="radiogroup" aria-label="Edisi papan bilik">${Object.values(EDITIONS).map(E=>
-      `<button type="button" role="radio" data-ed="${E.id}" aria-checked="${E.id===ed}" tabindex="${E.id===ed?0:-1}" class="${E.id===ed?'on':''}">${E.emoji} ${E.label}</button>`).join('')}</div>`
-    :`<p class="note">Edisi papan: <b>${EDITIONS[edId(ed)].emoji} ${EDITIONS[edId(ed)].label}</b></p>`;
+      `<button type="button" role="radio" data-ed="${E.id}" aria-checked="${E.id===ed}" tabindex="${E.id===ed?0:-1}" class="${E.id===ed?'on':''}">${ico(E.icon,'inl')}${E.label}</button>`).join('')}</div>`
+    :`<p class="note">Edisi papan: <b>${ico(EDITIONS[edId(ed)].icon,'inl')}${EDITIONS[edId(ed)].label}</b></p>`;
   /* Papan contoh di belakang lobi ikut edisi bilik. */
   if(S&&!S.started&&S.ed!==edId(ed)){S.ed=edId(ed);renderAll()}}
 $('edLobby')?.addEventListener('click',e=>{const b=e.target.closest('[data-ed]');
@@ -406,8 +406,8 @@ function renderLobby(){
   renderEdLobby(r,started);
   const w=watchers();
   $('watchers').hidden=!w.length;
-  $('watchers').textContent=w.length?`👀 Penonton (${w.length}): ${w.join(', ')}`:'';
-  $('roomChip').textContent='Bilik '+NET.code+(NET.watch?' · Menonton':'')+(w.length?` · 👀${w.length}`:'');
+  $('watchers').innerHTML=w.length?`${ico('eye','inl')}Penonton (${w.length}): ${esc(w.join(', '))}`:'';
+  $('roomChip').innerHTML=esc('Bilik '+NET.code+(NET.watch?' · Menonton':''))+(w.length?` · ${ico('eye','inl',w.length+' penonton')}${w.length}`:'');
   $('btnSit').hidden=!NET.watch||started||seats.length>=5;
   $('btnStartOnline').hidden=!NET.host||started;$('btnStartOnline').disabled=seats.length<2;
   $('btnBackGame').hidden=!started;

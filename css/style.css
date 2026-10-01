@@ -586,28 +586,20 @@ body.v3d .tok{filter:drop-shadow(0 3px 2px rgba(0,0,0,.45))}
 .mission-toggle:hover{background:var(--soft)}
 .mission-toggle[aria-expanded="true"]{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 55%,var(--rule))}
 /* Tutorial padat duduk bersama tindakan, jadi tidak menutup mana-mana stesen. */
-.turn-tutorial{position:relative;display:grid;grid-template-columns:104px minmax(0,1fr);align-items:center;gap:10px;
+.turn-tutorial{position:relative;display:grid;grid-template-columns:minmax(0,1fr);align-items:center;gap:10px;
   box-sizing:border-box;padding:9px 34px 9px 10px;border:1px solid color-mix(in srgb,var(--accent) 50%,var(--rule));
   border-radius:11px;background:color-mix(in srgb,var(--accent) 7%,var(--panel))}
 .tutorial-close{position:absolute;right:5px;top:5px;width:26px;height:26px;border:0;border-radius:50%;background:var(--soft);
   color:var(--muted);font:800 18px/1 var(--body);cursor:pointer}
-.tutorial-steps{display:flex;align-items:flex-start;justify-content:center;gap:4px}
-.tutorial-steps span{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--muted);font-size:9px;font-weight:700;white-space:nowrap}
-.tutorial-steps span i{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--soft);font:800 10px/1 var(--mono);font-style:normal}
-.tutorial-steps span.active{color:var(--ink)}.tutorial-steps span.active i{background:var(--accent);color:var(--accent-ink)}
-.tutorial-steps span.done{color:var(--good)}.tutorial-steps span.done i{background:color-mix(in srgb,var(--good) 15%,var(--panel))}
 .tutorial-copy{min-width:0}.tutorial-title{display:block;font-size:13px;margin-bottom:2px}
 .turn-tutorial p{margin:0;color:var(--muted);font-size:11.5px;line-height:1.3}
 @media (max-width:430px){
-  .turn-tutorial{grid-template-columns:72px minmax(0,1fr);gap:7px;padding:8px 30px 8px 8px}
-  .tutorial-steps span small{display:none}.tutorial-steps span i{width:20px;height:20px}
+  .turn-tutorial{gap:7px;padding:8px 30px 8px 8px}
   .tutorial-title{font-size:12px}.turn-tutorial p{font-size:10.5px}
 }
-/* Telefon menegak: langkah 1·2·3 disembunyikan supaya teks mendapat lebar
-   penuh — kotak tutorial jadi dua baris dan papan kurang tertutup. */
+/* Telefon menegak: kotak tutorial jadi dua baris supaya papan kurang tertutup. */
 @media (max-width:700px) and (orientation:portrait){
-  .turn-tutorial{grid-template-columns:minmax(0,1fr);padding:7px 32px 7px 10px}
-  .tutorial-steps{display:none}
+  .turn-tutorial{padding:7px 32px 7px 10px}
   .tutorial-title{display:inline;margin:0 4px 0 0}.tutorial-copy p{display:inline}
 }
 /* Popup misi selesai */
@@ -801,11 +793,11 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:60;width:100%;heigh
   body[data-tab="log"] .log{max-height:none;font-size:13.5px;gap:8px}
   body[data-tab="aset"] .missions{max-height:none}
   /* Panel giliran padat (semua tab): nama, wang, arahan dan butang sahaja.
-     - Langkah 1·2·3 disorok: arahan di bawahnya sudah menyatakan langkah semasa.
+     - Langkah 1·2·3 dipapar sebaris (laluan nipis) supaya tidak makan ruang.
      - Jalur wang pemain disorok: sama seperti tab Aset.
      - "Bot sedang berfikir" disorok: arahan sudah berkata bot sedang bermain.
      Amaran (baki negatif, ganda 2/3, tiada respons) dan info mod cepat kekal. */
-  #turn>.turn-stage,#turn>.pstrip,#turn>.note.botnote{display:none!important}
+  #turn>.pstrip,#turn>.note.botnote{display:none!important}
   #turn{gap:7px;padding-top:9px;max-height:40dvh}
   #turn .actions .btn{min-height:46px;padding:9px 12px}
   #turn>.note{font-size:12px}
@@ -1100,9 +1092,6 @@ body{
 }
 
 /* ===================== Kemasan UX (metro-ux-refinement) ===================== */
-.turn-stage{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);flex-wrap:wrap}
-.turn-stage span{padding:4px 9px;border:1px solid var(--rule);border-radius:20px}
-.turn-stage .active{background:var(--soft);color:var(--ink);border:2px solid var(--turn-color);font-weight:800}
 .turn-feedback{font-size:13px;font-weight:800;margin:0;color:var(--accent)}
 #turn.turn-arrival .turnhead{animation:turn-arrival .45s ease-out}
 @keyframes turn-arrival{from{opacity:.4;transform:translateY(5px)}to{opacity:1;transform:none}}
@@ -1110,7 +1099,6 @@ body{
  #turn .who{min-width:0} #turn .who b{overflow-wrap:anywhere}
  #turn .actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr))}
  #turn .actions .btn{width:100%;min-width:0}
- #turn .turn-stage{font-size:11px;gap:4px}
  #deedBox{align-items:flex-end;padding:0}
  #deedBox .modal{width:100%;max-width:none;max-height:82dvh;overflow:auto;border-radius:20px 20px 0 0;padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))}
  /* Kad hartanah jadi helaian bawah: kepala berwarna melekat di atas semasa skrol,
@@ -1179,14 +1167,8 @@ body.tapped .tapnote{display:none}
 }
 #turn.turn-active::before{background:var(--turn-color);box-shadow:0 0 14px var(--turn-color)}
 #turn .who b{white-space:normal;overflow-wrap:anywhere;line-height:1.2}
-.turn-route{position:relative;display:flex;justify-content:space-between;align-items:center;height:10px;margin:0 3px;color:var(--turn-color);flex-shrink:0}
-.turn-route::before{content:"";position:absolute;left:0;right:0;height:3px;background:currentColor;opacity:.3}
-.turn-route i{width:8px;height:8px;border:2px solid currentColor;border-radius:50%;background:var(--panel);z-index:1}
-.turn-route span{position:absolute;left:0;width:24%;height:3px;border-radius:3px;background:currentColor;box-shadow:0 0 8px currentColor;animation:turn-route-travel 2.8s ease-in-out infinite}
-@keyframes turn-route-travel{0%{left:0;opacity:.3}50%{opacity:1}100%{left:76%;opacity:.3}}
 .pl.cur{border-color:var(--player-color);box-shadow:inset 3px 0 0 var(--player-color),0 0 12px color-mix(in srgb,var(--player-color) 18%,transparent)}
-@media (max-width:700px),(max-width:1000px) and (max-height:520px) and (orientation:landscape){#turn .who b{font-size:16px}.turn-route{height:8px;margin-top:-2px;margin-bottom:-2px}}
-@media(prefers-reduced-motion:reduce){.turn-route span{animation:none;left:38%}}
+@media (max-width:700px),(max-width:1000px) and (max-height:520px) and (orientation:landscape){#turn .who b{font-size:16px}}
 
 /* Player passes and station tickets */
 #players{display:grid;gap:9px;padding:0 10px 12px}
@@ -1197,8 +1179,6 @@ body.tapped .tapnote{display:none}
 #players .pl>.money{text-align:right;font-size:15px;white-space:nowrap}
 .cash-label{display:block;font-family:var(--body);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
 #players .meta{grid-column:1/-1;border-top:1px solid var(--rule);padding-top:9px;margin-top:3px;gap:5px}
-.playing-label{font-size:10px;font-weight:800;letter-spacing:.03em;padding:4px 8px;border-radius:20px;background:var(--ink);color:var(--panel)}
-#players .worth-label{font-weight:700;padding:4px 7px}
 #players .swatches{margin-left:auto}
 #deedBox .deedwrap{padding:0;gap:0;border:1px solid var(--rule);border-radius:22px;overflow:auto;box-shadow:0 24px 70px rgba(0,0,0,.3)}
 #deedBox .deedhead{padding:24px 22px 22px;border-bottom:2px dashed rgba(255,255,255,.55);background-image:linear-gradient(120deg,rgba(255,255,255,.14),transparent 65%)}
@@ -1408,8 +1388,7 @@ body:has(.overlay:not([hidden])) .bar{z-index:40}
   /* Skrin utama: langit KL dipendekkan supaya butang main kelihatan tanpa skrol. */
   .homesky{height:64px}
   #setupHome .btn.big{min-height:0;padding-block:9px}
-  /* Tutorial dalam lajur sempit: langkah 1·2·3 di atas, teks di bawah. */
-  #turn .turn-tutorial{grid-template-columns:minmax(0,1fr);gap:6px}
+  #turn .turn-tutorial{gap:6px}
   /* Papan perlu setiap piksel tinggi skrin: papan tanda "Stesen seterusnya"
      disembunyikan (panel giliran di sebelah sudah menunjukkannya) dan kawalan
      zum dipindah ke lajur kecil di sebelah kanan papan. Tanpa ini papan hanya
@@ -1606,6 +1585,98 @@ body:has(#endBox:not([hidden])) :is(.mfloat,.stamp){display:none}
 @media(prefers-reduced-motion:reduce){.rfly{animation:rfly-rm 1.6s linear forwards}
   @keyframes rfly-rm{0%,80%{opacity:1;transform:translate(-50%,-40px)}100%{opacity:0;transform:translate(-50%,-40px)}}}
 
+/* ===================== Kemasan visual (v40) ===================== */
+/* Ikon UI bergaris (js/icons.js): satu gaya, warna ikut teks. */
+.ico{width:1.15em;height:1.15em;flex:none;vertical-align:-.2em;overflow:visible}
+.ico.inl{margin-right:.4em}
+.mini .ico.inl{margin:0;width:15px;height:15px;vertical-align:-3px}
+.menubtn{align-items:center}
+.tabbar .ti{width:22px;height:22px}
+@media (max-width:1000px){
+  .tabbar .ti{filter:none;opacity:.7}
+  .tabbar button[aria-selected="true"] .ti{opacity:1;color:var(--accent)}
+}
+.rules b .ico.inl{color:var(--accent)}
+#roomChip .ico.inl{margin:0 .15em 0 0}
+
+/* Skrin mula: langit KL yang sama dengan tengah papan (palet subuh, siang,
+   senja dan malam ikut applySky), dalam nisbah 2:1 supaya puncak Merdeka 118,
+   KL Tower dan bulan/matahari tidak terpotong bila skrin cukup tinggi; pada
+   skrin rendah ia dipendekkan supaya butang main masih kelihatan. Langit penuh
+   di atas (bukan pudar ke warna panel) dan jalur warna laluan di bawah. */
+.homesky{height:auto;aspect-ratio:2/1;max-height:max(140px,calc(100dvh - 660px));
+  background:linear-gradient(var(--sky-b),color-mix(in srgb,var(--sky-a) 70%,var(--sky-b)) 55%,var(--sky-a))}
+.homesky::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;z-index:1;
+  background:var(--stripe,linear-gradient(90deg,#D6124F 0 25%,#EE7A00 0 50%,#0B8A45 0 75%,#E8B400 0))}
+
+/* Tiga butang main: ikon dan aksen warna laluan (--route) supaya mudah dibezakan.
+   Merah Kelana Jaya = main sekarang, kuning Putrajaya = cepat, hijau Kajang = kawan. */
+#setupHome .homebtn{display:flex;align-items:center;gap:14px;text-align:left;padding:11px 16px 11px 12px}
+.homebtn .hb-tx{flex:1;min-width:0}
+.homebtn .hb-ic{width:42px;height:42px;padding:10px;box-sizing:border-box;border-radius:12px;
+  background:var(--route);color:#fff;stroke-width:2.2}
+.homebtn .hb-ic path{fill:currentColor;fill-opacity:.22}
+#homeFast .hb-ic{color:#2A2100}
+.homebtn.primary .hb-ic{background:rgba(255,255,255,.2)}
+.homebtn.primary .hb-ic path{fill-opacity:1}
+.homebtn:not(.primary){background:color-mix(in srgb,var(--route) 10%,var(--panel));
+  border:1px solid color-mix(in srgb,var(--route) 40%,var(--rule));box-shadow:inset 5px 0 0 var(--route)}
+.homebtn:not(.primary):hover:not(:disabled){background:color-mix(in srgb,var(--route) 17%,var(--panel))}
+#homeFast small{color:color-mix(in srgb,#8A6A00 75%,var(--ink));opacity:1}
+#homeFriends small{color:color-mix(in srgb,#0B8A45 75%,var(--ink));opacity:1}
+@media (max-height:760px){.homebtn .hb-ic{width:36px;height:36px;padding:8px}}
+
+/* Peta transit Lembah Klang di tengah papan (klTransitMap). */
+.center svg.map.ed-kl{opacity:.5;-webkit-mask-image:linear-gradient(#000 38%,transparent 66%);mask-image:linear-gradient(#000 38%,transparent 66%)}
+.kl-map .ln{fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.kl-map .st{fill:var(--board);stroke:var(--ink);stroke-width:.45}
+.kl-map .ix{fill:var(--board);stroke:var(--ink);stroke-width:.75}
+body.v3d .center svg.map.ed-kl{opacity:.5}
+/* Tulisan logo kekal jelas di atas garisan peta. */
+.center>.logo{text-shadow:0 0 .12em var(--center),0 0 .3em var(--center)}
+
+/* Panel giliran: SATU penunjuk kemajuan — laluan tiga stesen
+   (Baling → Bergerak → Tindakan) dalam warna pemain. */
+#turn .turn-stage{list-style:none;margin:0 2px;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  position:relative;color:var(--turn-color,var(--accent));--done:0}
+#turn .turn-stage::before,#turn .turn-stage::after{content:"";position:absolute;left:16.67%;top:9px;height:3px;border-radius:3px}
+#turn .turn-stage::before{right:16.67%;background:currentColor;opacity:.22}
+#turn .turn-stage::after{width:calc(66.67% * var(--done));background:currentColor;transition:width .35s ease}
+#turn .turn-stage li{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0}
+#turn .turn-stage i{display:grid;place-items:center;box-sizing:border-box;width:21px;height:21px;border-radius:50%;
+  border:2.5px solid currentColor;background:var(--panel);font:800 10px/1 var(--mono);font-style:normal;color:inherit}
+#turn .turn-stage span{font-size:11px;font-weight:700;color:var(--muted);white-space:nowrap}
+#turn .turn-stage li.done i,#turn .turn-stage li.active i{background:var(--turn-color,var(--accent));color:#fff}
+#turn .turn-stage li.active i{box-shadow:0 0 0 4px color-mix(in srgb,var(--turn-color,var(--accent)) 22%,transparent)}
+#turn .turn-stage li.active span{color:var(--ink);font-weight:800}
+/* Skrin kecil: stesen dan label sebaris, jadi laluan hanya setinggi satu baris. */
+@media (max-width:1000px){
+  #turn .turn-stage::before,#turn .turn-stage::after{top:50%;margin-top:-1.5px}
+  #turn .turn-stage li{flex-direction:row;justify-content:center;gap:4px}
+  #turn .turn-stage i{width:17px;height:17px;border-width:2px;font-size:9px}
+  #turn .turn-stage span{font-size:10.5px;background:var(--panel);padding-right:4px}
+  #turn .turn-stage li:not(.active) span{display:none}
+}
+
+/* Kad pemain: tunai dan kekayaan bersih menonjol; butiran lain kecil dan
+   hanya bila relevan (bot, pusingan selepas yang pertama, kelayakan, amaran). */
+#players .pl .nmx{display:flex;flex-direction:column;gap:2px;min-width:0}
+#players .pl .pname{font-weight:700}
+#players .pl .psub{display:flex;flex-wrap:wrap;align-items:center;gap:2px 5px;font-size:11px;font-weight:600;color:var(--muted);line-height:1.3}
+#players .pl .psub .sep{opacity:.55}
+.playing-label{display:inline-flex;align-items:center;gap:4px;font-weight:800;color:var(--player-color,var(--accent))}
+.playing-label::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;
+  box-shadow:0 0 0 3px color-mix(in srgb,currentColor 25%,transparent)}
+#players .pl>.money{font-size:19px}
+#players .meta{align-items:center}
+#players .worth{display:flex;align-items:baseline;gap:7px;margin-right:auto}
+#players .worth small{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+#players .worth b{font-size:16px}
+#players .swatches{margin-left:0}
+@media (min-width:1001px){
+  #players .pl>.money{font-size:17px}
+  #players .worth b{font-size:14px}
+}
 
 /* Illustrated edition choices, clearer board labels and purchase preview. */
 .edcards{gap:12px}
@@ -1650,7 +1721,7 @@ body:has(#endBox:not([hidden])) :is(.mfloat,.stamp){display:none}
 #deedPurchase .purchase-heading,#deedPurchase .purchase-facts{display:none}
 #deedPurchase .purchase-balance{border-top:0}
 @media(max-width:1000px){
- #turn:has(.purchase-card) .turn-tutorial,#turn:has(.purchase-card) .turn-stage,#turn:has(.purchase-card) .turn-guide,#turn:has(.purchase-card) .turn-route{display:none}
+ #turn:has(.purchase-card) .turn-tutorial,#turn:has(.purchase-card) .turn-stage,#turn:has(.purchase-card) .turn-guide{display:none}
  #turn .purchase-card{margin:0}
  #turn .purchase-heading{padding:7px 12px 4px}
  #turn .purchase-heading b{font-size:15px}

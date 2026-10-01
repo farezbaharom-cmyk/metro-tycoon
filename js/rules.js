@@ -510,8 +510,8 @@ function showEnd(){
   document.getElementById('endHero').innerHTML=top.length
     ?`<span class="endsky">${skylineSVG('skye')}</span>`+top.slice(0,3).map(r=>{const k=S.players.indexOf(r.p);return `<span class="herotok"><span class="crown">👑</span>${trainMark(k,r.p.color)}</span>`}).join(''):'';
   const rounds=Math.min(S.round||1,S.maxRounds||S.fastRounds||999);
-  const edTag=`${EDITIONS[curEd].emoji} ${EDITIONS[curEd].label} · `;
-  document.getElementById('endLead').textContent=edTag+(top.length
+  const edTag=`${ico(EDITIONS[curEd].icon,'inl')}${EDITIONS[curEd].label} · `;
+  document.getElementById('endLead').innerHTML=edTag+(top.length
     ?`${tie?'Berkongsi tempat pertama dengan':'Kekayaan bersih'} ${fmt(top[0].w)} · ${rounds} ronde`
     :`${rounds} ronde`);
   const medal=['🥇','🥈','🥉'];

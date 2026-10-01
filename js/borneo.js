@@ -230,7 +230,7 @@ const B_TRAINS=[
  '<path class="body" d="M1 12h26l-4 5H5zM5 7h16v5H5zM9 3h9v4H9z"/><path class="win" d="M7 8.5h2v2H7zM11 8.5h2v2h-2zM15 8.5h2v2h-2zM11 4.4h2V6h-2z"/>',
  /* Lokomotif Keretapi Sabah (sama seperti KL) */
  TRAINS[4]];
-const ED_BORNEO={id:'borneo',label:'Edisi Borneo',emoji:'🌴',blurb:'Sabah & Sarawak · laluan rel impian',title:'Metro Tycoon Borneo',
+const ED_BORNEO={id:'borneo',label:'Edisi Borneo',emoji:'🌴',icon:'palm',blurb:'Sabah & Sarawak · laluan rel impian',title:'Metro Tycoon Borneo',
   logo:'Metro<br><span>Tycoon</span> Borneo',sub:'Edisi Sabah & Sarawak',
   home:'Metro <span>Tycoon</span> Borneo',tag:'Permainan hartanah laluan rel impian Sabah dan Sarawak.',
   sq:B_SQ,groups:B_GROUPS,code:B_CODE,corner:B_CORNER,short:B_SHORT,syl:B_SYL,events:B_EVENTS,

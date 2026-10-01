@@ -20,7 +20,7 @@ const klSkyline=skylineSVG;
 const BASE_MISI=MISI.slice();
 /* Laluan berbeza yang ada sekurang-kurangnya satu stesen milik pemain k. */
 const linesOwned=k=>new Set(SQ.map((s,i)=>s.t==='prop'&&S.owner[i]===k?s.g:null).filter(g=>g!==null));
-const ED_KL={id:'kl',label:'Edisi KL',emoji:'🏙️',blurb:'Lembah Klang · MRT, LRT, Monorel',title:'Metro Tycoon KL',
+const ED_KL={id:'kl',label:'Edisi KL',emoji:'🏙️',icon:'city',blurb:'Lembah Klang · MRT, LRT, Monorel',title:'Metro Tycoon KL',
   logo:'Metro<br><span>Tycoon</span> KL',sub:'Edisi Lembah Klang',
   home:'Metro <span>Tycoon</span> KL',tag:'Permainan hartanah laluan transit Lembah Klang.',
   sq:SQ,groups:GROUPS,code:CODE,corner:CORNER,short:SHORT,syl:SHORT_SYL,events:EVENTS,
@@ -72,7 +72,9 @@ function ensureEd(){if(S)applyEdition(S.ed)}
 /* Skrin mula ikut pilihan pemain untuk permainan baharu, bukan permainan
    tersimpan di belakangnya. */
 function refreshHome(){const id=prefEd(),E=EDITIONS[id];
-  const hs=document.getElementById('homeSky');if(hs)hs.innerHTML=E.sky('skyh');
+  const hs=document.getElementById('homeSky');if(hs){hs.innerHTML=E.sky('skyh');
+    /* Jalur di bawah langit ikut warna laluan edisi. */
+    hs.style.setProperty('--stripe',`linear-gradient(90deg,${[4,3,6,7].map((g,k)=>`${E.groups[g].c} ${k*25}% ${k*25+25}%`).join(',')})`)}
   const t=document.getElementById('homeTitle');if(t)t.innerHTML=E.home;
   const g=document.getElementById('homeTag');if(g)g.textContent=E.tag;
   document.querySelectorAll('.edpick button').forEach(b=>{const on=b.dataset.ed===id;
@@ -85,8 +87,8 @@ function initEditions(){
   document.querySelectorAll('.edpick').forEach(el=>{
   /* Skrin utama: kad edisi bergambar jalur warna laluan; tempat lain: suis ringkas. */
   el.innerHTML=Object.values(EDITIONS).map(E=>el.classList.contains('edcards')
-    ?`<button type="button" class="edcard edcard-${E.id}" role="radio" data-ed="${E.id}" aria-checked="false"><span class="edscene" aria-hidden="true">${E.sky('edcard-'+E.id)}</span><span class="edbar" aria-hidden="true">${[4,3,6,7].map(g=>`<i style="background:${E.groups[g].c}"></i>`).join('')}</span><b>${E.emoji} ${E.label}</b><small>${esc(E.blurb)}</small><span class="edplaces">${E.id==='kl'?'KLCC · KL Sentral · Batu Caves':'Kuching · Kota Kinabalu · Miri'}</span><span class="edstatus" aria-hidden="true">Pilih peta</span><span class="edtick" aria-hidden="true">✓</span></button>`
-    :`<button type="button" role="radio" data-ed="${E.id}" aria-checked="false">${E.emoji} ${E.label}</button>`).join('');
+    ?`<button type="button" class="edcard edcard-${E.id}" role="radio" data-ed="${E.id}" aria-checked="false"><span class="edscene" aria-hidden="true">${E.sky('edcard-'+E.id)}</span><span class="edbar" aria-hidden="true">${[4,3,6,7].map(g=>`<i style="background:${E.groups[g].c}"></i>`).join('')}</span><b>${ico(E.icon,'inl')}${E.label}</b><small>${esc(E.blurb)}</small><span class="edplaces">${E.id==='kl'?'KLCC · KL Sentral · Batu Caves':'Kuching · Kota Kinabalu · Miri'}</span><span class="edstatus" aria-hidden="true">Pilih peta</span><span class="edtick" aria-hidden="true">✓</span></button>`
+    :`<button type="button" role="radio" data-ed="${E.id}" aria-checked="false">${ico(E.icon,'inl')}${E.label}</button>`).join('');
   el.addEventListener('click',e=>{const b=e.target.closest('[data-ed]');if(!b)return;
     savePrefEd(b.dataset.ed);refreshHome();drawNames();
     /* Papan di belakang skrin persediaan hanya contoh (bukan permainan

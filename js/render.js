@@ -82,6 +82,41 @@ function skylineSVG(gid){gid=gid||'skyg';
     ${rects('b0',back)}${kltower}${twin}${m118}
     ${front.map(([x,w,h])=>rects('b2',[[x,w,h]])+wins(x,w,h,196)).join('')}
     <rect class="trk" x="0" y="184" width="400" height="3"/>${pillars}${train}</svg>`}
+/* Peta transit bergaya Lembah Klang di tengah papan (viewBox 100×100).
+   Susun atur skematik (garis 0°/45°/90°) tetapi ikut arah sebenar laluan:
+   Kelana Jaya dari Gombak ke barat daya, Ampang/Sri Petaling dari Sentul
+   Timur, Kajang dari Kwasa Damansara ke tenggara, Putrajaya melengkung dari
+   barat laut ke selatan, KTM dan ERL bertemu di KL Sentral. Warna diambil
+   daripada GROUPS, jadi ia ikut laluan sebenar di papan. Hab pertukaran
+   (KL Sentral, Masjid Jamek, Pasar Seni, Bandar Tasik Selatan dan lain-lain)
+   dilukis sebagai bulatan putih bergaris seperti peta rasmi. */
+function klTransitMap(){
+  /* Garis selari (laluan berkongsi landasan): anjak poligaris sejauh d. */
+  const shift=(pts,d)=>pts.map((p,k)=>{
+    const a=pts[Math.max(0,k-1)],b=pts[Math.min(pts.length-1,k+1)],c=k?pts[k-1]:null,e=pts[k+1]||null;
+    const n=(u,v)=>{const dx=v[0]-u[0],dy=v[1]-u[1],l=Math.hypot(dx,dy)||1;return[-dy/l,dx/l]};
+    const n1=c?n(c,p):n(p,e),n2=e?n(p,e):n(c,p);let nx=n1[0]+n2[0],ny=n1[1]+n2[1];const l=Math.hypot(nx,ny)||1;
+    nx/=l;ny/=l;const m=d/Math.max(.5,nx*n1[0]+ny*n1[1]);return[+(p[0]+nx*m).toFixed(2),+(p[1]+ny*m).toFixed(2)]});
+  const path=pts=>'M'+pts.map(p=>p.join(' ')).join('L');
+  /* Titik utama (lihat komen di atas). */
+  const T=[50,22],MJ=[54,42],PS=[48,50],KS=[42,56],HT=[62,50],BB=[66,46],CSL=[62,62],BTS=[56,74],TRX=[76,56];
+  const trunk=[[50,-4],T,[50,34],MJ,HT,CSL];                     /* Ampang + Sri Petaling berkongsi */
+  const ktm=[[34,-4],[42,4],KS,[42,60],BTS];
+  const L=[
+    [4,[[86,-4],[66,20],[54,32],MJ,PS,KS,[28,70],[-4,70]]],           /* Kelana Jaya */
+    [3,shift([...trunk,[72,72],[104,72]],-1.1)],                      /* Ampang */
+    [2,shift([...trunk,[56,68],BTS,[36,94],[30,104]],1.1)],           /* Sri Petaling */
+    [0,[T,[58,30],[58,38],BB,HT,[56,56],KS]],                         /* Monorel */
+    [6,[[-4,36],[14,36],[28,50],PS,[56,50],[60,46],BB,TRX,[104,84]]], /* MRT Kajang */
+    [7,[[-4,20],[10,6],[36,6],T,[70,22],[76,28],TRX,[70,62],CSL,[62,104]]], /* MRT Putrajaya */
+    [1,[...ktm,[56,104]]],[1,[[-4,56],KS]],                           /* KTM Komuter */
+    [5,[...shift(ktm.slice(2),-1.6),[57.6,82],[48,92],[48,104]]]];    /* ERL */
+  const lines=L.map(([g,p])=>`<path class="ln" d="${path(p)}" stroke="${GROUPS[g].c}"/>`).join('');
+  /* Hentian biasa: titik kecil; pertukaran: bulatan putih bergaris seperti peta rasmi. */
+  const X=[T,MJ,PS,KS,HT,BB,CSL,BTS,TRX,[42,6]];
+  const dots=[[66,20],[28,70],[14,36],[36,6],[70,22],[82,62],[92,72],[40,88],[62,84],[56,90],[48,98],[14,56],[42,30]]
+    .map(([x,y])=>`<circle class="st" cx="${x}" cy="${y}" r="1"/>`).join('');
+  return `<g class="kl-map">${lines}${dots}${X.map(([x,y])=>`<circle class="ix" cx="${x}" cy="${y}" r="2"/>`).join('')}</g>`}
 /* Lakaran kecil mercu tanda pada stesen tertentu, ikut edisi. */
 function stationLandmark(i){
   /* Edisi lain membawa lakaran sendiri (EDITIONS[..].marks). */
@@ -105,9 +140,8 @@ function buildBoard(){
     const lw=Math.max(...s.n.split(/\s+/).map(w=>w.length));
     const fit=lw>=11?' tighter':lw>=9?' tight':'';
     h+=`<div class="sq ${side(i)} t-${s.t}" id="sq${i}" style="grid-row:${r};grid-column:${c}" data-i="${i}" role="button" tabindex="0" aria-label="${esc(s.n)}">${stripe}<div class="body">${icon}${stationLandmark(i)}${code}<span class="nm nm-f${fit}">${esc(s.n)}</span><span class="nm nm-s" aria-hidden="true">${esc(SHORT[i]||s.n)}</span>${csub}${label}</div><div class="tokens"></div></div>`});
-  const lines=GROUPS.map((g,k)=>{const y=12+k*11;return `<path d="M-5 ${y} C 30 ${y+18}, 70 ${y-20}, 105 ${y+6}" stroke="${g.c}" stroke-width="2.2" fill="none"/>`}).join('');
   const emap=EDITIONS[curEd].map;
-  h+=`<div class="center" id="center"><svg class="map ed-${curEd}" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${emap?emap():lines}</svg>${skylineSVG()}
+  h+=`<div class="center" id="center"><svg class="map ed-${curEd}" viewBox="0 0 100 100" preserveAspectRatio="${emap?'none':'xMidYMid slice'}" aria-hidden="true">${(emap||klTransitMap)()}</svg>${skylineSVG()}
     <div class="logo"><h1>${EDITIONS[curEd].logo}</h1><p>${EDITIONS[curEd].sub}</p></div>
     <div class="dice">${dieHTML(0)}${dieHTML(1)}</div>
     <div class="msg" id="msg" aria-live="polite"></div><div id="cardSlot"></div></div>`;
@@ -252,7 +286,13 @@ function showDeed(i){
   if(preview.innerHTML)now.hidden=true;
   document.getElementById('deedBox').hidden=false;
 }
-function lapBar(p){if(!S.qual)return `<span class="chip">Pusingan ${p.laps}</span>`;return `<span class="lap" title="Kelayakan ${Math.min(p.laps,S.qual)}/${S.qual} pusingan">${[...Array(S.qual)].map((_,k)=>`<i class="${k<p.laps?'on':''}"></i>`).join('')}</span><span class="chip">Pusingan ${p.laps}</span>`}
+/* Maklumat kecil di bawah nama pemain: hanya yang relevan sekarang.
+   Pusingan dipapar selepas pusingan pertama; bar kelayakan hanya semasa
+   pemain masih menunggu untuk layak membeli. */
+function lapBar(p){const out=[];
+  if(S.qual&&p.laps<S.qual&&!p.bankrupt)out.push(`<span class="lap" title="Kelayakan ${p.laps}/${S.qual} pusingan" aria-label="Kelayakan membeli ${p.laps}/${S.qual} pusingan">${[...Array(S.qual)].map((_,k)=>`<i class="${k<p.laps?'on':''}"></i>`).join('')}</span>`);
+  if(p.laps>0)out.push(`Pusingan ${p.laps}`);
+  return out}
 function turnGuidance(){
   const p=cur();
   if(S.phase==='over')return 'Permainan tamat. Lihat keputusan atau main semula.';
@@ -267,12 +307,14 @@ function turnGuidance(){
   if(p.inJail)return 'Pilih cuba dadu ganda, bayar RM50 atau guna Kad Bebas.';
   return S.doubles?'Dadu ganda! Tekan Baling lagi.':'Tekan Baling dadu untuk bergerak.';
 }
+/* Satu penunjuk kemajuan giliran, dilukis sebagai laluan tren tiga stesen
+   (Baling → Bergerak → Tindakan) dalam warna pemain. */
 function turnStageHTML(){
   if(S.phase==='over')return '';
   const active=S.phase==='roll'?0:S.phase==='moving'?1:2;
-  const labels=['1 · Baling','2 · Bergerak','3 · Tindakan'];
-  return '<div class="turn-stage" aria-label="Kemajuan giliran">'+labels.map((label,i)=>
-    '<span'+(i===active?' class="active" aria-current="step"':'')+'>'+label+'</span>').join('')+'</div>';
+  const labels=['Baling','Bergerak','Tindakan'];
+  return `<ol class="turn-stage" aria-label="Kemajuan giliran" style="--done:${active/2}">`+labels.map((label,i)=>
+    `<li class="${i===active?'active':i<active?'done':''}"${i===active?' aria-current="step"':''}><i aria-hidden="true">${i<active?'✓':i+1}</i><span>${label}</span></li>`).join('')+'</ol>';
 }
 let tutorialGid=null,tutorialClosed=false;
 function turnTutorialHTML(){
@@ -282,7 +324,7 @@ function turnTutorialHTML(){
   const active=!!(S.started&&p&&!p.bot&&!p.bankrupt&&S.turn===seat&&p.laps===0&&S.phase!=='over'&&!tutorialClosed);
   if(!active)return '';
   const sq=SQ[p.pos],phase=S.phase;
-  let step=phase==='roll'?0:phase==='moving'?1:2,title='',text='';
+  let title='',text='';
   if(phase==='roll'){
     title=`Anda berada di ${sq.n}`;
     text=p.inJail?'Pilih salah satu cara keluar yang tersedia dalam panel giliran.':'Tekan Baling dadu. Jumlah dadu menentukan berapa petak token bergerak.';
@@ -302,11 +344,8 @@ function turnTutorialHTML(){
     title=`Anda berada di ${sq.n}`;
     text=turnGuidance();
   }
-  const labels=['Baling','Bergerak','Tindakan'];
-  const steps=labels.map((x,i)=>`<span class="${i===step?'active':i<step?'done':''}"${i===step?' aria-current="step"':''}><i>${i<step?'✓':i+1}</i><small>${x}</small></span>`).join('');
   return `<aside class="turn-tutorial" id="turnTutorial" role="status" aria-live="polite">
     <button class="tutorial-close" id="tutorialClose" type="button" aria-label="Tutup tutorial">×</button>
-    <div class="tutorial-steps" aria-label="Kemajuan tutorial">${steps}</div>
     <div class="tutorial-copy"><b class="tutorial-title">${esc(title)}</b><p>${esc(text)}</p></div>
   </aside>`;
 }
@@ -382,7 +421,7 @@ function renderSide(){
     acts=NET.host?`<button class="btn" type="button" data-a="takeover">Ambil alih giliran ini</button>`:''}
   if(NET&&S.phase==='over'&&!NET.host)acts='';
   if(NET&&S.phase!=='over'&&afkSeat>=0&&S.players[afkSeat]&&!S.players[afkSeat].bot){
-    note=`<div class="note warn">⏱ ${esc(S.players[afkSeat].name)} tiada respons — bot sedang ambil alih.</div>`;
+    note=`<div class="note warn">${ico('timer','inl')}${esc(S.players[afkSeat].name)} tiada respons — bot sedang ambil alih.</div>`;
     if(afkSeat===S.turn)acts=`<button class="btn" type="button" disabled>Bot bermain untuk ${esc(p.name)}…</button>`}
   if(S.phase!=='over'&&p.bot){
     note=`<div class="note botnote">Bot ${BOT_LEVELS[p.bot].toLowerCase()} sedang berfikir…</div>`;
@@ -393,13 +432,16 @@ function renderSide(){
   const guide=document.getElementById('turnGuide');
   if(guide&&guide.textContent!==turnGuidance())guide.textContent=turnGuidance();
   const tutorial=turnTutorialHTML();
-  t.innerHTML=`<div class="turnhead"><span class="avatar" style="background:${p.color};color:${p.color}"><span class="tdot av" style="color:${p.color}">${trainSVG(S.turn)}</span></span><div class="who"><small>${S.phase==='over'?'Permainan tamat':NET&&p.uid===UID?'Giliran anda':p.bot?'Giliran bot':'Giliran sekarang'}</small><b>${S.phase==='over'?'':'<span aria-hidden="true">🚇</span> '}${esc(p.name)}</b></div><span class="money" style="color:${neg?'var(--bad)':'inherit'}">${fmt(p.cash)}</span></div>${S.phase==='over'?'':'<div class="turn-route" aria-hidden="true"><i></i><i></i><i></i><span></span></div>'}${note}${tutorial||turnStageHTML()}${tutorial||(neg&&S.phase!=='over')?'':`<p class="turn-guide">${esc(turnGuidance())}</p>`}${alongStrip(p)}${S.phase==='buy'?purchaseSummaryHTML(p.pos,p):''}<div class="actions">${acts}</div><div class="afkbar" id="afkClock" hidden></div><div class="note">${p.laps<S.qual?`Kelayakan membeli: ${p.laps}/${S.qual} pusingan. `:''}${S.fast?`<span class="fastnote">⚡ Mod cepat · ronde ${Math.min(S.round||1,S.fastRounds)}/${S.fastRounds}</span>`:S.maxRounds?`<span class="fastnote">🏁 Ronde ${Math.min(S.round||1,S.maxRounds)}/${S.maxRounds} · kekayaan tertinggi menang</span>`:S.endLaps?`Tamat apabila semua pemain lengkap ${S.endLaps} pusingan.`:'Tamat apabila hanya seorang pemain tidak muflis.'}</div>`+pstripHTML();
+  t.innerHTML=`<div class="turnhead"><span class="avatar" style="background:${p.color};color:${p.color}"><span class="tdot av" style="color:${p.color}">${trainSVG(S.turn)}</span></span><div class="who"><small>${S.phase==='over'?'Permainan tamat':NET&&p.uid===UID?'Giliran anda':p.bot?'Giliran bot':'Giliran sekarang'}</small><b>${S.phase==='over'?'':ico('train','inl')}${esc(p.name)}</b></div><span class="money" style="color:${neg?'var(--bad)':'inherit'}">${fmt(p.cash)}</span></div>${turnStageHTML()}${note}${tutorial}${tutorial||(neg&&S.phase!=='over')?'':`<p class="turn-guide">${esc(turnGuidance())}</p>`}${alongStrip(p)}${S.phase==='buy'?purchaseSummaryHTML(p.pos,p):''}<div class="actions">${acts}</div><div class="afkbar" id="afkClock" hidden></div><div class="note">${p.laps<S.qual?`Kelayakan membeli: ${p.laps}/${S.qual} pusingan. `:''}${S.fast?`<span class="fastnote">${ico('bolt','inl')}Mod cepat · ronde ${Math.min(S.round||1,S.fastRounds)}/${S.fastRounds}</span>`:S.maxRounds?`<span class="fastnote">${ico('flag','inl')}Ronde ${Math.min(S.round||1,S.maxRounds)}/${S.maxRounds} · kekayaan tertinggi menang</span>`:S.endLaps?`Tamat apabila semua pemain lengkap ${S.endLaps} pusingan.`:'Tamat apabila hanya seorang pemain tidak muflis.'}</div>`+pstripHTML();
   turnArrival();
   afkPaint();
   document.getElementById('players').innerHTML=S.players.map((q,k)=>{
     const sw=S.owner.map((o,i)=>o===k?`<i style="background:${SQ[i].t==='prop'?GROUPS[SQ[i].g].c:'var(--muted)'}"></i>`:'').join('');
-    return `<li data-player="${k}" class="pl ${k===S.turn&&S.phase!=='over'?'cur':''} ${q.bankrupt?'out':''}" style="--player-color:${q.color}">${trainMark(k,q.color)}<span class="nmx">${NET?`<span class="live ${isOnline(q.uid)?'':'off'}" title="${isOnline(q.uid)?'Dalam talian':'Luar talian'}"></span> `:''}${esc(q.name)}${NET&&q.uid===UID?' <span class="chip ok">Anda</span>':''}</span><span class="money" style="${q.cash<0?'color:var(--bad)':''}"><small class="cash-label">Tunai</small>${fmt(q.cash)}</span>
-    <span class="meta">${k===S.turn&&S.phase!=='over'?'<span class="playing-label">● Sedang bermain</span>':''}${q.bot?`<span class="chip">Bot ${BOT_LEVELS[q.bot]}</span>`:''}${lapBar(q)}${q.bankrupt?'<span class="chip bad">Muflis</span>':S.qual&&q.laps>=S.qual?'<span class="chip ok">Boleh beli</span>':''}${q.inJail?'<span class="chip bad">Lokap</span>':''}${q.cards?`<span class="chip">Kad bebas ×${q.cards}</span>`:''}${q.along&&!q.bankrupt?`<span class="chip bad" title="Ditagih bila lalu MULA">🦈 Hutang Ah Long ${fmt(q.along)}</span>`:''}<span class="chip worth-label">Kekayaan bersih ${fmt(netWorth(q))}</span><span class="swatches">${sw}</span></span></li>`}).join('');
+    const now=k===S.turn&&S.phase!=='over';
+    const sub=[now?'<span class="playing-label">Giliran</span>':'',q.bot?`Bot ${BOT_LEVELS[q.bot]}`:'',...lapBar(q)].filter(Boolean);
+    const flags=`${q.bankrupt?'<span class="chip bad">Muflis</span>':''}${q.inJail?'<span class="chip bad">Lokap</span>':''}${q.cards?`<span class="chip">Kad bebas ×${q.cards}</span>`:''}${q.along&&!q.bankrupt?`<span class="chip bad" title="Ditagih bila lalu MULA">🦈 Hutang ${fmt(q.along)}</span>`:''}`;
+    return `<li data-player="${k}" class="pl ${now?'cur':''} ${q.bankrupt?'out':''}" style="--player-color:${q.color}"${now?' aria-current="true"':''}>${trainMark(k,q.color)}<span class="nmx"><span class="pname">${NET?`<span class="live ${isOnline(q.uid)?'':'off'}" title="${isOnline(q.uid)?'Dalam talian':'Luar talian'}"></span> `:''}${esc(q.name)}${NET&&q.uid===UID?' <span class="chip ok">Anda</span>':''}</span>${sub.length?`<small class="psub">${sub.join('<span class="sep" aria-hidden="true">·</span>')}</small>`:''}</span><span class="money" style="${q.cash<0?'color:var(--bad)':''}"><small class="cash-label">Tunai</small>${fmt(q.cash)}</span>
+    <span class="meta"><span class="worth"><small>Kekayaan bersih</small><b class="money">${fmt(netWorth(q))}</b></span>${flags}<span class="swatches">${sw}</span></span></li>`}).join('');
   /* Dalam bilik online, tunjukkan hartanah SENDIRI semasa menunggu giliran
      orang lain — barulah pemain boleh merancang, bukan memandang senarai lawan.
      Butang dikunci kerana bukan giliran kita. */
@@ -412,7 +454,7 @@ function renderSide(){
   const lock=busy||S.phase==='moving'||S.phase==='over'||tradePending()||!isActor()||who!==S.turn;
   document.getElementById('props').innerHTML=mine.length?portfolioHTML(mine,i=>{const s=SQ[i];const col=s.t==='prop'?GROUPS[s.g].c:'var(--muted)';
     const h=S.houses[i];const st=S.mort[i]?'Digadai':h===5?'Hotel':h?`${h} rumah`:(s.t==='prop'&&hasSet(who,s.g)?'Set penuh':'');
-    const b=s.t==='prop'?`<button class="mini" type="button" data-b="${i}" ${lock||!canBuild(i)?'disabled':''} title="${cur().laps<1&&!S.fast?'Boleh bina selepas pusingan pertama':S.houses[i]>=buildLimit(i)?(buildLimit(i)===5?'Sudah hotel':'Tanpa set penuh: maks. 2 rumah'):'Bina ('+fmt(houseCost(i))+')'}">+🏠</button><button class="mini" type="button" data-s="${i}" ${lock||!canSell(i)?'disabled':''} title="Jual bangunan${S.houses[i]?' (+'+fmt(sellValue(i))+')':''}">−</button>`:'';
+    const b=s.t==='prop'?`<button class="mini" type="button" data-b="${i}" ${lock||!canBuild(i)?'disabled':''} aria-label="Bina rumah" title="${cur().laps<1&&!S.fast?'Boleh bina selepas pusingan pertama':S.houses[i]>=buildLimit(i)?(buildLimit(i)===5?'Sudah hotel':'Tanpa set penuh: maks. 2 rumah'):'Bina ('+fmt(houseCost(i))+')'}">+${ico('house','inl')}</button><button class="mini" type="button" data-s="${i}" ${lock||!canSell(i)?'disabled':''} title="Jual bangunan${S.houses[i]?' (+'+fmt(sellValue(i))+')':''}">−</button>`:'';
     const m=S.mort[i]?`<button class="mini" type="button" data-u="${i}" ${lock||!canUnmort(i)?'disabled':''} title="Tebus ${fmt(unmortCost(i))}">Tebus</button>`:`<button class="mini" type="button" data-m="${i}" ${lock||!canMort(i)?'disabled':''} title="Gadai +${fmt(s.p/2)}">Gadai</button>`;
     return `<li class="pp"><span class="c" style="background:${col}"></span><span class="t"><button class="asset-link" type="button" data-focus="${i}" aria-label="Cari ${esc(s.n)} di papan" title="Cari di papan">${esc(s.n)} <span aria-hidden="true">↗</span></button><small>Sewa ${fmt(rentOf(i))}${st?' · '+st:''}</small></span>${b}${m}</li>`}):`<li class="empty">${who===S.turn?'Belum ada hartanah. Mendarat di stesen untuk membeli.':'Anda belum memiliki hartanah.'}</li>`;
   document.getElementById('log').innerHTML=S.log.slice(0,40).map(l=>{const[ic,tx]=logParts(l);
@@ -661,7 +703,7 @@ function moneyHook(){
     if(chip){chip.classList.remove('up','down');void chip.offsetWidth;chip.classList.add(d>0?'up':'down')}});
   lastCash=now}
 function balanceMoney(k,d){
-  const targets=[document.querySelector(`#players [data-player="${k}"] .money`),document.querySelector(`.pstrip [data-k="${k}"] .money`)];
+  const targets=[document.querySelector(`#players [data-player="${k}"]>.money`),document.querySelector(`.pstrip [data-k="${k}"] .money`)];
   if(k===S.turn)targets.push(document.querySelector('#turn .turnhead .money'));
   targets.filter(Boolean).forEach(target=>{
     const badge=document.createElement('span');badge.className='balance-delta '+(d>0?'gain':'loss');

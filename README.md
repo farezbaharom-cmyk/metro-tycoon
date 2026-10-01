@@ -52,7 +52,8 @@ Peraturan penuh ada dalam permainan, di **⚙️ Menu → Peraturan**.
 - 👀 **Mod penonton**: kawan yang masuk selepas permainan bermula, atau bila bilik penuh, boleh menonton secara langsung.
 - 🦈 **Ah Long:** pemain yang kesempitan boleh pinjam RM300, tapi Ah Long menagih RM400 bila mereka lalu MULA, cukup atau tidak wang mereka.
 - 🧵 **Tema Songket:** selain Auto, Terang dan Gelap, pilih **⚙️ Menu → Tema: Songket** untuk papan berbingkai tenunan emas atas merah hati.
-- 🌃 **Langit KL** di tengah papan (Menara Berkembar, KL Tower, Merdeka 118). Ia ikut jam tempatan: subuh, siang, senja dan malam, dengan palet berbeza untuk tema cerah dan gelap.
+- 🌃 **Langit KL** di tengah papan dan di skrin mula (Menara Berkembar, KL Tower, Merdeka 118). Ia ikut jam tempatan: subuh, siang, senja dan malam, dengan palet berbeza untuk tema cerah dan gelap.
+- 🚉 **Peta transit bergaya** di tengah papan: laluan Kelana Jaya, Ampang, Sri Petaling, Monorel, MRT Kajang, MRT Putrajaya, KTM dan ERL dalam warna sebenar, dengan hab pertukaran seperti KL Sentral, Masjid Jamek dan Bandar Tasik Selatan.
 - 🏛️ **Petak sudut bertema KL:** Stesen Kuala Lumpur (Mula), Penjara Pudu (Lokap), Dataran Merdeka (Parkir Percuma) dan sekatan jalan raya (Pergi ke Lokap).
 - 📲 **Boleh dipasang macam app** di skrin utama telefon, dan mod satu peranti boleh dimain tanpa internet.
 - 💾 **Permainan disimpan automatik** dalam pelayar.
