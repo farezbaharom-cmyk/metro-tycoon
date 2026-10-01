@@ -36,6 +36,8 @@ Pilih edisi di skrin utama, atau buka terus [Edisi Borneo](https://farezbaharom-
 
 Peraturan penuh ada dalam permainan, di **⚙️ Menu → Peraturan**.
 
+**Cari token saya:** tekan butang di bawah papan untuk menyerlahkan petak dan token anda. Dalam pandangan 2D, papan beralih ke lokasi anda sambil mengekalkan tahap zum. Dalam bilik online, butang mencari token sendiri walaupun pemain lain sedang bermain; pada satu peranti, ia mencari pemain manusia semasa atau terakhir sebelum giliran bot. Butang turut tersedia dalam pandangan 3D untuk menyerlahkan lokasi tanpa mengubah sudut papan.
+
 ## Ciri-ciri
 
 - 🌴 **Dua edisi papan:** pilih **Edisi KL** (Lembah Klang) atau **Edisi Borneo** di skrin utama. Edisi Borneo ada laluan rel impian Sabah dan Sarawak (Keretapi Sabah, ART Kuching, Laluan Kinabalu dan lain-lain), dengan kad, berita dan pemandangan sendiri. Peraturan sama untuk kedua-dua edisi, dan bilik online ikut edisi yang dipilih hos. Edisi Borneo ada kenderaan sendiri (bot ekspres, bas, kapal terbang kecil, feri), watak **Orang Utan** dan **Kenyalang**, mercu tanda, suara stesen khas dan misi **Penjelajah Borneo**. Pautan terus: [farezbaharom-cmyk.github.io/metro-tycoon/borneo/](https://farezbaharom-cmyk.github.io/metro-tycoon/borneo/)

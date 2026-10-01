@@ -356,6 +356,7 @@ function purchaseSummaryHTML(i,p){
   return `<section class="purchase-card" aria-label="Ringkasan pembelian" style="--purchase-route:${route?route.c:s.t==='hub'?'#2B3A47':'#3C6E71'}"><div class="purchase-heading"><small>${esc(route?route.n:s.t==='hub'?'Hab pertukaran':'Utiliti')}</small><b>${esc(s.n)}</b></div><dl class="purchase-facts"><div><dt>Harga belian</dt><dd>${fmt(s.p)}</dd></div><div><dt>${s.t==='util'?'Formula sewa asas':'Sewa asas'}</dt><dd>${rent}</dd></div></dl><div class="purchase-balance ${afford?'':'insufficient'}"><span>${afford?'Baki selepas membeli':'Wang tambahan diperlukan'}</span><strong>${fmt(afford?balance:-balance)}</strong></div><p class="purchase-note">${afford?'Baki ini belum termasuk ganjaran misi.':'Wang belum cukup. Lepaskan untuk memulakan lelongan.'}</p></section>`;
 }
 function renderSide(){
+  updateTokenFinder();
   const p=cur();const t=document.getElementById('turn');
   let acts='',note='';const neg=p.cash<0;
   if(S.phase==='over'){acts=`<button class="btn primary" type="button" data-a="again">Main semula</button>`}
@@ -733,18 +734,51 @@ function centerOn(bx,by,nz){
   zoom.x=v.clientWidth/2-bx*zoom.z;zoom.y=v.clientHeight/2-by*zoom.z;applyZoom()}
 /* Zum pertama pergi ke petak pemain semasa, bukan ke logo di tengah. */
 let assetFocusTimer=0;
+function highlightSquare(el,color){
+  clearTimeout(assetFocusTimer);
+  document.querySelectorAll('.sq.asset-focus').forEach(s=>s.classList.remove('asset-focus'));
+  document.querySelectorAll('.tok.token-focus').forEach(t=>t.classList.remove('token-focus'));
+  el.style.setProperty('--focus-color',color);
+  el.classList.add('asset-focus');
+  assetFocusTimer=setTimeout(()=>{
+    el.classList.remove('asset-focus');
+    document.querySelectorAll('.tok.token-focus').forEach(t=>t.classList.remove('token-focus'));
+  },2600);
+}
 function focusAsset(i){
   if(!Number.isInteger(i)||i<0||i>=SQ.length)return;
   const el=document.getElementById('sq'+i),v=$bv();
   if(!el||!v)return;
-  clearTimeout(assetFocusTimer);
-  document.querySelectorAll('.sq.asset-focus').forEach(s=>s.classList.remove('asset-focus'));
-  el.style.setProperty('--focus-color',SQ[i].t==='prop'?GROUPS[SQ[i].g].c:'var(--accent)');
-  el.classList.add('asset-focus');
+  highlightSquare(el,SQ[i].t==='prop'?GROUPS[SQ[i].g].c:'var(--accent)');
   if(!document.body.classList.contains('v3d'))
     centerOn(el.offsetLeft+el.offsetWidth/2,el.offsetTop+el.offsetHeight/2,2.3);
   v.scrollIntoView({block:'start',behavior:RM?'instant':'smooth'});
-  assetFocusTimer=setTimeout(()=>el.classList.remove('asset-focus'),2600);
+}
+/* Online: sentiasa token sendiri. Satu peranti: pemain manusia semasa,
+   atau manusia terakhir sebelum giliran bot. Pemerhati tiada token sendiri. */
+function tokenFinderSeat(){
+  if(!S||!S.players.length)return -1;
+  if(NET){const k=mySeat();return k>=0&&!S.players[k].bankrupt?k:-1}
+  for(let step=0;step<S.players.length;step++){
+    const k=(S.turn-step+S.players.length)%S.players.length,p=S.players[k];
+    if(!p.bot&&!p.bankrupt)return k;
+  }
+  return -1;
+}
+function updateTokenFinder(){
+  const button=document.getElementById('findToken');if(!button)return;
+  button.disabled=tokenFinderSeat()<0;
+}
+function findMyToken(){
+  const k=tokenFinderSeat(),p=k>=0?S.players[k]:null;if(!p)return false;
+  const el=document.getElementById('sq'+p.pos),v=$bv();if(!el||!v)return false;
+  highlightSquare(el,p.color);
+  el.querySelector(`.tok[data-k="${k}"]`)?.classList.add('token-focus');
+  if(!document.body.classList.contains('v3d'))
+    centerOn(el.offsetLeft+el.offsetWidth/2,el.offsetTop+el.offsetHeight/2,zoom.z);
+  v.scrollIntoView({block:'nearest',behavior:RM?'instant':'smooth'});
+  document.getElementById('tokenLocation').textContent=`${p.name} berada di ${SQ[p.pos].n}.`;
+  return true;
 }
 function zoomToMe(nz){
   const el=S&&S.players[S.turn]?document.getElementById('sq'+S.players[S.turn].pos):null;
@@ -794,6 +828,7 @@ function bindZoom(){
   },{passive:false});
   document.getElementById('zoomctl').addEventListener('click',e=>{
     const t=e.target.closest('[data-z]');if(!t||t.disabled)return;
+    if(t.dataset.z==='me'){findMyToken();return}
     const cx=v.clientWidth/2,cy=v.clientHeight/2;
     if(t.dataset.z==='in'){
       if(zoom.z<=ZMIN+1e-3&&zoomToMe(1.8))return;   /* zum pertama: cari saya */
