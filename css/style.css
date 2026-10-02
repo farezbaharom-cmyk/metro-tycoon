@@ -1682,3 +1682,29 @@ body:has(#endBox:not([hidden])) :is(.mfloat,.stamp){display:none}
  #turn .purchase-balance strong{font-size:16px}
  #turn .purchase-note{padding:5px 12px 7px;font-size:10px}
 }
+
+/* Dadu neutral sebelum balingan pertama. */
+.die.pending .cube{visibility:hidden}
+.die.pending::after{content:"?";position:absolute;inset:0;display:grid;place-items:center;
+  border-radius:18%;background:var(--panel);border:2px solid var(--rule);
+  color:var(--muted);font:800 4.5cqi/1 var(--body)}
+
+/* Token lebih jelas; lingkaran menggunakan warna pemain semasa. */
+.board .tok.me{position:relative;z-index:7;outline:2px solid currentColor;outline-offset:2px;
+  border-radius:999px;background:var(--panel);box-shadow:0 0 0 4px var(--panel)}
+@media (min-width:1001px),(min-width:701px) and (min-height:521px),(min-width:701px) and (orientation:portrait){
+  .board{--tkw:max(28px,5cqi);--tkh:max(24px,4cqi)}
+  .sq.corner .tok{width:4.6cqi;height:3.5cqi;min-width:26px;min-height:22px}
+  .sq.corner .tokens:has(.tok:nth-child(3)) .tok{width:3.6cqi;height:3cqi;min-width:22px;min-height:20px}
+  .sq.corner .tokens{gap:3px}
+}
+@media (max-width:700px),(max-width:1000px) and (max-height:520px) and (orientation:landscape){
+  .sq:not(.corner) .tok,.sq:not(.corner) .tokens:has(.tok:nth-child(3)) .tok{width:28px;height:24px}
+  .sq.bottom:not(.corner) .tokens{top:-26px;height:24px}
+  .sq.top:not(.corner) .tokens{bottom:-26px;height:24px}
+  .sq.left:not(.corner) .tokens{right:-30px;width:28px}
+  .sq.right:not(.corner) .tokens{left:-30px;width:28px}
+  .sq.corner .tok{width:26px;height:22px}
+  .sq.corner .tokens:has(.tok:nth-child(3)) .tok{width:22px;height:20px}
+  .sq.corner .tok.me{z-index:7}
+}

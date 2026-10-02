@@ -134,9 +134,15 @@ const FACE_TO_FRONT={1:'',6:'rotateY(180deg)',3:'rotateY(-90deg)',
    setiap kali, tidak pernah berpusing balik. */
 const dieSpin=[{x:0,y:0},{x:0,y:0}];
 function renderDice(spin){
+  /* Simpan angka dalaman untuk peraturan; sebelum balingan pertama, paparkan ?.
+     Simpanan lama tanpa rollId masih mengenal pasti mesej permulaan. */
+  const pending=S.rollId===0||(S.rollId==null&&S.phase==='roll'&&/baling dadu untuk mula\./.test(S.msg||''));
   S.dice.forEach((v,k)=>{
     const d=document.getElementById('d'+k),cube=d&&d.querySelector('.cube');
     if(!cube)return;
+    d.classList.toggle('pending',pending);
+    d.setAttribute('role','img');
+    d.setAttribute('aria-label',pending?'Dadu belum dibaling':'Dadu '+(k+1)+': '+v);
     if(spin){const t=dieSpin[k];t.x+=1+Math.floor(Math.random()*2);t.y+=2+Math.floor(Math.random()*2)}
     const t=dieSpin[k];
     /* Pusingan penuh tidak mengubah orientasi akhir, hanya memberi gulingan. */

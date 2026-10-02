@@ -340,7 +340,7 @@ function newGame(names,qual,endLaps,cash,bots,useAuc,fast,ed){
   if(fast){qual=0;endLaps=0}
   S={players:names.map((n,i)=>({name:n,color:COLORS[i],cash,pos:0,laps:0,inJail:false,jailTurns:0,cards:0,bankrupt:false,creditor:null,bot:(bots&&bots[i])||null})),
    owner:Array(40).fill(null),houses:Array(40).fill(0),mort:Array(40).fill(false),
-   turn:0,phase:'roll',doubles:0,again:false,dice:[3,4],qual,endLaps,msg:`${names[0]}, baling dadu untuk mula.`,
+   turn:0,phase:'roll',doubles:0,again:false,rollId:0,dice:[3,4],qual,endLaps,msg:`${names[0]}, baling dadu untuk mula.`,
    useAuc:useAuc!==false,auc:null,trade:null,
    card:null,log:[],decks:{peluang:shuffle([...PELUANG.keys()]),tabung:shuffle([...TABUNG.keys()])},
    fast:!!fast,fastRounds:fastRounds(names.length),round:1,st:names.map(()=>newStat(cash)),gid:Date.now().toString(36),
