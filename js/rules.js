@@ -261,39 +261,12 @@ function flash(i){const el=document.getElementById('sq'+i);if(!el)return;el.clas
 /* ---------- turn flow ---------- */
 const r6=()=>1+Math.floor(Math.random()*6);
 
-/* Developer perk: "Farez rock" mempunyai 50 Luck untuk dadu.
-   Luck tidak menjamin 6; ia memberi 50% peluang untuk mengambil nilai
-   yang lebih tinggi daripada dua balingan rawak bagi setiap dadu. */
-function luckyR6(p){
-  const a=r6();
-  if(!p||String(p.name||'').trim().toLowerCase()!=='farez rock'||Math.random()>=.5)return a;
-  return Math.max(a,r6());
-}
-const isFarezRock=p=>!!p&&String(p.name||'').trim().toLowerCase()==='farez rock';
-function costlyEnemyLanding(p,total){
-  if(!isFarezRock(p)||!Number.isFinite(total)||!SQ.length)return false;
-  const i=(p.pos+total)%SQ.length,o=S.owner[i];
-  if(o===null||o===undefined||o===S.players.indexOf(p)||S.mort[i])return false;
-  const rent=rentOf(i,{roll:total});
-  /* Anggap sewa mahal apabila sekurang-kurangnya RM100 atau 10% tunai semasa. */
-  return rent>=Math.max(100,Math.floor(Math.max(0,p.cash)*.10));
-}
-function luckyDicePair(p){
-  let a=luckyR6(p),b=luckyR6(p);
-  if(!isFarezRock(p)||p.inJail||!costlyEnemyLanding(p,a+b))return [a,b];
-  /* Cari beberapa alternatif sah. Jika ada, elakkan petak lawan yang mahal. */
-  for(let n=0;n<8;n++){
-    const x=luckyR6(p),y=luckyR6(p);
-    if(!costlyEnemyLanding(p,x+y))return [x,y];
-  }
-  return [a,b];
-}
 async function rollDice(){
   if(busy||S.phase!=='roll'||cur().cash<0||tradePending())return;
   save(); /* Checkpoint sebelum apa-apa dadu, pergerakan atau bayaran berubah. */
   busy=true;S.card=null;
   const p=cur();S.phase='moving';S.rollId=(S.rollId||0)+1;sfx.dice();
-  const [a,b]=luckyDicePair(p),dbl=a===b;S.dice=[a,b];
+  const a=r6(),b=r6(),dbl=a===b;S.dice=[a,b];
   rollDiceAnim();await sleep(800);
   addLog(`${p.name} baling ${a} + ${b}${dbl?' (ganda!)':''}.`,'dadu');
   if(p.inJail){
