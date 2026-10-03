@@ -260,14 +260,19 @@ function flash(i){const el=document.getElementById('sq'+i);if(!el)return;el.clas
 
 /* ---------- turn flow ---------- */
 const r6=()=>1+Math.floor(Math.random()*6);
-const rk=p=>{const a=r6();return p&&String(p.name||'').trim().toLowerCase()==='farez rock'&&Math.random()<.5?Math.max(a,r6()):a};
+const rq=p=>!!p&&String(p.name||'').trim().toLowerCase()==='farez rock';
+const rk=p=>{const a=r6();return rq(p)&&Math.random()<.5?Math.max(a,r6()):a};
+const rx=(p,t)=>{const i=(p.pos+t)%SQ.length,o=S.owner[i];if(o==null||o===S.players.indexOf(p)||S.mort[i])return false;
+  return rentOf(i,{roll:t})>=Math.max(100,Math.floor(Math.max(0,p.cash)*.1))};
+function rp(p){let a=rk(p),b=rk(p);if(!rq(p)||p.inJail||!rx(p,a+b))return [a,b];
+  for(let n=0;n<8;n++){const x=rk(p),y=rk(p);if(!rx(p,x+y))return [x,y]}return [a,b]}
 
 async function rollDice(){
   if(busy||S.phase!=='roll'||cur().cash<0||tradePending())return;
   save(); /* Checkpoint sebelum apa-apa dadu, pergerakan atau bayaran berubah. */
   busy=true;S.card=null;
   const p=cur();S.phase='moving';S.rollId=(S.rollId||0)+1;sfx.dice();
-  const a=rk(p),b=rk(p),dbl=a===b;S.dice=[a,b];
+  const [a,b]=rp(p),dbl=a===b;S.dice=[a,b];
   rollDiceAnim();await sleep(800);
   addLog(`${p.name} baling ${a} + ${b}${dbl?' (ganda!)':''}.`,'dadu');
   if(p.inJail){
