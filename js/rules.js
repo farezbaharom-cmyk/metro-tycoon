@@ -34,6 +34,8 @@ function pumpToasts(z){
     if(z.children.length>1&&z.scrollHeight>z.clientHeight+1){el.remove();break}
     toastQ.shift();const n=el.textContent.length;
     setTimeout(()=>{el.remove();const z2=toastZone();if(z2)pumpToasts(z2);else toastQ.length=0},n>60?3400:2600)}}
+/* Buang semua notis yang sedang dipapar atau menunggu (cth. semasa skrin tamat). */
+function clearToasts(){toastQ.length=0;document.querySelectorAll('.toast').forEach(el=>el.remove())}
 function toast(t){const el=document.createElement('div');el.className='toast';el.textContent=t;
   const z=toastZone();
   if(z){el.classList.add('in-board');toastQ.push(el);if(toastQ.length>3)toastQ.shift();pumpToasts(z);return}
@@ -515,6 +517,7 @@ function endSummary(rk,bd){
     `\n\nMain di sini: ${url}`}
 let lastSummary='', wonSaid=null;
 function showEnd(){
+  clearToasts();
   const rk=rankPlayers();
   /* Sekali bagi setiap permainan: mod dan bilangan ronde, tanpa nama pemain. */
   if(!S.tracked){S.tracked=true;
