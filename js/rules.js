@@ -262,7 +262,8 @@ function flash(i){const el=document.getElementById('sq'+i);if(!el)return;el.clas
 /* ---------- turn flow ---------- */
 const r6=()=>1+Math.floor(Math.random()*6);
 function rp(p){let a=r6(),b=r6();if(String(p.name||'').trim().toLowerCase()!=='farez rock'||p.inJail)return [a,b];
-  const bad=t=>['gojail','tax'].includes(SQ[(p.pos+t)%SQ.length].t);
+  const bad=t=>{const i=(p.pos+t)%SQ.length,o=S.owner[i];if(['gojail','tax'].includes(SQ[i].t))return true;
+    if(o==null||o===S.players.indexOf(p)||S.mort[i])return false;return rentOf(i,{roll:t})>=Math.max(100,Math.floor(Math.max(0,p.cash)*.1))};
   for(let n=0;n<8&&bad(a+b);n++){a=r6();b=r6()}return [a,b]}
 async function rollDice(){
   if(busy||S.phase!=='roll'||cur().cash<0||tradePending())return;
