@@ -176,7 +176,7 @@ async function sitDown(){
   if(r.meta.started){omsg('Permainan sudah bermula.');return}
   if(Object.keys(seats).length>=5){omsg('Bilik masih penuh.');return}
   const name=myName();if(!name){omsg('Masukkan nama anda dahulu.');$('myName').focus();return}
-  try{await NET.ref.child('seats/'+UID).set(seatVal(name,seats));
+  try{await NET.ref.child('seats/'+UID).set(seatVal(name,seats));seatTokLater(NET.ref,seats);
     NET.watch=false;NET.ref.child('online/'+UID).set(onlineVal());omsg('');renderLobby()}
   catch(e){omsg('Tidak dapat mengambil kerusi: '+e.message)}}
 
@@ -252,6 +252,11 @@ function seatVal(name,seats){const v={name,t:Date.now()},t=prefTok();
      Firebase belum dikemas kini, seluruh tulisan kerusi akan ditolak. Ia boleh
      dipilih di lobi selepas masuk. */
   if(t&&/^(tren|c[0-4])$/.test(t)&&(t==='tren'||!Object.values(seats||{}).some(s=>s&&s.tok===t)))v.tok=t;return v}
+/* Watak baharu (cth. Proton Saga) ditulis berasingan selepas kerusi diambil, atas
+   sebab yang sama: jika peraturan lama menolaknya, pemain tetap dapat kerusi. */
+function seatTokLater(ref,seats){const t=prefTok();
+  if(!t||!TOKS.includes(t)||/^(tren|c[0-4])$/.test(t)||Object.values(seats||{}).some(s=>s&&s.tok===t))return;
+  ref.child('seats/'+UID+'/tok').set(t).catch(()=>{})}
 function pickTokOnline(t){
   if(!NET||!NET.room||NET.watch||NET.room.meta.started)return;
   const seats=NET.room.seats||{};if(!seats[UID]||!isTok(t))return;
@@ -330,6 +335,7 @@ async function createRoom(){
     /* Edisi ditulis berasingan: jika peraturan Firebase lama (tanpa meta/ed)
        masih digunakan, bilik tetap tercipta dan edisi hos dipakai semasa mula. */
     fdb.ref('rooms/'+code+'/meta/ed').set(prefEd()).catch(()=>{});
+    seatTokLater(fdb.ref('rooms/'+code),{});
     rememberRoom(code);
     enterRoom(code);omsg('');track('online-cipta','Cipta bilik online');
     sweepMyRooms(code)}
@@ -346,7 +352,7 @@ async function joinRoom(code,silent){
       if(r.meta.started||Object.keys(seats).length>=5){enterRoom(code,true);omsg('');if(!silent)track('online-tonton','Tonton bilik online');return true}
       if(silent)return false;
       const name=myName();if(!name){omsg('Masukkan nama anda dahulu.');$('myName').focus();return false}
-      await fdb.ref(`rooms/${code}/seats/${UID}`).set(seatVal(name,seats))}
+      await fdb.ref(`rooms/${code}/seats/${UID}`).set(seatVal(name,seats));seatTokLater(fdb.ref('rooms/'+code),seats)}
     enterRoom(code);omsg('');if(!silent)track('online-sertai','Sertai bilik online');return true}
   catch(e){if(!silent)omsg('Tidak dapat menyertai bilik: '+e.message);return false}
 }

@@ -29,7 +29,7 @@
             "name": { ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 16" },
             "t": { ".validate": "newData.isNumber()" },
             "bot": { ".validate": "newData.val() === 'mudah' || newData.val() === 'sederhana'" },
-            "tok": { ".validate": "newData.isString() && (newData.val() === 'tren' || newData.val().matches(/^(c[0-4]|b[01])$/))" },
+            "tok": { ".validate": "newData.isString() && (newData.val() === 'tren' || newData.val().matches(/^(c[0-4]|b[01]|saga85)$/))" },
             "$other": { ".validate": false }
           }
         },
