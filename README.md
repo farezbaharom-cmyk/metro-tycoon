@@ -127,6 +127,7 @@ Semua fail `js/` berkongsi skop global dan dimuatkan **mengikut susunan** dalam 
           "tl": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 300" },
           "auc": { ".validate": "newData.isBoolean()" },
           "fast": { ".validate": "newData.isBoolean()" },
+          "ed": { ".validate": "newData.val() === 'kl' || newData.val() === 'borneo'" },
           "$other": { ".validate": false }
         },
         "seats": {
@@ -136,7 +137,7 @@ Semua fail `js/` berkongsi skop global dan dimuatkan **mengikut susunan** dalam 
             "name": { ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 16" },
             "t": { ".validate": "newData.isNumber()" },
             "bot": { ".validate": "newData.val() === 'mudah' || newData.val() === 'sederhana'" },
-            "tok": { ".validate": "newData.isString() && (newData.val() === 'tren' || newData.val().matches(/^c[0-4]$/))" },
+            "tok": { ".validate": "newData.isString() && (newData.val() === 'tren' || newData.val().matches(/^(c[0-4]|b[01]|saga85)$/))" },
             "$other": { ".validate": false }
           }
         },
