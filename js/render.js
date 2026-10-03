@@ -270,11 +270,13 @@ function turnGuidance(){
   if(NET&&!isActor())return 'Menunggu '+p.name+'. Anda boleh sentuh stesen untuk semak butirannya.';
   if(p.cash<0)return 'Jual bangunan atau gadai hartanah untuk pulihkan baki anda.';
   if(S.phase==='moving'||busy)return 'Token sedang bergerak. Tunggu sehingga tiba.';
-  if(S.phase==='buy')return SQ[p.pos].n+' · '+(p.cash<SQ[p.pos].p?'Baki tidak mencukupi. Tekan Lepaskan.':'Pilih Beli '+fmt(SQ[p.pos].p)+' atau Lepaskan.');
+  if(S.phase==='buy')return SQ[p.pos].n+' · '+(p.cash<SQ[p.pos].p?'Baki tidak mencukupi. Pilih '+passLabel()+'.':'Pilih Beli '+fmt(SQ[p.pos].p)+' atau '+passLabel()+'.');
   if(S.phase==='end')return 'Selesai? Tekan Tamat giliran untuk pemain seterusnya.';
   if(p.inJail)return 'Pilih cuba dadu ganda, bayar RM50 atau guna Kad Bebas.';
   return S.doubles?'Dadu ganda! Tekan Baling lagi.':'Tekan Baling dadu untuk bergerak.';
 }
+function passLabel(){return S.useAuc?'Lepaskan → Lelong':'Kekal dengan bank'}
+function passHint(){return S.useAuc?'Hartanah akan dilelong kepada semua pemain. Anda juga boleh membida.':'Hartanah kekal dengan bank dan boleh dibeli apabila pemain mendarat kemudian.'}
 function turnStageHTML(){
   if(S.phase==='over')return '';
   const active=S.phase==='roll'?0:S.phase==='moving'?1:2;
@@ -299,7 +301,7 @@ function turnTutorialHTML(){
     text='Ikuti token di papan. Destinasi dan tindakan seterusnya akan diterangkan apabila ia berhenti.';
   }else if(phase==='buy'){
     title=`Anda tiba di ${sq.n}`;
-    text=`Beli menjadikan stesen ini milik anda. Lepaskan membiarkan stesen tersedia untuk tindakan seterusnya.`;
+    text=`Beli menjadikan hartanah ini milik anda. ${passHint()}`;
   }else if(phase==='end'){
     title=`Selesai di ${sq.n}`;
     text='Semak hasil giliran, kemudian tekan Tamat giliran untuk memberi laluan kepada pemain seterusnya.';
@@ -361,7 +363,7 @@ function purchaseSummaryHTML(i,p){
   const balance=p.cash-s.p,afford=balance>=0;
   const route=s.t==='prop'?GROUPS[s.g]:null;
   const rent=s.t==='util'?'4× dadu':fmt(s.t==='prop'?s.r[0]:25);
-  return `<section class="purchase-card" aria-label="Ringkasan pembelian" style="--purchase-route:${route?route.c:s.t==='hub'?'#2B3A47':'#3C6E71'}"><div class="purchase-heading"><small>${esc(route?route.n:s.t==='hub'?'Hab pertukaran':'Utiliti')}</small><b>${esc(s.n)}</b></div><dl class="purchase-facts"><div><dt>Harga belian</dt><dd>${fmt(s.p)}</dd></div><div><dt>${s.t==='util'?'Formula sewa asas':'Sewa asas'}</dt><dd>${rent}</dd></div></dl><div class="purchase-balance ${afford?'':'insufficient'}"><span>${afford?'Baki selepas membeli':'Wang tambahan diperlukan'}</span><strong>${fmt(afford?balance:-balance)}</strong></div><p class="purchase-note">${afford?'Baki ini belum termasuk ganjaran misi.':'Wang belum cukup. Lepaskan untuk memulakan lelongan.'}</p></section>`;
+  return `<section class="purchase-card" aria-label="Ringkasan pembelian" style="--purchase-route:${route?route.c:s.t==='hub'?'#2B3A47':'#3C6E71'}"><div class="purchase-heading"><small>${esc(route?route.n:s.t==='hub'?'Hab pertukaran':'Utiliti')}</small><b>${esc(s.n)}</b></div><dl class="purchase-facts"><div><dt>Harga belian</dt><dd>${fmt(s.p)}</dd></div><div><dt>${s.t==='util'?'Formula sewa asas':'Sewa asas'}</dt><dd>${rent}</dd></div></dl><div class="purchase-balance ${afford?'':'insufficient'}"><span>${afford?'Baki selepas membeli':'Wang tambahan diperlukan'}</span><strong>${fmt(afford?balance:-balance)}</strong></div><p class="purchase-note">${afford?'Baki ini belum termasuk ganjaran misi.':'Wang belum cukup. '+passHint()}</p></section>`;
 }
 function renderSide(){
   updateTokenFinder();
@@ -375,7 +377,7 @@ function renderSide(){
     else{acts=`<button class="btn primary" type="button" data-a="roll">${S.doubles?'Baling lagi':'Baling dadu'}</button>`;
       if(S.doubles>=2)note=`<div class="note warn keep">Ganda 2/3 · ganda sekali lagi = masuk Lokap!</div>`;
       else if(S.doubles===1)note=`<div class="note keep">Ganda 1/3 · baling lagi</div>`}}
-  else if(S.phase==='buy'){const s=SQ[p.pos];acts=`<button class="btn primary" type="button" data-a="buy" ${p.cash<s.p?'disabled':''}>${p.cash<s.p?'Wang tak cukup':'Beli '+fmt(s.p)}</button><button class="btn" type="button" data-a="pass">Lepaskan</button>`}
+  else if(S.phase==='buy'){const s=SQ[p.pos];acts=`<button class="btn primary" type="button" data-a="buy" ${p.cash<s.p?'disabled':''}>${p.cash<s.p?'Wang tak cukup':'Beli '+fmt(s.p)}</button><button class="btn" type="button" data-a="pass" title="${esc(passHint())}">${passLabel()}</button>`}
   else if(S.phase==='end')acts=`<button class="btn primary" type="button" data-a="end">Tamat giliran</button>`;
   else if(S.phase==='auction')acts=`<button class="btn" type="button" disabled>Lelongan berjalan…</button>`;
   else acts=`<button class="btn primary" type="button" disabled>Bergerak…</button>`;

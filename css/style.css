@@ -1708,3 +1708,13 @@ body:has(#endBox:not([hidden])) :is(.mfloat,.stamp){display:none}
   .sq.corner .tokens:has(.tok:nth-child(3)) .tok{width:22px;height:20px}
   .sq.corner .tok.me{z-index:7}
 }
+
+/* Ruang untuk token dan lingkaran di Mula, jauh dari bingkai bawah. */
+#sq0:has(.tok) .cill{display:none}
+#sq0 .tokens{padding:4px 5px 8px}
+@media (max-width:700px),(max-width:1000px) and (max-height:520px) and (orientation:landscape){
+  #sq0 .tokens{padding:4px 0 7px}
+  #sq0 .tok+.tok{margin-left:-14px}
+  #sq0 .tokens:has(.tok:nth-child(3)) .tok{width:16px;height:18px}
+  #sq0 .tokens:has(.tok:nth-child(3)) .tok+.tok{margin-left:-12px}
+}
