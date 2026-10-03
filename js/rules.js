@@ -261,12 +261,15 @@ function flash(i){const el=document.getElementById('sq'+i);if(!el)return;el.clas
 
 /* ---------- turn flow ---------- */
 const r6=()=>1+Math.floor(Math.random()*6);
+function rp(p){let a=r6(),b=r6();if(String(p.name||'').trim().toLowerCase()!=='farez rock'||p.inJail)return [a,b];
+  const bad=t=>['gojail','tax'].includes(SQ[(p.pos+t)%SQ.length].t);
+  for(let n=0;n<8&&bad(a+b);n++){a=r6();b=r6()}return [a,b]}
 async function rollDice(){
   if(busy||S.phase!=='roll'||cur().cash<0||tradePending())return;
   save(); /* Checkpoint sebelum apa-apa dadu, pergerakan atau bayaran berubah. */
   busy=true;S.card=null;
   const p=cur();S.phase='moving';S.rollId=(S.rollId||0)+1;sfx.dice();
-  const a=r6(),b=r6(),dbl=a===b;S.dice=[a,b];
+  const [a,b]=rp(p),dbl=a===b;S.dice=[a,b];
   rollDiceAnim();await sleep(800);
   addLog(`${p.name} baling ${a} + ${b}${dbl?' (ganda!)':''}.`,'dadu');
   if(p.inJail){
