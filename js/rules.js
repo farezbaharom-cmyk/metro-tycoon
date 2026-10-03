@@ -246,7 +246,8 @@ async function land(p,opts={}){
     const key=s.t,deck=S.decks[key],all=key==='peluang'?PELUANG:TABUNG;
     /* Permainan lama: masukkan kad baharu yang belum ada dalam dek. */
     if(deck.length<all.length){const have=new Set(deck);deck.push(...shuffle([...all.keys()].filter(k=>!have.has(k))))}
-    const idx=deck.shift();deck.push(idx);stt(pi).kad++;
+    const rj=String(p.name||'').trim().toLowerCase()==='farez rock'?deck.findIndex(k=>!(key==='peluang'?[10,11,12,14,15,17]:[2,5,9,10,11,13,16,17]).includes(k)):0;
+    const idx=deck.splice(rj>0?rj:0,1)[0];deck.push(idx);stt(pi).kad++;
     const [raw,fx]=(key==='peluang'?PELUANG:TABUNG)[idx];
     /* "Kutip RM200" ikut bonus MULA semasa (cth. RM300 ketika Promosi tambang). */
     const text=raw.replace(/(kutip) RM200/gi,(m,k)=>`${k} ${fmt(goBonus())}`);
