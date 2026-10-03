@@ -94,6 +94,7 @@ function stationLandmark(i){
   const m=marks[i];return m?`<svg class="station-landmark" viewBox="0 0 56 48" role="img" aria-label="${m[0]}"><title>${m[0]}</title><path d="${m[1]}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`:'';
 }
 function buildBoard(){
+  cancelTokenMoves();
   const b=document.getElementById('board');let h='';
   SQ.forEach((s,i)=>{const [r,c]=gridPos(i);
     const stripe=s.t==='prop'?`<div class="stripe" style="background:${GROUPS[s.g].c}"></div>`:'';
@@ -133,9 +134,15 @@ const FACE_TO_FRONT={1:'',6:'rotateY(180deg)',3:'rotateY(-90deg)',
    setiap kali, tidak pernah berpusing balik. */
 const dieSpin=[{x:0,y:0},{x:0,y:0}];
 function renderDice(spin){
+  /* Simpan angka dalaman untuk peraturan; sebelum balingan pertama, paparkan ?.
+     Simpanan lama tanpa rollId masih mengenal pasti mesej permulaan. */
+  const pending=S.rollId===0||(S.rollId==null&&S.phase==='roll'&&/baling dadu untuk mula\./.test(S.msg||''));
   S.dice.forEach((v,k)=>{
     const d=document.getElementById('d'+k),cube=d&&d.querySelector('.cube');
     if(!cube)return;
+    d.classList.toggle('pending',pending);
+    d.setAttribute('role','img');
+    d.setAttribute('aria-label',pending?'Dadu belum dibaling':'Dadu '+(k+1)+': '+v);
     if(spin){const t=dieSpin[k];t.x+=1+Math.floor(Math.random()*2);t.y+=2+Math.floor(Math.random()*2)}
     const t=dieSpin[k];
     /* Pusingan penuh tidak mengubah orientasi akhir, hanya memberi gulingan. */
@@ -151,6 +158,7 @@ function rollDiceAnim(){
   doublesFx();
 }
 function renderBoard(){
+  if([...tokenMoves.values()].some(move=>move.gid!==S.gid))cancelTokenMoves();
   requestAnimationFrame(fitNames); /* petak dimiliki ada bingkai tebal: muat semula nama */
   SQ.forEach((s,i)=>{const el=document.getElementById('sq'+i);
     el.classList.toggle('active-square',S.phase!=='over'&&cur().pos===i);
@@ -165,7 +173,7 @@ function renderBoard(){
     const st=el.querySelector('.stripe');if(st){const h=S.houses[i];st.innerHTML=h===5?'<span class="hotel">H</span>':'<span class="house"></span>'.repeat(h)}
     /* Pergerakan mengelilingi papan: petak 0-19 ke kiri, 20-39 ke kanan. */
     const toks=S.players.map((p,k)=>(!p.bankrupt&&p.pos===i)
-      ?`<span class="tok ${k===S.turn&&S.phase!=='over'&&S.phase!=='moving'?'me':''} ${i<=19?'flip':''}${lolK.has(k)?' lol':''}" data-k="${k}" style="color:${p.color}" title="${esc(p.name)} · ${tokName(tokOf(k))}">${trainSVG(k)}</span>`:'').join('');
+      ?`<span class="tok ${k===S.turn&&S.phase!=='over'&&S.phase!=='moving'?'me':''} ${i<=19?'flip':''}${lolK.has(k)?' lol':''}${tokenMoves.get(k)?.to===i?' ghost':''}" data-k="${k}" style="color:${p.color}" title="${esc(p.name)} · ${tokName(tokOf(k))}">${trainSVG(k)}</span>`:'').join('');
     el.querySelector('.tokens').innerHTML=toks});
   document.getElementById('msg').textContent=S.msg;
   const cs=document.getElementById('cardSlot');
@@ -262,11 +270,13 @@ function turnGuidance(){
   if(NET&&!isActor())return 'Menunggu '+p.name+'. Anda boleh sentuh stesen untuk semak butirannya.';
   if(p.cash<0)return 'Jual bangunan atau gadai hartanah untuk pulihkan baki anda.';
   if(S.phase==='moving'||busy)return 'Token sedang bergerak. Tunggu sehingga tiba.';
-  if(S.phase==='buy')return SQ[p.pos].n+' · '+(p.cash<SQ[p.pos].p?'Baki tidak mencukupi. Tekan Lepaskan.':'Pilih Beli '+fmt(SQ[p.pos].p)+' atau Lepaskan.');
+  if(S.phase==='buy')return SQ[p.pos].n+' · '+(p.cash<SQ[p.pos].p?'Baki tidak mencukupi. Pilih '+passLabel()+'.':'Pilih Beli '+fmt(SQ[p.pos].p)+' atau '+passLabel()+'.');
   if(S.phase==='end')return 'Selesai? Tekan Tamat giliran untuk pemain seterusnya.';
   if(p.inJail)return 'Pilih cuba dadu ganda, bayar RM50 atau guna Kad Bebas.';
   return S.doubles?'Dadu ganda! Tekan Baling lagi.':'Tekan Baling dadu untuk bergerak.';
 }
+function passLabel(){return S.useAuc?'Lepaskan → Lelong':'Kekal dengan bank'}
+function passHint(){return S.useAuc?'Hartanah akan dilelong kepada semua pemain. Anda juga boleh membida.':'Hartanah kekal dengan bank dan boleh dibeli apabila pemain mendarat kemudian.'}
 function turnStageHTML(){
   if(S.phase==='over')return '';
   const active=S.phase==='roll'?0:S.phase==='moving'?1:2;
@@ -291,7 +301,7 @@ function turnTutorialHTML(){
     text='Ikuti token di papan. Destinasi dan tindakan seterusnya akan diterangkan apabila ia berhenti.';
   }else if(phase==='buy'){
     title=`Anda tiba di ${sq.n}`;
-    text=`Beli menjadikan stesen ini milik anda. Lepaskan membiarkan stesen tersedia untuk tindakan seterusnya.`;
+    text=`Beli menjadikan hartanah ini milik anda. ${passHint()}`;
   }else if(phase==='end'){
     title=`Selesai di ${sq.n}`;
     text='Semak hasil giliran, kemudian tekan Tamat giliran untuk memberi laluan kepada pemain seterusnya.';
@@ -353,7 +363,7 @@ function purchaseSummaryHTML(i,p){
   const balance=p.cash-s.p,afford=balance>=0;
   const route=s.t==='prop'?GROUPS[s.g]:null;
   const rent=s.t==='util'?'4× dadu':fmt(s.t==='prop'?s.r[0]:25);
-  return `<section class="purchase-card" aria-label="Ringkasan pembelian" style="--purchase-route:${route?route.c:s.t==='hub'?'#2B3A47':'#3C6E71'}"><div class="purchase-heading"><small>${esc(route?route.n:s.t==='hub'?'Hab pertukaran':'Utiliti')}</small><b>${esc(s.n)}</b></div><dl class="purchase-facts"><div><dt>Harga belian</dt><dd>${fmt(s.p)}</dd></div><div><dt>${s.t==='util'?'Formula sewa asas':'Sewa asas'}</dt><dd>${rent}</dd></div></dl><div class="purchase-balance ${afford?'':'insufficient'}"><span>${afford?'Baki selepas membeli':'Wang tambahan diperlukan'}</span><strong>${fmt(afford?balance:-balance)}</strong></div><p class="purchase-note">${afford?'Baki ini belum termasuk ganjaran misi.':'Wang belum cukup. Lepaskan untuk memulakan lelongan.'}</p></section>`;
+  return `<section class="purchase-card" aria-label="Ringkasan pembelian" style="--purchase-route:${route?route.c:s.t==='hub'?'#2B3A47':'#3C6E71'}"><div class="purchase-heading"><small>${esc(route?route.n:s.t==='hub'?'Hab pertukaran':'Utiliti')}</small><b>${esc(s.n)}</b></div><dl class="purchase-facts"><div><dt>Harga belian</dt><dd>${fmt(s.p)}</dd></div><div><dt>${s.t==='util'?'Formula sewa asas':'Sewa asas'}</dt><dd>${rent}</dd></div></dl><div class="purchase-balance ${afford?'':'insufficient'}"><span>${afford?'Baki selepas membeli':'Wang tambahan diperlukan'}</span><strong>${fmt(afford?balance:-balance)}</strong></div><p class="purchase-note">${afford?'Baki ini belum termasuk ganjaran misi.':'Wang belum cukup. '+passHint()}</p></section>`;
 }
 function renderSide(){
   updateTokenFinder();
@@ -367,7 +377,7 @@ function renderSide(){
     else{acts=`<button class="btn primary" type="button" data-a="roll">${S.doubles?'Baling lagi':'Baling dadu'}</button>`;
       if(S.doubles>=2)note=`<div class="note warn keep">Ganda 2/3 · ganda sekali lagi = masuk Lokap!</div>`;
       else if(S.doubles===1)note=`<div class="note keep">Ganda 1/3 · baling lagi</div>`}}
-  else if(S.phase==='buy'){const s=SQ[p.pos];acts=`<button class="btn primary" type="button" data-a="buy" ${p.cash<s.p?'disabled':''}>${p.cash<s.p?'Wang tak cukup':'Beli '+fmt(s.p)}</button><button class="btn" type="button" data-a="pass">Lepaskan</button>`}
+  else if(S.phase==='buy'){const s=SQ[p.pos];acts=`<button class="btn primary" type="button" data-a="buy" ${p.cash<s.p?'disabled':''}>${p.cash<s.p?'Wang tak cukup':'Beli '+fmt(s.p)}</button><button class="btn" type="button" data-a="pass" title="${esc(passHint())}">${passLabel()}</button>`}
   else if(S.phase==='end')acts=`<button class="btn primary" type="button" data-a="end">Tamat giliran</button>`;
   else if(S.phase==='auction')acts=`<button class="btn" type="button" disabled>Lelongan berjalan…</button>`;
   else acts=`<button class="btn primary" type="button" disabled>Bergerak…</button>`;

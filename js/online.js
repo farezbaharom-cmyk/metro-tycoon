@@ -132,7 +132,10 @@ function applyRemote(str,force){
   /* Betul-betul sama: jangan render semula setiap kali kehadiran berubah. */
   if(S&&st.gid===S.gid&&(st.rev||0)===(S.rev||0)&&st.by===S.by)return;
   if(busy){pendingRemote={str,force:!!force};return}
-  const prev=S;S=st;
+  const prev=S;
+  const origins=prev&&prev.gid===st.gid?st.players.map((p,k)=>
+    prev.players[k]&&p.pos!==prev.players[k].pos?tokenAnchor(k,prev.players[k].pos):null):[];
+  S=st;
   const same=prev&&prev.gid===S.gid;
   /* Peranti jauh tidak menjalankan animasi langkah demi langkah, jadi hanya
      ketibaan diumumkan — pemain di sana tetap dengar tren masuk stesen.
@@ -144,6 +147,7 @@ function applyRemote(str,force){
   }
   applying=true;
   try{renderAll()}finally{applying=false}
+  if(same)origins.forEach((origin,k)=>{if(origin)hop(k,prev.players[k].pos,S.players[k].pos,S.phase!=='moving',origin)});
   if(same&&S.rollId!==prev.rollId){rollDiceAnim();sfx.dice()}
   else if(same&&S.log[0]!==prev.log[0])sfx.step();
   if(same&&S.toast&&(!prev.toast||prev.toast.id!==S.toast.id))toast(S.toast.t);

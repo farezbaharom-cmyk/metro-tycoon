@@ -129,15 +129,43 @@ let TRAINS=[
  /* Lokomotif: bercerobong, tiga roda */
  "<path class=\"body\" d=\"M18.4 0h4.4a1 1 0 0 1 1 1v5.4h-6.4V1a1 1 0 0 1 1-1z\"/><path class=\"body\" d=\"M2 6.2h22a1 1 0 0 1 1 1v6.6a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V7.2a1 1 0 0 1 1-1z\"/><circle class=\"body\" cx=\"6\" cy=\"16.6\" r=\"2.4\"/><circle class=\"body\" cx=\"13\" cy=\"16.8\" r=\"1.7\"/><circle class=\"body\" cx=\"19.5\" cy=\"16.8\" r=\"1.7\"/><rect class=\"win\" x=\"4.4\" y=\"8.4\" width=\"5\" height=\"3.6\" rx=\"1.1\"/>"];
 /* ---------- watak pemain ----------
-   Enam pilihan: Tren (siluet ikut kerusi) atau salah satu daripada lima kucing.
+   Tren, lima kucing dan Proton Saga generasi pertama.
    Setiap kucing hanya boleh dipilih oleh seorang pemain; tren boleh dikongsi
    kerana siluetnya berbeza ikut kerusi. Warna sentiasa ikut kerusi pemain.
    Tiada pilihan = kucing ikut kerusi (tingkah laku asal). */
-const TOKS=['tren','c0','c1','c2','c3','c4'];
+const TOKS=['tren','c0','c1','c2','c3','c4','saga85'];
 /* Watak tambahan ikut edisi (cth. Orang Utan, Kenyalang), diisi oleh borneo-toks.js:
    id → {n: nama, svg}. Sentiasa boleh dilukis, tetapi hanya ditawarkan dalam
    pemilih watak edisinya (EDITIONS[..].toks). Seperti kucing: seorang satu. */
-const TOK_EXTRA={};
+const TOK_EXTRA={saga85:{n:'Proton Saga 1985',svg:`<svg xmlns="http://www.w3.org/2000/svg" class="mt-cat mt-saga" viewBox="0 0 100 100" aria-hidden="true">
+  <ellipse cx="50" cy="86" rx="40" ry="7" fill="#162236" opacity=".16"/>
+  <ellipse cx="50" cy="83" rx="37" ry="8" fill="currentColor"/>
+  <ellipse class="cat-ring" cx="50" cy="83" rx="42" ry="12" fill="none" stroke="currentColor" opacity="0"/>
+  <g class="cat-figure" stroke="#25313d" stroke-width="2" stroke-linejoin="round">
+    <!-- Sedan asal: bonet dan but berasingan, bumbung bersudut, bampar hitam. -->
+    <path d="M7 57l15-4 12-22h27l17 21 16 5v19H7z" fill="#e5e9eb"/>
+    <path d="M22 53l12-22h27l17 21-11 4H29z" fill="currentColor"/>
+    <path d="M27 51l9-16h12v17zm25-16h8l12 16-20 1z" fill="#a6d2e2"/>
+    <path d="M30 48l7-11m18 0 10 11" stroke="#fff" stroke-width="2" opacity=".65"/>
+    <path d="M7 57h60l11-5 16 5-18 8H7z" fill="#fafcfd"/>
+    <path d="M7 64h69v12H7z" fill="currentColor"/>
+    <path d="M76 65l18-8v19l-18 5z" fill="#c5cdd3"/>
+    <path d="M10 69h62m-21-13v18m-25-18v18" stroke="#36434e" stroke-width="1.5"/>
+    <path d="M31 59h7m18 0h7" stroke="#25313d" stroke-width="2.5"/>
+    <path d="M8 71h8v6H8zm64 2h5v7h-5" fill="#242b34"/>
+    <path d="M77 73l17-5v7l-17 5z" fill="#242b34"/>
+    <path d="M79 64l5-2v5l-5 2zm10-4 4-2v5l-4 2z" fill="#fff3c2" stroke-width="1"/>
+    <path d="M85 63l3-1v5l-3 1z" fill="#242b34" stroke-width="1"/>
+    <path d="M78 69l3-1v3l-3 1z" fill="#f4b24b" stroke="none"/>
+    <path d="M9 59h5v5H9" fill="#c73f42" stroke-width="1"/>
+    <path d="M81 73l7-2v3l-7 2z" fill="#f6f8fa" stroke="none"/>
+    <path d="M64 49l5-1 3 5-6 1z" fill="#242b34"/>
+    <circle cx="23" cy="75" r="9" fill="#242b34"/><circle cx="64" cy="75" r="9" fill="#242b34"/>
+    <circle cx="23" cy="75" r="4.5" fill="#c6ced5"/><circle cx="64" cy="75" r="4.5" fill="#c6ced5"/>
+    <circle cx="23" cy="75" r="1.4" fill="#45515d" stroke="none"/><circle cx="64" cy="75" r="1.4" fill="#45515d" stroke="none"/>
+  </g>
+  <g class="cat-spark" opacity="0" fill="currentColor"><path d="M13 24l2 5 5 2-5 2-2 5-2-5-5-2 5-2zM85 14l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/></g>
+</svg>`}};
 const isTok=t=>TOKS.includes(t)||!!TOK_EXTRA[t];
 const pickToks=()=>TOKS.concat(typeof tokEd==='function'&&EDITIONS[tokEd()].toks||[]);
 const defTok=k=>'c'+(k%5);
@@ -322,7 +350,7 @@ function newGame(names,qual,endLaps,cash,bots,useAuc,fast,ed){
   if(fast){qual=0;endLaps=0}
   S={players:names.map((n,i)=>({name:n,color:COLORS[i],cash,pos:0,laps:0,inJail:false,jailTurns:0,cards:0,bankrupt:false,creditor:null,bot:(bots&&bots[i])||null})),
    owner:Array(40).fill(null),houses:Array(40).fill(0),mort:Array(40).fill(false),
-   turn:0,phase:'roll',doubles:0,again:false,dice:[3,4],qual,endLaps,msg:`${names[0]}, baling dadu untuk mula.`,
+   turn:0,phase:'roll',doubles:0,again:false,rollId:0,dice:[3,4],qual,endLaps,msg:`${names[0]}, baling dadu untuk mula.`,
    useAuc:useAuc!==false,auc:null,trade:null,
    card:null,log:[],decks:{peluang:shuffle([...PELUANG.keys()]),tabung:shuffle([...TABUNG.keys()])},
    fast:!!fast,fastRounds:fastRounds(names.length),round:1,st:names.map(()=>newStat(cash)),gid:Date.now().toString(36),
