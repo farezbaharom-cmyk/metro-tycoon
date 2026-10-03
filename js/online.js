@@ -251,7 +251,7 @@ function seatVal(name,seats){const v={name,t:Date.now()},t=prefTok();
   /* Watak edisi (b0, b1) tidak dihantar semasa cipta/sertai bilik: jika peraturan
      Firebase belum dikemas kini, seluruh tulisan kerusi akan ditolak. Ia boleh
      dipilih di lobi selepas masuk. */
-  if(t&&!/^b/.test(t)&&(t==='tren'||!Object.values(seats||{}).some(s=>s&&s.tok===t)))v.tok=t;return v}
+  if(t&&/^(tren|c[0-4])$/.test(t)&&(t==='tren'||!Object.values(seats||{}).some(s=>s&&s.tok===t)))v.tok=t;return v}
 function pickTokOnline(t){
   if(!NET||!NET.room||NET.watch||NET.room.meta.started)return;
   const seats=NET.room.seats||{};if(!seats[UID]||!isTok(t))return;
@@ -356,7 +356,7 @@ function enterRoom(code,watch){
     watch:!!watch,wname:(myName()||'Penonton').slice(0,16)};
   try{localStorage.setItem('mtkl-room',code)}catch(e){}
   const on=NET.ref.child('online/'+UID);on.set(onlineVal());on.onDisconnect().remove();
-  NET.ref.on('value',onRoom);
+  NET.ref.on('value',onRoom,err=>omsg('Sambungan bilik gagal: '+err.message));
   try{const u=new URL(location.href);u.searchParams.set('bilik',code);history.replaceState(null,'',u)}catch(e){}
   $('roomChip').hidden=false;$('roomChip').textContent='Bilik '+code;
   renderLobby();
@@ -413,7 +413,7 @@ function renderLobby(){
   $('watchers').textContent=w.length?`👀 Penonton (${w.length}): ${w.join(', ')}`:'';
   $('roomChip').textContent='Bilik '+NET.code+(NET.watch?' · Menonton':'')+(w.length?` · 👀${w.length}`:'');
   $('btnSit').hidden=!NET.watch||started||seats.length>=5;
-  $('btnStartOnline').hidden=!NET.host||started;$('btnStartOnline').disabled=seats.length<2;
+  $('btnStartOnline').hidden=!NET.host||started;$('btnStartOnline').disabled=seats.length<2||!!NET.starting;
   $('btnBackGame').hidden=!started;
   const humans=seats.filter(s=>!s[1].bot).length;
   $('lobbyNote').textContent=NET.watch?(started?'Anda sedang menonton permainan ini.'
@@ -435,17 +435,26 @@ function addBot(lv){
   NET.ref.child('seats/'+id).set({name,t:Date.now(),bot:lv})
     .catch(err=>omsg('Tidak dapat menambah bot: '+err.message))}
 async function startOnline(){
-  if(!NET||!NET.host)return;const r=NET.room;const seats=Object.entries(r.seats||{}).sort((a,b)=>a[1].t-b[1].t).slice(0,5);
+  if(!NET||!NET.host||!NET.room||NET.starting)return;const room=NET,r=room.room;const previous=S;const seats=Object.entries(r.seats||{}).sort((a,b)=>a[1].t-b[1].t).slice(0,5);
   if(seats.length<2)return;
+  room.starting=true;$('btnStartOnline').disabled=true;omsg('Memulakan permainan…');
+  try{
   newGame(seats.map(s=>s[1].name),r.meta.qual,r.meta.endLaps,r.meta.cash,
           seats.map(s=>s[1].bot||null),r.meta.auc!==false,!!r.meta.fast,r.meta.ed);
   S.players.forEach((p,i)=>p.uid=seats[i][0]);S.gid=Date.now().toString(36);S.started=true;S.rev=0;
   track('online-mula',`Mula online · ${seats.length} pemain`);
   S.tl=r.meta.tl==null?60:+r.meta.tl;afkSeat=-1;
   {const tk=fixToks(seats.map(s=>s[1].tok));S.players.forEach((p,i)=>p.tok=tk[i])}
-  await NET.ref.child('meta/started').set(true);
-  NET.shown=true;$('setup').hidden=true;
-  actedTurn=true;renderAll();actedTurn=null;
+  S.by=UID;
+  const initial=JSON.stringify(S);
+  await room.ref.update({'state':initial,'meta/started':true});
+  if(NET!==room)return;
+  room.room=Object.assign({},r,{meta:Object.assign({},r.meta,{started:true}),state:initial});
+  room.shown=true;$('setup').hidden=true;omsg('');
+  actedTurn=true;try{renderAll()}finally{actedTurn=null}
+  }catch(e){
+    if(NET===room){S=previous;renderLobby();omsg('Tidak dapat memulakan permainan: '+e.message+'. Cuba sekali lagi.')}
+  }finally{room.starting=false;if(NET===room)renderLobby()}
 }
 function restartOnline(){
   if(!NET||!NET.host)return;if(!confirm('Mulakan permainan baharu dengan pemain yang sama?'))return;
