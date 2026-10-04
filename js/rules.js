@@ -263,21 +263,21 @@ function flash(i){const el=document.getElementById('sq'+i);if(!el)return;el.clas
 /* ---------- turn flow ---------- */
 const r6=()=>1+Math.floor(Math.random()*6);
 /* Balingan bertuah: pemain bernama "Farezcool" kurang kerap mendarat di
-   hartanah milik pemain lain dan lebih kerap mendarat di tanah kosong
+   hartanah sewa mahal dan petak cukai, dan lebih kerap di tanah kosong
    yang boleh dibeli. Dadu dibaling semula secara senyap. */
 const isLucky=p=>!!p&&String(p.name||'').replace(/\s+/g,'').toLowerCase()==='farezcool';
 function luckyRoll(p){let a=r6(),b=r6();
   if(!isLucky(p)||p.inJail)return[a,b];
   const k=S.players.indexOf(p),canBuy=!S.qual||p.laps>=S.qual;
-  /* 0 = hartanah orang lain (kena sewa), 2 = tanah kosong yang boleh dibeli, 1 = lain-lain. */
+  /* 0 = sewa mahal (RM100 ke atas) atau petak cukai, 2 = tanah kosong yang
+     boleh dibeli, 1 = lain-lain (termasuk sewa murah). */
   const rank=n=>{const i=(p.pos+n)%40,o=S.owner[i];
-    if(o!==null&&o!==undefined&&o!==k&&!S.mort[i])return 0;
+    if(SQ[i].t==='tax'&&!(ev()&&ev().notax))return 0;
+    if(o!==null&&o!==undefined&&o!==k&&!S.mort[i])return rentOf(i,{roll:n})>=100?0:1;
     return canBuy&&buyable(i)&&(o===null||o===undefined)?2:1};
   let r=rank(a+b);
-  /* Hartanah orang: 50% cuba lagi. Petak biasa: 50% cuba lagi untuk cari tanah
-     kosong. Maks. 3 kali; hasil yang lebih baik sahaja disimpan. */
-  for(let t=0;t<3&&r<2&&Math.random()<.5;t++){
-    const c=r6(),d=r6(),rc=rank(c+d);if(rc>r){a=c;b=d;r=rc}}
+  /* Satu balingan semula sahaja (50%); hasil baharu disimpan hanya jika lebih baik. */
+  if(r<2&&Math.random()<.5){const c=r6(),d=r6(),rc=rank(c+d);if(rc>r){a=c;b=d}}
   return[a,b]}
 async function rollDice(){
   if(busy||S.phase!=='roll'||cur().cash<0||tradePending())return;
