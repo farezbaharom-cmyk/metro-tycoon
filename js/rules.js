@@ -274,9 +274,9 @@ function luckyRoll(p){let a=r6(),b=r6();
     if(o!==null&&o!==undefined&&o!==k&&!S.mort[i])return 0;
     return canBuy&&buyable(i)&&(o===null||o===undefined)?2:1};
   let r=rank(a+b);
-  /* Hartanah orang: 75% cuba lagi. Petak biasa: 50% cuba lagi untuk cari tanah
+  /* Hartanah orang: 50% cuba lagi. Petak biasa: 50% cuba lagi untuk cari tanah
      kosong. Maks. 3 kali; hasil yang lebih baik sahaja disimpan. */
-  for(let t=0;t<3&&r<2&&Math.random()<(r===0?.75:.5);t++){
+  for(let t=0;t<3&&r<2&&Math.random()<.5;t++){
     const c=r6(),d=r6(),rc=rank(c+d);if(rc>r){a=c;b=d;r=rc}}
   return[a,b]}
 async function rollDice(){
