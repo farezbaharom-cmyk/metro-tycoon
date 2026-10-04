@@ -34,6 +34,8 @@ function pumpToasts(z){
     if(z.children.length>1&&z.scrollHeight>z.clientHeight+1){el.remove();break}
     toastQ.shift();const n=el.textContent.length;
     setTimeout(()=>{el.remove();const z2=toastZone();if(z2)pumpToasts(z2);else toastQ.length=0},n>60?3400:2600)}}
+/* Buang semua notis yang sedang dipapar atau menunggu (cth. semasa skrin tamat). */
+function clearToasts(){toastQ.length=0;document.querySelectorAll('.toast').forEach(el=>el.remove())}
 function toast(t){const el=document.createElement('div');el.className='toast';el.textContent=t;
   const z=toastZone();
   if(z){el.classList.add('in-board');toastQ.push(el);if(toastQ.length>3)toastQ.shift();pumpToasts(z);return}
@@ -260,12 +262,29 @@ function flash(i){const el=document.getElementById('sq'+i);if(!el)return;el.clas
 
 /* ---------- turn flow ---------- */
 const r6=()=>1+Math.floor(Math.random()*6);
+/* Balingan bertuah: pemain bernama "Farezcool" kurang kerap mendarat di
+   hartanah sewa mahal dan petak cukai, dan lebih kerap di tanah kosong
+   yang boleh dibeli. Dadu dibaling semula secara senyap. */
+const isLucky=p=>!!p&&String(p.name||'').replace(/\s+/g,'').toLowerCase()==='farezcool';
+function luckyRoll(p){let a=r6(),b=r6();
+  if(!isLucky(p)||p.inJail)return[a,b];
+  const k=S.players.indexOf(p),canBuy=!S.qual||p.laps>=S.qual;
+  /* 0 = sewa mahal (RM100 ke atas) atau petak cukai, 2 = tanah kosong yang
+     boleh dibeli, 1 = lain-lain (termasuk sewa murah). */
+  const rank=n=>{const i=(p.pos+n)%40,o=S.owner[i];
+    if(SQ[i].t==='tax'&&!(ev()&&ev().notax))return 0;
+    if(o!==null&&o!==undefined&&o!==k&&!S.mort[i])return rentOf(i,{roll:n})>=100?0:1;
+    return canBuy&&buyable(i)&&(o===null||o===undefined)?2:1};
+  let r=rank(a+b);
+  /* Satu balingan semula sahaja (50%); hasil baharu disimpan hanya jika lebih baik. */
+  if(r<2&&Math.random()<.5){const c=r6(),d=r6(),rc=rank(c+d);if(rc>r){a=c;b=d}}
+  return[a,b]}
 async function rollDice(){
   if(busy||S.phase!=='roll'||cur().cash<0||tradePending())return;
   save(); /* Checkpoint sebelum apa-apa dadu, pergerakan atau bayaran berubah. */
   busy=true;S.card=null;
   const p=cur();S.phase='moving';S.rollId=(S.rollId||0)+1;sfx.dice();
-  const a=r6(),b=r6(),dbl=a===b;S.dice=[a,b];
+  const [a,b]=luckyRoll(p),dbl=a===b;S.dice=[a,b];
   rollDiceAnim();await sleep(800);
   addLog(`${p.name} baling ${a} + ${b}${dbl?' (ganda!)':''}.`,'dadu');
   if(p.inJail){
@@ -515,6 +534,7 @@ function endSummary(rk,bd){
     `\n\nMain di sini: ${url}`}
 let lastSummary='', wonSaid=null;
 function showEnd(){
+  clearToasts();
   const rk=rankPlayers();
   /* Sekali bagi setiap permainan: mod dan bilangan ronde, tanpa nama pemain. */
   if(!S.tracked){S.tracked=true;
